@@ -1,13 +1,3 @@
 databaseChangeLog:
-  - changeSet:
-      id: 1
-      author: sourcerer
-      changes:
-        - createTable:
-            tableName: example
-            columns:
-              - column:
-                  name: id
-                  type: serial
-                  constraints:
-                    primaryKey: true
+  - include:
+      file: db/changelog/db.changelog-001-create-issue-table.yaml
