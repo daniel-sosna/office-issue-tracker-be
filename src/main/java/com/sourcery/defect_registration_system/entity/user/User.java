@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -26,7 +27,7 @@ import java.util.UUID;
 public class User {
 
     @Id
-    @jakarta.persistence.GeneratedValue(strategy = jakarta.persistence.GenerationType.UUID)
+    @GeneratedValue(strategy = jakarta.persistence.GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false, length = 255)

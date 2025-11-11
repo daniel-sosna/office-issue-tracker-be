@@ -27,16 +27,19 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
 
     @Override
     public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
-        String registrationId = userRequest.getClientRegistration().getRegistrationId();
 
         OidcUser oidcUser = this.oidcUserService.loadUser(userRequest);
 
         final String name = oidcUser.getAttribute("name");
         final String email = oidcUser.getAttribute("email");
+        final String picture = oidcUser.getUserInfo() != null
+                ? oidcUser.getUserInfo().getClaim("picture")
+                : oidcUser.getAttribute("picture");
 
         User user = userRepository.findByEmail(email).orElseGet(() -> userRepository.save(User.builder()
                 .name(name)
                 .email(email)
+                .imageUrl(picture)
                 .role(Role.USER)
                 .build()));
 
