@@ -5,7 +5,6 @@ import com.sourcery.defect_registration_system.exception.NotFoundException;
 import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import com.sourcery.defect_registration_system.entity.user.User;
 import com.sourcery.defect_registration_system.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,6 @@ import java.util.Map;
 public class AuthService {
     private final UserRepository userRepository;
 
-    @Value("${app.auth.default-picture:/images/default.png}")
     private String defaultPicture;
 
     @Transactional(readOnly = true)
