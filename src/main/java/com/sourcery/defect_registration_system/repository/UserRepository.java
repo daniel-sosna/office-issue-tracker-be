@@ -1,6 +1,6 @@
 package com.sourcery.defect_registration_system.repository;
 
-import com.sourcery.defect_registration_system.identity.user.User;
+import com.sourcery.defect_registration_system.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

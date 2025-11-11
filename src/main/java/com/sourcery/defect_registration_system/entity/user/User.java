@@ -1,4 +1,4 @@
-package com.sourcery.defect_registration_system.identity.user;
+package com.sourcery.defect_registration_system.entity.user;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,6 +26,7 @@ import java.util.UUID;
 public class User {
 
     @Id
+    @jakarta.persistence.GeneratedValue(strategy = jakarta.persistence.GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false, length = 255)

@@ -1,5 +1,6 @@
 package com.sourcery.defect_registration_system.config.security;
 
+import com.sourcery.defect_registration_system.service.CustomOidcUserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +18,7 @@ import org.springframework.web.cors.CorsConfiguration;
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-    private final CustomOidUserService customOidUserService;
+    private final CustomOidcUserService customOidUserService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

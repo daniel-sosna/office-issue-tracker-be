@@ -1,9 +1,8 @@
-package com.sourcery.defect_registration_system.config.security;
+package com.sourcery.defect_registration_system.service;
 
-import com.sourcery.defect_registration_system.identity.user.Role;
-import com.sourcery.defect_registration_system.identity.user.User;
+import com.sourcery.defect_registration_system.entity.user.Role;
+import com.sourcery.defect_registration_system.entity.user.User;
 import com.sourcery.defect_registration_system.repository.UserRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
@@ -16,12 +15,12 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 
 @Component
-public class CustomOidUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
+public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
 
     private final OidcUserService oidcUserService;
     private final UserRepository userRepository;
 
-    public CustomOidUserService(UserRepository userRepository) {
+    public CustomOidcUserService(UserRepository userRepository) {
         this.oidcUserService = new OidcUserService();
         this.userRepository = userRepository;
     }
