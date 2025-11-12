@@ -1,4 +1,4 @@
-package com.sourcery.defect_registration_system.config.security;
+package com.sourcery.defect_registration_system.user.config.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

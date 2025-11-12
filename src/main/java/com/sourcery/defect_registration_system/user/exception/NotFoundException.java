@@ -1,4 +1,4 @@
-package com.sourcery.defect_registration_system.exception;
+package com.sourcery.defect_registration_system.user.exception;
 
 
 public class NotFoundException extends RuntimeException {

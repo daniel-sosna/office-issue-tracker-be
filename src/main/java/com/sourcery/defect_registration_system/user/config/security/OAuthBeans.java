@@ -1,4 +1,4 @@
-package com.sourcery.defect_registration_system.config.security;
+package com.sourcery.defect_registration_system.user.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

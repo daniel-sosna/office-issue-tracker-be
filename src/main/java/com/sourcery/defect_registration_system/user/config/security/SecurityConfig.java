@@ -1,6 +1,6 @@
-package com.sourcery.defect_registration_system.config.security;
+package com.sourcery.defect_registration_system.user.config.security;
 
-import com.sourcery.defect_registration_system.service.CustomOidcUserService;
+import com.sourcery.defect_registration_system.user.service.CustomOidcUserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
