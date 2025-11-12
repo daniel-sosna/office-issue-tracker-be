@@ -14,24 +14,27 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private ResponseEntity<Map<String, Object>> buildErrorResponse(HttpStatus status, String error, String message) {
+        return ResponseEntity.status(status).body(Map.of(
+                "timestamp", Instant.now(),
+                "status", status.value(),
+                "error", error,
+                "message", message
+        ));
+    }
+
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<Map<String, Object>> handle401(UnauthorizedException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                Map.of("timestamp", Instant.now(), "status", 401, "error", "Unauthorized", "message", ex.getMessage())
-        );
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, HttpStatus.UNAUTHORIZED.getReasonPhrase(), ex.getMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<Map<String, Object>> handle404(NotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                Map.of("timestamp", Instant.now(), "status", 404, "error", "Not Found", "message", ex.getMessage())
-        );
+        return buildErrorResponse(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(), ex.getMessage());
     }
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<Map<String, Object>> handle400(BadRequestException ex) {
-        return ResponseEntity.badRequest().body(
-                Map.of("timestamp", Instant.now(), "status", 400, "error", "Bad Request", "message", ex.getMessage())
-        );
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReasonPhrase(), ex.getMessage());
     }
 }
