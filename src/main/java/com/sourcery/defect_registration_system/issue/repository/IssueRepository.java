@@ -1,6 +1,6 @@
-package com.sourcery.defect_registration_system.repository;
+package com.sourcery.defect_registration_system.issue.repository;
 
-import com.sourcery.defect_registration_system.entity.Issue;
+import com.sourcery.defect_registration_system.issue.entity.Issue;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;

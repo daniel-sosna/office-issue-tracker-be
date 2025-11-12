@@ -1,4 +1,4 @@
-package com.sourcery.defect_registration_system.dto;
+package com.sourcery.defect_registration_system.issue.dto;
 
 import java.util.List;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,6 @@
-package com.sourcery.defect_registration_system.entity;
+package com.sourcery.defect_registration_system.issue.entity;
 
-import com.sourcery.defect_registration_system.enums.IssueStatus;
+import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;

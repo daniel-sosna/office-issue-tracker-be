@@ -1,4 +1,4 @@
-package com.sourcery.defect_registration_system.enums;
+package com.sourcery.defect_registration_system.issue.enums;
 
 public enum IssueStatus {
   OPEN,

@@ -1,9 +1,8 @@
-package com.sourcery.defect_registration_system.controller;
+package com.sourcery.defect_registration_system.issue.controller;
 
-import com.sourcery.defect_registration_system.dto.IssueResponseDto;
-import com.sourcery.defect_registration_system.dto.PageResponseDto;
-import com.sourcery.defect_registration_system.service.IssueService;
-import java.util.List;
+import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
+import com.sourcery.defect_registration_system.issue.service.IssueService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
