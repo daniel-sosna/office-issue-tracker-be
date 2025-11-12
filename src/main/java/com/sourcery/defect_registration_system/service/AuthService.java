@@ -1,5 +1,6 @@
 package com.sourcery.defect_registration_system.service;
 
+import com.sourcery.defect_registration_system.dto.UserDto;
 import com.sourcery.defect_registration_system.exception.BadRequestException;
 import com.sourcery.defect_registration_system.exception.NotFoundException;
 import com.sourcery.defect_registration_system.exception.UnauthorizedException;
@@ -39,12 +40,12 @@ public class AuthService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User not found by email: " + email));
+        return new UserDto(
+                user.getEmail(),
+                user.getName(),
+                user.getRole(),
+                picture
+        ).toMap();
 
-        return Map.of(
-                "email", user.getEmail(),
-                "name", user.getName(),
-                "role", user.getRole(),
-                "picture", picture
-        );
     }
 }
