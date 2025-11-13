@@ -48,16 +48,16 @@ public class IssueServiceTest {
     PageResponseDto<IssueResponseDto> result = issueService.getAllIssues(page, size);
 
     assertThat(result).isNotNull();
-    assertThat(result.getContent()).hasSize(2);
+    assertThat(result.content()).hasSize(2);
 
-    IssueResponseDto first = result.getContent().getFirst();
-    assertThat(first.getSummary()).isEqualTo("summary1");
-    assertThat(first.getStatus()).isEqualTo(IssueStatus.OPEN);
+    IssueResponseDto first = result.content().getFirst();
+    assertThat(first.summary()).isEqualTo("summary1");
+    assertThat(first.status()).isEqualTo(IssueStatus.OPEN);
 
-    assertThat(result.getTotalElements()).isEqualTo(2);
-    assertThat(result.getTotalPages()).isEqualTo(1);
-    assertThat(result.getPage()).isEqualTo(1);
-    assertThat(result.getSize()).isEqualTo(5);
+    assertThat(result.totalElements()).isEqualTo(2);
+    assertThat(result.totalPages()).isEqualTo(1);
+    assertThat(result.page()).isEqualTo(1);
+    assertThat(result.size()).isEqualTo(5);
   }
 
 
@@ -73,10 +73,10 @@ public class IssueServiceTest {
 
     PageResponseDto<IssueResponseDto> result = issueService.getAllIssues(page, size);
 
-    assertThat(result.getContent()).hasSize(1);
-    assertThat(result.getContent().getFirst().getSummary()).isEqualTo("summary3");
-    assertThat(result.getTotalPages()).isEqualTo(2);
-    assertThat(result.getPage()).isEqualTo(2);
+    assertThat(result.content()).hasSize(1);
+    assertThat(result.content().getFirst().summary()).isEqualTo("summary3");
+    assertThat(result.totalPages()).isEqualTo(2);
+    assertThat(result.page()).isEqualTo(2);
   }
 
   @Test
@@ -89,11 +89,11 @@ public class IssueServiceTest {
 
     PageResponseDto<IssueResponseDto> result = issueService.getAllIssues(page, size);
 
-    assertThat(result.getContent()).isEmpty();
-    assertThat(result.getTotalElements()).isEqualTo(0);
-    assertThat(result.getTotalPages()).isEqualTo(0);
-    assertThat(result.getPage()).isEqualTo(1);
-    assertThat(result.getSize()).isEqualTo(5);
+    assertThat(result.content()).isEmpty();
+    assertThat(result.totalElements()).isEqualTo(0);
+    assertThat(result.totalPages()).isEqualTo(0);
+    assertThat(result.page()).isEqualTo(1);
+    assertThat(result.size()).isEqualTo(5);
   }
 
   @Test
@@ -110,9 +110,9 @@ public class IssueServiceTest {
 
     PageResponseDto<IssueResponseDto> result = issueService.getAllIssues(page, size);
 
-    assertThat(result.getContent()).hasSize(2);
-    assertThat(result.getTotalElements()).isEqualTo(3);
-    assertThat(result.getTotalPages()).isEqualTo(2);
+    assertThat(result.content()).hasSize(2);
+    assertThat(result.totalElements()).isEqualTo(3);
+    assertThat(result.totalPages()).isEqualTo(2);
   }
 }
 
