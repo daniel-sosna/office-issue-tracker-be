@@ -10,19 +10,17 @@ import org.springframework.stereotype.Repository;
 @Mapper
 public interface IssueRepository {
 
-  @Select(
-      """
-    Select * from issue
-    ORDER BY date_created DESC
-    LIMIT #{limit} OFFSET #{offset}
-"""
-  )
+  @Select("""
+        SELECT *
+        FROM issue
+        ORDER BY date_created DESC
+        LIMIT #{limit} OFFSET #{offset}
+    """)
   List<Issue> getAllIssuesPaged(int limit, int offset);
 
-  @Select(
-      """
-    Select count(*) from issue
-"""
-  )
-long countAllIssues();
+  @Select("""
+        SELECT COUNT(*)
+        FROM issue
+    """)
+  long countAllIssues();
 }
