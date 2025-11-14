@@ -1,6 +1,6 @@
 package com.sourcery.defect_registration_system.user.dto;
 
-import com.sourcery.defect_registration_system.user.entity.Role;
+import com.sourcery.defect_registration_system.user.common.Role;
 
 import java.util.Map;
 

@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
@@ -26,11 +27,17 @@ public class SecurityConfig {
                     CorsConfiguration configuration = new CorsConfiguration();
                     configuration.addAllowedOrigin("http://localhost:5174");
                     configuration.setAllowCredentials(true);
+                    configuration.addAllowedHeader("*");
+                    configuration.addAllowedMethod("*");
                     return configuration;
                 }))
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(
+                                CookieCsrfTokenRepository.withHttpOnlyFalse())
+                )
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/", "/login", "/api/user").permitAll()
+                        .requestMatchers("/", "/login").permitAll()
+                        .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.oidcUserService(customOidUserService))

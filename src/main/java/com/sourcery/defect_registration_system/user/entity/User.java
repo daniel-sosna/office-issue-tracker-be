@@ -1,5 +1,6 @@
 package com.sourcery.defect_registration_system.user.entity;
 
+import com.sourcery.defect_registration_system.user.common.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
