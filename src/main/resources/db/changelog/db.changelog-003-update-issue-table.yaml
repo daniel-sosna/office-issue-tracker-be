@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003
+      author: auste
+      changes:
+        - dropColumn:
+            tableName: issue
+            columnName: office
+        - addColumn:
+            tableName: issue
+            columns:
+              - column:
+                  name: office
+                  type: UUID
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: issue
+            baseColumnNames: office
+            referencedTableName: office
+            referencedColumnNames: id
+            constraintName: fk_issue_office
