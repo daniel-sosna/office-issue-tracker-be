@@ -8,7 +8,7 @@ public record IssueResponseDto(
     UUID id,
     String summary,
     String description,
-    String office,
+    UUID office,
     IssueStatus status
 ) {
   public static IssueResponseDto from(Issue issue) {
