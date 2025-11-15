@@ -21,10 +21,4 @@ public class AuthController {
     public ResponseEntity<Map<String, Object>> getUserInfo(@AuthenticationPrincipal OAuth2User principal) {
         return ResponseEntity.ok(authService.getCurrentUserInfo(principal));
     }
-
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/api/info")
-    public ResponseEntity<Map<String, String>> getInfo() {
-        return ResponseEntity.ok(Map.of("1", "ADMIN info"));
-    }
 }
