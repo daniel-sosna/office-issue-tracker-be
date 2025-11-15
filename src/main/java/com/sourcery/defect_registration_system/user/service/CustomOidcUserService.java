@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -33,12 +34,18 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
                 ? oidcUser.getUserInfo().getClaim("picture")
                 : oidcUser.getAttribute("picture");
 
-        User user = userRepository.findByEmail(email).orElseGet(() -> userRepository.save(User.builder()
-                .name(name)
-                .email(email)
-                .imageUrl(picture)
-                .role(Role.USER)
-                .build()));
+        User user = userRepository.findByEmail(email).orElseGet(() -> {
+            User newUser = User.builder()
+                    .id(UUID.randomUUID())
+                    .name(name)
+                    .email(email)
+                    .imageUrl(picture)
+                    .role(Role.USER)
+                    .build();
+
+            userRepository.insert(newUser);
+            return newUser;
+        });
 
         var authorities = Set.of(new SimpleGrantedAuthority(user.getRole().name()));
 
