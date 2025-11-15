@@ -1,5 +1,6 @@
 package com.sourcery.defect_registration_system.office.entity;
 
+import com.sourcery.defect_registration_system.office.enums.Country;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +16,6 @@ import java.util.UUID;
 public class Office {
     private UUID id;
     private String title;
-    private String country;
+    private Country country;
     private OffsetDateTime dateCreated;
 }
