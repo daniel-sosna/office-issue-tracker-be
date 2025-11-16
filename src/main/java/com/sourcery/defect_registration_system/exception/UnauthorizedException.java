@@ -1,4 +1,4 @@
-package com.sourcery.defect_registration_system.user.exception;
+package com.sourcery.defect_registration_system.exception;
 
 public class UnauthorizedException extends RuntimeException {
     public UnauthorizedException(String message) {

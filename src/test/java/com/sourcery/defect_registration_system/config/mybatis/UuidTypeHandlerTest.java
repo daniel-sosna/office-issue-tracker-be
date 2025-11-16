@@ -1,6 +1,5 @@
 package com.sourcery.defect_registration_system.config.mybatis;
 
-import com.sourcery.defect_registration_system.user.config.mybatis.UuidTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

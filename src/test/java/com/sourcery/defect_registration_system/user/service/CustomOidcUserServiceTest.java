@@ -1,6 +1,6 @@
 package com.sourcery.defect_registration_system.user.service;
 
-import com.sourcery.defect_registration_system.user.common.Role;
+import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.entity.User;
 import com.sourcery.defect_registration_system.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -74,7 +74,7 @@ class CustomOidcUserServiceTest {
                 .name("Existing User")
                 .email(email)
                 .imageUrl("http://old/pic.png")
-                .role(com.sourcery.defect_registration_system.user.common.Role.ADMIN)
+                .role(com.sourcery.defect_registration_system.user.enums.Role.ADMIN)
                 .build();
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(existingUser));

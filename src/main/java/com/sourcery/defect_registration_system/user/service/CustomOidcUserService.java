@@ -1,6 +1,6 @@
 package com.sourcery.defect_registration_system.user.service;
 
-import com.sourcery.defect_registration_system.user.common.Role;
+import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.entity.User;
 import com.sourcery.defect_registration_system.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

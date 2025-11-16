@@ -1,8 +1,8 @@
-package com.sourcery.defect_registration_system.user.exceptionhandler;
+package com.sourcery.defect_registration_system.exceptionhandler;
 
-import com.sourcery.defect_registration_system.user.exception.BadRequestException;
-import com.sourcery.defect_registration_system.user.exception.NotFoundException;
-import com.sourcery.defect_registration_system.user.exception.UnauthorizedException;
+import com.sourcery.defect_registration_system.exception.BadRequestException;
+import com.sourcery.defect_registration_system.exception.NotFoundException;
+import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

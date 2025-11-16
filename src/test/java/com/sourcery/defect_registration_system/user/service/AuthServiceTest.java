@@ -1,10 +1,10 @@
 package com.sourcery.defect_registration_system.user.service;
 
-import com.sourcery.defect_registration_system.user.common.Role;
+import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.entity.User;
-import com.sourcery.defect_registration_system.user.exception.BadRequestException;
-import com.sourcery.defect_registration_system.user.exception.NotFoundException;
-import com.sourcery.defect_registration_system.user.exception.UnauthorizedException;
+import com.sourcery.defect_registration_system.exception.BadRequestException;
+import com.sourcery.defect_registration_system.exception.NotFoundException;
+import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import com.sourcery.defect_registration_system.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 

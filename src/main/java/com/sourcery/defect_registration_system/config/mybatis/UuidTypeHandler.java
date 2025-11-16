@@ -1,4 +1,4 @@
-package com.sourcery.defect_registration_system.user.config.mybatis;
+package com.sourcery.defect_registration_system.config.mybatis;
 
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;

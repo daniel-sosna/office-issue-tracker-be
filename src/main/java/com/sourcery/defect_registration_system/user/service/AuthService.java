@@ -1,9 +1,9 @@
 package com.sourcery.defect_registration_system.user.service;
 
 import com.sourcery.defect_registration_system.user.dto.UserDto;
-import com.sourcery.defect_registration_system.user.exception.BadRequestException;
-import com.sourcery.defect_registration_system.user.exception.NotFoundException;
-import com.sourcery.defect_registration_system.user.exception.UnauthorizedException;
+import com.sourcery.defect_registration_system.exception.BadRequestException;
+import com.sourcery.defect_registration_system.exception.NotFoundException;
+import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import com.sourcery.defect_registration_system.user.entity.User;
 import com.sourcery.defect_registration_system.user.repository.UserRepository;
 
