@@ -17,8 +17,6 @@ import lombok.ToString;
 
 import java.util.UUID;
 
-@Entity
-@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,20 +25,9 @@ import java.util.UUID;
 @ToString
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = jakarta.persistence.GenerationType.UUID)
     private UUID id;
-
-    @Column(nullable = false, length = 255)
     private String name;
-
-    @Column(nullable = false, unique = true, length = 255)
     private String email;
-
-    @Column(nullable = false, length = 50)
-    @Enumerated(EnumType.STRING)
     private Role role;
-
-    @Column(name = "image_url", length = 1024)
     private String imageUrl;
 }
