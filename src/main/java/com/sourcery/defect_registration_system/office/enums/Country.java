@@ -3,7 +3,6 @@ package com.sourcery.defect_registration_system.office.enums;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Country {
-    ALL,
     ARGENTINA,
     AUSTRALIA,
     BELGIUM,

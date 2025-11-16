@@ -40,6 +40,7 @@ public class IssueService {
                 .description(request.description())
                 .office(request.office())
                 .status(IssueStatus.OPEN)
+//                TODO: Replace with actual user UUID
                 .createdBy(UUID.randomUUID())
                 .dateCreated(OffsetDateTime.now())
                 .dateModified(null)
