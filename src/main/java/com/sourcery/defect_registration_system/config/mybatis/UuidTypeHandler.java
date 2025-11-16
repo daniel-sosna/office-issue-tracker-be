@@ -13,27 +13,27 @@ import java.util.UUID;
 
 @MappedTypes(UUID.class)
 public class UuidTypeHandler extends BaseTypeHandler<UUID> {
-    @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, UUID parameter, JdbcType jdbcType) throws SQLException {
-        ps.setObject(i, parameter);
-    }
+  @Override
+  public void setNonNullParameter(PreparedStatement ps, int i, UUID parameter, JdbcType jdbcType) throws SQLException {
+    ps.setObject(i, parameter);
+  }
 
-    private UUID toUuid(String uuid) {
-        return Optional.ofNullable(uuid).map(UUID::fromString).orElse(null);
-    }
+  private UUID toUuid(String uuid) {
+    return Optional.ofNullable(uuid).map(UUID::fromString).orElse(null);
+  }
 
-    @Override
-    public UUID getNullableResult(ResultSet rs, String columnName) throws SQLException {
-        return toUuid(rs.getString(columnName));
-    }
+  @Override
+  public UUID getNullableResult(ResultSet rs, String columnName) throws SQLException {
+    return toUuid(rs.getString(columnName));
+  }
 
-    @Override
-    public UUID getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-        return toUuid(rs.getString(columnIndex));
-    }
+  @Override
+  public UUID getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
+    return toUuid(rs.getString(columnIndex));
+  }
 
-    @Override
-    public UUID getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-        return toUuid(cs.getString(columnIndex));
-    }
+  @Override
+  public UUID getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
+    return toUuid(cs.getString(columnIndex));
+  }
 }
