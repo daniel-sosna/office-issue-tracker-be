@@ -20,8 +20,6 @@ import java.util.Map;
 public class AuthService {
     private final UserRepository userRepository;
 
-    private String defaultPicture;
-
     @Transactional(readOnly = true)
     public Map<String, Object> getCurrentUserInfo(OAuth2User principal) {
         if (principal == null) {
@@ -35,7 +33,7 @@ public class AuthService {
 
         String picture = principal.getAttribute("picture");
         if (!StringUtils.hasText(picture)) {
-            picture = defaultPicture;
+            picture = "https://ui-avatars.com/api/?name=User&background=CCCCCC&color=555555&size=256";
         }
 
         User user = userRepository.findByEmail(email)
