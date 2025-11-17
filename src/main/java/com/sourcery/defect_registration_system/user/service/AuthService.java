@@ -13,15 +13,13 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.Map;
-
 @Service
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public Map<String, Object> getCurrentUserInfo(OAuth2User principal) {
+    public UserDto getCurrentUserInfo(OAuth2User principal) {
         if (principal == null) {
             throw new UnauthorizedException("Authentication is required.");
         }
@@ -43,7 +41,6 @@ public class AuthService {
                 user.getName(),
                 user.getRole(),
                 picture
-        ).toMap();
-
+        );
     }
 }
