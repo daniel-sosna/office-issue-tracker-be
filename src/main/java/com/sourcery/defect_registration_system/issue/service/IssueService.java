@@ -44,7 +44,7 @@ public class IssueService {
                 .id(UUID.randomUUID())
                 .summary(request.summary())
                 .description(request.description())
-                .office(request.office())
+                .officeId(request.officeId())
                 .status(IssueStatus.OPEN)
                 .createdBy(createdBy)
                 .dateCreated(OffsetDateTime.now())

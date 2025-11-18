@@ -9,7 +9,7 @@ public record IssueResponseDto(
         UUID id,
         String summary,
         String description,
-        UUID office,
+        UUID officeId,
         IssueStatus status
 ) {
     public static IssueResponseDto from(Issue issue) {
@@ -17,7 +17,7 @@ public record IssueResponseDto(
                 issue.getId(),
                 issue.getSummary(),
                 issue.getDescription(),
-                issue.getOffice(),
+                issue.getOfficeId(),
                 issue.getStatus()
         );
     }

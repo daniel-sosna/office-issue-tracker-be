@@ -17,6 +17,6 @@ public record CreateIssueRequest(
         String description,
 
         @NotNull(message = "Office must be selected")
-        UUID office
+        UUID officeId
 ) {
 }

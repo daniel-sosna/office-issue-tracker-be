@@ -10,13 +10,13 @@ databaseChangeLog:
             tableName: issue
             columns:
               - column:
-                  name: office
+                  name: office_id
                   type: UUID
                   constraints:
                     nullable: false
         - addForeignKeyConstraint:
             baseTableName: issue
-            baseColumnNames: office
+            baseColumnNames: office_id
             referencedTableName: office
             referencedColumnNames: id
             constraintName: fk_issue_office

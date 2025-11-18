@@ -28,8 +28,8 @@ public interface IssueRepository {
     long countAllIssues();
 
     @Insert("""
-            INSERT INTO issue (id, summary, description, office, status, created_by, date_created, date_modified)
-            VALUES (#{id}, #{summary}, #{description}, #{office}, #{status}, #{createdBy}, #{dateCreated}, #{dateModified})
+            INSERT INTO issue (id, summary, description, office_id, status, created_by, date_created, date_modified)
+            VALUES (#{id}, #{summary}, #{description}, #{officeId}, #{status}, #{createdBy}, #{dateCreated}, #{dateModified})
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     void insertIssue(Issue issue);

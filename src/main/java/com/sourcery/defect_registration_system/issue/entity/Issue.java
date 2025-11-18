@@ -16,7 +16,7 @@ public class Issue {
   private UUID id;
   private String summary;
   private String description;
-  private UUID office;
+  private UUID officeId;
   private IssueStatus status;
   private UUID createdBy;
   private OffsetDateTime dateCreated;
