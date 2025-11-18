@@ -49,3 +49,6 @@ Thumbs.db
 *.mov
 *.wmv
 
+# Google login credentials stored for Google Cloud access
+.env
+

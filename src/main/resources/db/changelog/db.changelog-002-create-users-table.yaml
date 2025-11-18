@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
       id: 002
-      author: auste
+      author: vitalij
       changes:
         - createTable:
-            tableName: office
+            tableName: users
             columns:
               - column:
                   name: id
@@ -12,23 +12,28 @@ databaseChangeLog:
                   defaultValueComputed: gen_random_uuid()
                   constraints:
                     primaryKey: true
+                    primaryKeyName: pk_users
                     nullable: false
-
               - column:
-                  name: title
+                  name: name
                   type: VARCHAR(255)
                   constraints:
                     nullable: false
-
               - column:
-                  name: country
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
                   type: VARCHAR(50)
                   constraints:
                     nullable: false
-
               - column:
-                  name: created_at
-                  type: TIMESTAMPTZ
-                  defaultValueComputed: CURRENT_TIMESTAMP
-                  constraints:
-                    nullable: false
+                  name: image_url
+                  type: VARCHAR(1024)
+
+        - addUniqueConstraint:
+            tableName: users
+            columnNames: email
+            constraintName: uq_users_email

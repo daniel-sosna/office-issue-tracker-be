@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 003
+      id: 004
       author: auste
       changes:
         - dropColumn:
