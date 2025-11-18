@@ -13,6 +13,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -42,5 +44,22 @@ public class AuthService {
                 user.getRole(),
                 picture
         );
+    }
+
+    @Transactional(readOnly = true)
+    public UUID getCurrentUserId(OAuth2User principal) {
+        if (principal == null) {
+            throw new UnauthorizedException("Authentication is required.");
+        }
+
+        String email = principal.getAttribute("email");
+        if (!StringUtils.hasText(email)) {
+            throw new BadRequestException("Email attribute is missing from OAuth2 principal.");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User not found by email: " + email));
+
+        return user.getId();
     }
 }

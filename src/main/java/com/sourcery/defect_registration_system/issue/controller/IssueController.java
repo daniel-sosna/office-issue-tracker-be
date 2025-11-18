@@ -7,6 +7,8 @@ import com.sourcery.defect_registration_system.issue.service.IssueService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -31,7 +33,7 @@ public class IssueController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public IssueResponseDto createIssue(@RequestBody @Valid CreateIssueRequest request){
-        return issueService.createIssue(request);
+    public IssueResponseDto createIssue(@AuthenticationPrincipal OAuth2User principal, @RequestBody @Valid CreateIssueRequest request){
+        return issueService.createIssue(request, principal);
     }
 }

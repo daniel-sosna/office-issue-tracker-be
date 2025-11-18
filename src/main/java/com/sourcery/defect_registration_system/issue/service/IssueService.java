@@ -12,13 +12,16 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import com.sourcery.defect_registration_system.user.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class IssueService {
     private final IssueRepository issueRepository;
+    private final AuthService authService;
 
     public PageResponseDto<IssueResponseDto> getAllIssues(int page, int size) {
         int offset = (page - 1) * size;
@@ -33,15 +36,17 @@ public class IssueService {
         return new PageResponseDto<>(content, totalElements, totalPages, page, size);
     }
 
-    public IssueResponseDto createIssue(CreateIssueRequest request) {
+    public IssueResponseDto createIssue(CreateIssueRequest request, OAuth2User principal) {
+
+        UUID createdBy = authService.getCurrentUserId(principal);
+
         Issue issue = Issue.builder()
                 .id(UUID.randomUUID())
                 .summary(request.summary())
                 .description(request.description())
                 .office(request.office())
                 .status(IssueStatus.OPEN)
-//                TODO: Replace with actual user UUID
-                .createdBy(UUID.randomUUID())
+                .createdBy(createdBy)
                 .dateCreated(OffsetDateTime.now())
                 .dateModified(null)
                 .build();
