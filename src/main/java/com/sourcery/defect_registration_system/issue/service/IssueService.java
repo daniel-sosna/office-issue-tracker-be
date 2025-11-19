@@ -16,6 +16,7 @@ import com.sourcery.defect_registration_system.user.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +37,7 @@ public class IssueService {
         return new PageResponseDto<>(content, totalElements, totalPages, page, size);
     }
 
+    @Transactional
     public IssueResponseDto createIssue(CreateIssueRequest request, OAuth2User principal) {
 
         UUID createdBy = authService.getCurrentUserId(principal);

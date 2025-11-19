@@ -7,6 +7,7 @@ import com.sourcery.defect_registration_system.office.exceptions.OfficeNotFoundE
 import com.sourcery.defect_registration_system.office.repository.OfficeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -33,6 +34,7 @@ public class OfficeService {
                 .toList();
     }
 
+    @Transactional
     public OfficeResponse createOffice(CreateOfficeRequest request) {
 
         Office office = Office.builder()
