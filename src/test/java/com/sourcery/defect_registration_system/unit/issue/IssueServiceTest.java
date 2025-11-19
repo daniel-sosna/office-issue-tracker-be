@@ -19,11 +19,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.sourcery.defect_registration_system.user.service.AuthService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 @ExtendWith(MockitoExtension.class)
 public class IssueServiceTest {
@@ -32,7 +34,7 @@ public class IssueServiceTest {
                 .id(UUID.randomUUID())
                 .summary(summary)
                 .description("desc")
-                .office(UUID.randomUUID())
+                .officeId(UUID.randomUUID())
                 .status(status)
                 .createdBy(UUID.randomUUID())
                 .build();
@@ -40,6 +42,12 @@ public class IssueServiceTest {
 
     @Mock
     private IssueRepository issueRepository;
+
+    @Mock
+    private AuthService  authService;
+
+    @Mock
+    private OAuth2User principal;
 
     @InjectMocks
     private IssueService issueService;
@@ -124,27 +132,32 @@ public class IssueServiceTest {
         assertThat(result.totalPages()).isEqualTo(2);
     }
 
-//    @Test
-//    void createIssue_shouldSetDefaultOpenStatusAndReturnDto() {
-//        UUID officeId = UUID.randomUUID();
-//        CreateIssueRequest request = new CreateIssueRequest(
-//                "We’re out of bread kvass",
-//                "Critical resource unavailable. Productivity may be affected. Requesting resolution.",
-//                officeId
-//        );
-//
-//        doAnswer(invocation -> {
-//            Issue issue = invocation.getArgument(0);
-//            issue.setId(UUID.randomUUID());
-//            return null;
-//        }).when(issueRepository).insertIssue(any(Issue.class));
-//
-//        IssueResponseDto result = issueService.createIssue(request);
-//
-//        assertThat(result.status()).isEqualTo(IssueStatus.OPEN);
-//        assertThat(result.office()).isEqualTo(officeId);
-//        verify(issueRepository).insertIssue(any(Issue.class));
-//    }
+    @Test
+    void createIssue_shouldSetDefaultOpenStatusAndReturnDto() {
+
+        UUID officeId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        CreateIssueRequest request = new CreateIssueRequest(
+                "We’re out of bread kvass",
+                "Critical resource unavailable. Productivity may be affected. Requesting resolution.",
+                officeId
+        );
+
+        when(authService.getCurrentUserId(principal)).thenReturn(userId);
+
+        doAnswer(invocation -> {
+            Issue issue = invocation.getArgument(0);
+            issue.setId(UUID.randomUUID());
+            return null;
+        }).when(issueRepository).insertIssue(any(Issue.class));
+
+        IssueResponseDto result = issueService.createIssue(request, principal);
+
+        assertThat(result.status()).isEqualTo(IssueStatus.OPEN);
+        assertThat(result.officeId()).isEqualTo(officeId);
+        verify(issueRepository).insertIssue(any(Issue.class));
+    }
 
     @Test
     void getIssueById_whenFound_shouldReturnDto() {
@@ -155,7 +168,7 @@ public class IssueServiceTest {
                 .id(issueId)
                 .summary("Test issue")
                 .description("Test desc")
-                .office(officeId)
+                .officeId(officeId)
                 .status(IssueStatus.OPEN)
                 .createdBy(UUID.randomUUID())
                 .dateCreated(OffsetDateTime.now())
@@ -168,7 +181,7 @@ public class IssueServiceTest {
         assertThat(result.id()).isEqualTo(issueId);
         assertThat(result.summary()).isEqualTo("Test issue");
         assertThat(result.status()).isEqualTo(IssueStatus.OPEN);
-        assertThat(result.office()).isEqualTo(officeId);
+        assertThat(result.officeId()).isEqualTo(officeId);
     }
 
     @Test
