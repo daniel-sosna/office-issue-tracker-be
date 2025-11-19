@@ -1,5 +1,6 @@
 package com.sourcery.defect_registration_system.user.service;
 
+import com.sourcery.defect_registration_system.user.dto.UserDto;
 import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.entity.User;
 import com.sourcery.defect_registration_system.exception.BadRequestException;
@@ -35,10 +36,10 @@ class AuthServiceTest {
     @InjectMocks
     private AuthService authService;
 
-    @BeforeEach
-    void setUp() {
-        ReflectionTestUtils.setField(authService, "defaultPicture", "http://default/pic.png");
-    }
+//    @BeforeEach
+//    void setUp() {
+//        ReflectionTestUtils.setField(authService, "defaultPicture", "http://default/pic.png");
+//    }
 
     @Test
     void getCurrentUserInfo_whenPrincipalIsNull_shouldThrowUnauthorizedException() {
@@ -82,13 +83,12 @@ class AuthServiceTest {
         when(principal.getAttribute("picture")).thenReturn(picture);
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
-        Map<String, Object> result = authService.getCurrentUserInfo(principal);
+        UserDto result = authService.getCurrentUserInfo(principal);
 
-        assertThat(result).isNotNull();
-        assertThat(result.get("email")).isEqualTo(email);
-        assertThat(result.get("name")).isEqualTo("Test User");
-        assertThat(result.get("role")).isEqualTo(Role.USER);
-        assertThat(result.get("picture")).isEqualTo(picture);
+        assertThat(result.email()).isEqualTo(email);
+        assertThat(result.name()).isEqualTo("Test User");
+        assertThat(result.role()).isEqualTo(Role.USER);
+        assertThat(result.picture()).isEqualTo(picture);
     }
 
     @Test
@@ -104,12 +104,11 @@ class AuthServiceTest {
         when(principal.getAttribute("picture")).thenReturn(null);
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
-        Map<String, Object> result = authService.getCurrentUserInfo(principal);
+        UserDto result = authService.getCurrentUserInfo(principal);
 
-        assertThat(result).isNotNull();
-        assertThat(result.get("email")).isEqualTo(email);
-        assertThat(result.get("name")).isEqualTo("Test User");
-        assertThat(result.get("role")).isEqualTo(Role.USER);
-        assertThat(result.get("picture")).isEqualTo("http://default/pic.png");
+        assertThat(result.email()).isEqualTo(email);
+        assertThat(result.name()).isEqualTo("Test User");
+        assertThat(result.role()).isEqualTo(Role.USER);
+        assertThat(result.picture()).isEqualTo("https://ui-avatars.com/api/?name=User&background=CCCCCC&color=555555&size=256");
     }
 }
