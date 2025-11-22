@@ -7,6 +7,8 @@ import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import com.sourcery.defect_registration_system.user.entity.User;
 import com.sourcery.defect_registration_system.user.repository.UserRepository;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -61,5 +63,17 @@ public class AuthService {
                 .orElseThrow(() -> new NotFoundException("User not found by email: " + email));
 
         return user.getId();
+    }
+
+    @Transactional(readOnly = true)
+    public UUID getCurrentUserIdFromSession() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !(authentication.getPrincipal() instanceof OAuth2User oidcUser)) {
+            throw new UnauthorizedException("Authentication is required.");
+        }
+
+        return getCurrentUserId(oidcUser);
     }
 }

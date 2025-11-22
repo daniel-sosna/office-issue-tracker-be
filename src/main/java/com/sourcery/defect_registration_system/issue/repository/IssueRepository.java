@@ -1,5 +1,6 @@
 package com.sourcery.defect_registration_system.issue.repository;
 
+import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 
 import java.util.List;
@@ -40,4 +41,11 @@ public interface IssueRepository {
             WHERE id = #{id}
             """)
     Optional<Issue> getIssueById(@Param("id") UUID id);
+
+    @Update("""
+            UPDATE issue 
+            SET summary = #{request.summary}, description = #{request.description}, office_id = #{request.officeId}, date_modified = now() 
+            WHERE id = #{id} AND created_by = #{currentUserId}
+            """)
+    int updateIssue(@Param("id") UUID id, @Param("request") UpdateIssueRequest request, @Param("currentUserId") UUID currentUserId);
 }

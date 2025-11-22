@@ -3,6 +3,7 @@ package com.sourcery.defect_registration_system.issue.service;
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
 import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundException;
@@ -63,5 +64,20 @@ public class IssueService {
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
 
         return IssueResponseDto.from(issue);
+    }
+
+    public IssueResponseDto updateIssue(UUID id, UpdateIssueRequest request, OAuth2User principal) {
+
+        UUID currentUserId = principal != null ? authService.getCurrentUserId(principal) : authService.getCurrentUserIdFromSession();
+        int updatedRows = issueRepository.updateIssue(id, request, currentUserId);
+
+        if (updatedRows == 0) {
+            throw new IssueNotFoundException("Issue with " + id + " id not found");
+        }
+
+        Issue updatedIssue = issueRepository.getIssueById(id)
+                .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
+
+        return IssueResponseDto.from(updatedIssue);
     }
 }
