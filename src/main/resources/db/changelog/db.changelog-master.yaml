@@ -3,3 +3,7 @@ databaseChangeLog:
       file: db/changelog/db.changelog-001-create-issue-table.yaml
   - include:
         file: db/changelog/db.changelog-002-create-users-table.yaml
+  - include:
+      file: db/changelog/db.changelog-003-create-office-table.yaml
+  - include:
+      file: db/changelog/db.changelog-004-update-issue-table.yaml
