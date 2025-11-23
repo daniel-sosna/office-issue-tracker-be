@@ -1,0 +1,226 @@
+databaseChangeLog:
+  - changeSet:
+      id: 007
+      author: kostas
+      context: local
+      changes:
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Meeting rooms fully booked" }
+              - column: { name: description, value: "No available meeting rooms during peak hours." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Vilnius')" }
+              - column: { name: status, value: "OPEN" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='john.smith@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Broken coffee machine" }
+              - column: { name: description, value: "The main coffee machine on the 3rd floor is out of service." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Kaunas')" }
+              - column: { name: status, value: "IN_PROGRESS" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='emma.johnson@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Air conditioning too cold" }
+              - column: { name: description, value: "Temperature in open office area dropping below comfortable levels." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Wroclaw')" }
+              - column: { name: status, value: "OPEN" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='michael.brown@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Broken elevator button" }
+              - column: { name: description, value: "Button for floor 2 does not respond." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Gdansk')" }
+              - column: { name: status, value: "OPEN" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='sophia.wilson@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Printer jam on 2nd floor" }
+              - column: { name: description, value: "Frequent paper jams causing delays." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Krakow')" }
+              - column: { name: status, value: "RESOLVED" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='james.parker@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Wifi unstable in kitchen area" }
+              - column: { name: description, value: "Weak connection makes calls drop frequently." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Vilnius')" }
+              - column: { name: status, value: "OPEN" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='emma.johnson@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Office chairs worn out" }
+              - column: { name: description, value: "Several chairs have broken wheels or loose backrests." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Kaunas')" }
+              - column: { name: status, value: "IN_PROGRESS" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='john.smith@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Door lock malfunction" }
+              - column: { name: description, value: "The side entrance door lock doesn't respond to access cards." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Gdansk')" }
+              - column: { name: status, value: "OPEN" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='sophia.wilson@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Water leak in restroom" }
+              - column: { name: description, value: "Sink pipe leaking causing wet floor." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Wroclaw')" }
+              - column: { name: status, value: "IN_PROGRESS" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='james.parker@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Projector not working" }
+              - column: { name: description, value: "Projector in meeting room B does not turn on." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Vilnius')" }
+              - column: { name: status, value: "RESOLVED" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='michael.brown@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Outdated software on shared PC" }
+              - column: { name: description, value: "Common workstation needs OS update." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Kaunas')" }
+              - column: { name: status, value: "OPEN" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='john.smith@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Lighting flickering in hallway" }
+              - column: { name: description, value: "Lights flicker occasionally causing discomfort." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Krakow')" }
+              - column: { name: status, value: "OPEN" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='emma.johnson@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Keyboard missing keys" }
+              - column: { name: description, value: "One shared workstation keyboard is broken." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Gdansk')" }
+              - column: { name: status, value: "RESOLVED" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='sophia.wilson@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "AC filter replacement needed" }
+              - column: { name: description, value: "Air conditioning filter emitting strange smell." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Wroclaw')" }
+              - column: { name: status, value: "IN_PROGRESS" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='michael.brown@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Broken standing desk" }
+              - column: { name: description, value: "Height adjustment not working properly." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Kaunas')" }
+              - column: { name: status, value: "OPEN" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='james.parker@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Trash bins overflowing" }
+              - column: { name: description, value: "Needs more frequent cleaning." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Vilnius')" }
+              - column: { name: status, value: "OPEN" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='emma.johnson@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Loose power outlet" }
+              - column: { name: description, value: "One plug detaches easily, safety hazard." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Gdansk')" }
+              - column: { name: status, value: "IN_PROGRESS" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='john.smith@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Whiteboard markers missing" }
+              - column: { name: description, value: "Most meeting rooms are out of working markers." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Krakow')" }
+              - column: { name: status, value: "OPEN" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='michael.brown@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Noise from construction" }
+              - column: { name: description, value: "External renovation causing loud noise during calls." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Wroclaw')" }
+              - column: { name: status, value: "OPEN" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='sophia.wilson@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Heating not working in morning" }
+              - column: { name: description, value: "Office cold until noon, radiators not responding." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Vilnius')" }
+              - column: { name: status, value: "RESOLVED" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='james.parker@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
