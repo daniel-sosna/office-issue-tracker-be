@@ -4,9 +4,9 @@ databaseChangeLog:
       author: kostas
       context: local
       preConditions:
-        - not:
-            tableExists:
-              tableName: users
+        - sqlCheck:
+            expectedResult: "0"
+            sql: "SELECT COUNT(*) FROM users WHERE email='office.issue.moderator@gmail.com'"
         - onFail: CONTINUE
       changes:
         - insert:
