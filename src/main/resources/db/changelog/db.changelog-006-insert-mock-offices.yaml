@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006
+      author: kostas
+      context: local
+      changes:
+        - insert:
+            tableName: office
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: title, value: "Vilnius" }
+              - column: { name: country, value: "Lithuania" }
+
+        - insert:
+            tableName: office
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: title, value: "Kaunas" }
+              - column: { name: country, value: "Lithuania" }
+
+        - insert:
+            tableName: office
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: title, value: "Gdansk" }
+              - column: { name: country, value: "Poland" }
+
+        - insert:
+            tableName: office
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: title, value: "Wroclaw" }
+              - column: { name: country, value: "Poland" }
+
+        - insert:
+            tableName: office
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: title, value: "Krakow" }
+              - column: { name: country, value: "Poland" }
