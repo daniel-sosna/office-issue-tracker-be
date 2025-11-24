@@ -13,3 +13,5 @@ databaseChangeLog:
       file: db/changelog/db.changelog-006-insert-mock-offices.yaml
   - include:
       file: db/changelog/db.changelog-007-insert-mock-issues.yaml
+  - include:
+      file: db/changelog/db.changelog-008-insert-admin.yaml

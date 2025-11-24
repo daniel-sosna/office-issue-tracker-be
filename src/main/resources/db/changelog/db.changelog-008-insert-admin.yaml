@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008
+      author: kostas
+      context: local
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  valueComputed: gen_random_uuid()
+              - column:
+                  name: name
+                  value: "Admin Moderator"
+              - column:
+                  name: email
+                  value: "office.issue.moderator@gmail.com"
+              - column:
+                  name: role
+                  value: "ADMIN"
+              - column:
+                  name: image_url
+                  value: "https://lh3.googleusercontent.com/a/ACg8ocJ8KceWUfbItuN3KT6RSBnFy1gLOis2-78JotlHGTPcGHEg8Yk=s96-c"
