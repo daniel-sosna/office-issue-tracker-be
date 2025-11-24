@@ -3,6 +3,11 @@ databaseChangeLog:
       id: 008
       author: kostas
       context: local
+      preConditions:
+        - not:
+            tableExists:
+              tableName: users
+        - onFail: CONTINUE
       changes:
         - insert:
             tableName: users
