@@ -36,4 +36,6 @@ public class IssueController {
     public IssueResponseDto createIssue(@AuthenticationPrincipal OAuth2User principal, @RequestBody @Valid CreateIssueRequest request){
         return issueService.createIssue(request, principal);
     }
+
+
 }

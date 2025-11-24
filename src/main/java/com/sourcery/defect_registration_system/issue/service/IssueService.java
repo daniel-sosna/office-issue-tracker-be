@@ -3,6 +3,7 @@ package com.sourcery.defect_registration_system.issue.service;
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
 import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundException;
@@ -12,6 +13,8 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import com.sourcery.defect_registration_system.user.dto.UserDto;
+import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -61,6 +64,29 @@ public class IssueService {
     public IssueResponseDto getIssueById(UUID id) {
         Issue issue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
+
+        return IssueResponseDto.from(issue);
+    }
+
+    @Transactional
+    public IssueResponseDto updateIssue(UpdateIssueRequest request, OAuth2User principal) {
+
+        UUID currentUserId = authService.getCurrentUserId(principal);
+
+        UserDto currentUser = authService.getCurrentUserInfo(principal);
+
+
+        Issue issue = issueRepository.getIssueById(currentUserId)
+                        .orElseThrow(() -> new IssueNotFoundException("Issue with " + currentUserId + " id not found"));
+
+        UUID createdBy = issue.getId();
+
+        if(!currentUserId.equals(createdBy) && currentUser.role() != Role.ADMIN){
+            throw new IllegalArgumentException("You can only update the issue if you are the creator or admin");
+        }
+
+
+        issueRepository.insertIssue(issue);
 
         return IssueResponseDto.from(issue);
     }
