@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -48,4 +49,11 @@ public interface IssueRepository {
             WHERE id = #{id}
             """)
     int updateIssue(@Param("id") UUID id, @Param("request") UpdateIssueRequest request);
+
+    @Update("""
+            UPDATE issue
+            SET status = #{status}, date_modified = now()
+            WHERE id = #{id}
+            """)
+    int updateIssueStatus(@Param("id") UUID id, @Param("status") IssueStatus status);
 }

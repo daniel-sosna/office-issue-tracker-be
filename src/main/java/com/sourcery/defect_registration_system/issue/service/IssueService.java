@@ -1,10 +1,7 @@
 package com.sourcery.defect_registration_system.issue.service;
 
 import com.sourcery.defect_registration_system.exception.UnauthorizedException;
-import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
-import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
-import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
-import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
+import com.sourcery.defect_registration_system.issue.dto.*;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundException;
@@ -14,8 +11,11 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import com.sourcery.defect_registration_system.user.dto.UserDto;
+import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,6 +81,25 @@ public class IssueService {
 
         issueRepository.updateIssue(id, request);
 
+        Issue updatedIssue = issueRepository.getIssueById(id)
+                .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
+
+        return IssueResponseDto.from(updatedIssue);
+    }
+
+    @Transactional
+    public IssueResponseDto updateIssueStatus(UUID id, ChangeIssueStatusRequest request, OAuth2User principal) {
+
+        UserDto currentUser = authService.getCurrentUserInfo(principal);
+
+        if (currentUser.role() != Role.ADMIN) {
+            throw new UnauthorizedException("You do not have permission to change issue status");
+        }
+
+        issueRepository.getIssueById(id)
+                .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
+
+        issueRepository.updateIssueStatus(id, request.status());
         Issue updatedIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
 
