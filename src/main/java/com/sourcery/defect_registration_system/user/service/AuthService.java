@@ -64,16 +64,4 @@ public class AuthService {
 
         return user.getId();
     }
-
-    @Transactional(readOnly = true)
-    public UUID getCurrentUserIdFromSession() {
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !(authentication.getPrincipal() instanceof OAuth2User oidcUser)) {
-            throw new UnauthorizedException("Authentication is required.");
-        }
-
-        return getCurrentUserId(oidcUser);
-    }
 }

@@ -45,7 +45,7 @@ public interface IssueRepository {
     @Update("""
             UPDATE issue 
             SET summary = #{request.summary}, description = #{request.description}, office_id = #{request.officeId}, date_modified = now() 
-            WHERE id = #{id} AND created_by = #{currentUserId}
+            WHERE id = #{id}
             """)
-    int updateIssue(@Param("id") UUID id, @Param("request") UpdateIssueRequest request, @Param("currentUserId") UUID currentUserId);
+    int updateIssue(@Param("id") UUID id, @Param("request") UpdateIssueRequest request);
 }

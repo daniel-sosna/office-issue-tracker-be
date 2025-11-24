@@ -34,8 +34,8 @@ public class SecurityConfig {
                         .csrfTokenRepository(
                                 CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .ignoringRequestMatchers("/logout")
-                        .ignoringRequestMatchers("/issues")
-                        .ignoringRequestMatchers("/offices")
+                        .ignoringRequestMatchers("/issues/**")
+                        .ignoringRequestMatchers("/offices/**")
 
                 )
                 .authorizeHttpRequests(req -> req

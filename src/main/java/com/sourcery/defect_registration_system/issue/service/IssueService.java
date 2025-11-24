@@ -1,5 +1,6 @@
 package com.sourcery.defect_registration_system.issue.service;
 
+import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
 import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
@@ -66,14 +67,19 @@ public class IssueService {
         return IssueResponseDto.from(issue);
     }
 
+    @Transactional
     public IssueResponseDto updateIssue(UUID id, UpdateIssueRequest request, OAuth2User principal) {
 
-        UUID currentUserId = principal != null ? authService.getCurrentUserId(principal) : authService.getCurrentUserIdFromSession();
-        int updatedRows = issueRepository.updateIssue(id, request, currentUserId);
+        UUID currentUserId = authService.getCurrentUserId(principal);
 
-        if (updatedRows == 0) {
-            throw new IssueNotFoundException("Issue with " + id + " id not found");
+        Issue existingIssue = issueRepository.getIssueById(id)
+                .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
+
+        if (!existingIssue.getCreatedBy().equals(currentUserId)) {
+            throw new UnauthorizedException("You are not allowed to update this issue");
         }
+
+        issueRepository.updateIssue(id, request);
 
         Issue updatedIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
