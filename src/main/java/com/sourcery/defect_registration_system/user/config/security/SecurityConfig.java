@@ -40,6 +40,11 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/", "/login").permitAll()
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
