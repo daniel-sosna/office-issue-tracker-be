@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009
+      author: daniel
+      context: local
+      changes:
+        - update:
+            tableName: office
+            columns:
+              - column:
+                  name: country
+                  value: "LITHUANIA"
+            where: "country = 'Lithuania'"
+
+        - update:
+            tableName: office
+            columns:
+              - column:
+                  name: country
+                  value: "POLAND"
+            where: "country = 'Poland'"
