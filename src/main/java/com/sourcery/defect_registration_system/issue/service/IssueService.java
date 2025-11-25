@@ -1,13 +1,12 @@
 package com.sourcery.defect_registration_system.issue.service;
 
-import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
-import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
-import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
-import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
+import com.sourcery.defect_registration_system.exception.UnauthorizedException;
+import com.sourcery.defect_registration_system.issue.dto.*;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundException;
 import com.sourcery.defect_registration_system.issue.repository.IssueRepository;
+
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +15,7 @@ import com.sourcery.defect_registration_system.user.dto.UserDto;
 import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,34 +68,41 @@ public class IssueService {
     }
 
     @Transactional
-    public IssueResponseDto updateIssue(UUID issueId, UpdateIssueRequest request, OAuth2User principal)
-    {
+    public IssueResponseDto updateIssue(UUID id, UpdateIssueRequest request, OAuth2User principal) {
 
         UUID currentUserId = authService.getCurrentUserId(principal);
 
-        UserDto currentUser = authService.getCurrentUserInfo(principal);
+        Issue existingIssue = issueRepository.getIssueById(id)
+                .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
 
-
-        Issue issue = issueRepository.getIssueById(issueId)
-                .orElseThrow(() -> new IssueNotFoundException("Issue not found"));
-
-
-        UUID creatorId = issue.getCreatedBy();
-
-
-        if (!creatorId.equals(currentUserId) && currentUser.role() != Role.ADMIN) {
-            throw new IllegalArgumentException("You can only update your own issue, unless you are an admin.");
+        if (!existingIssue.getCreatedBy().equals(currentUserId)) {
+            throw new UnauthorizedException("You are not allowed to update this issue");
         }
 
-        issue.setSummary(request.summary());
-        issue.setDescription(request.description());
-        issue.setOfficeId(request.officeId());
-        issue.setStatus(request.status());
-        issue.setDateModified(OffsetDateTime.now());
+        issueRepository.updateIssue(id, request);
 
+        Issue updatedIssue = issueRepository.getIssueById(id)
+                .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
 
-        issueRepository.updateIssue(issue);
+        return IssueResponseDto.from(updatedIssue);
+    }
 
-        return IssueResponseDto.from(issue);
+    @Transactional
+    public IssueResponseDto updateIssueStatus(UUID id, ChangeIssueStatusRequest request, OAuth2User principal) {
+
+        UserDto currentUser = authService.getCurrentUserInfo(principal);
+
+        if (currentUser.role() != Role.ADMIN) {
+            throw new AccessDeniedException("You do not have permission to change issue status");
+        }
+
+        issueRepository.getIssueById(id)
+                .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
+
+        issueRepository.updateIssueStatus(id, request.status());
+        Issue updatedIssue = issueRepository.getIssueById(id)
+                .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
+
+        return IssueResponseDto.from(updatedIssue);
     }
 }

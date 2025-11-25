@@ -27,15 +27,15 @@ public class SecurityConfig {
                     configuration.addAllowedOrigin("http://localhost:5174");
                     configuration.setAllowCredentials(true);
                     configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization",  "X-XSRF-TOKEN"));
-                    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+                    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH"));
                     return configuration;
                 }))
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(
                                 CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .ignoringRequestMatchers("/logout")
-                        .ignoringRequestMatchers("/issues")
-                        .ignoringRequestMatchers("/offices")
+                        .ignoringRequestMatchers("/issues/**")
+                        .ignoringRequestMatchers("/offices/**")
 
                 )
                 .authorizeHttpRequests(req -> req

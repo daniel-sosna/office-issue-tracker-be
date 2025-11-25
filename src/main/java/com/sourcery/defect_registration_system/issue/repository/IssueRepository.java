@@ -1,11 +1,13 @@
 package com.sourcery.defect_registration_system.issue.repository;
 
+import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -41,15 +43,17 @@ public interface IssueRepository {
             """)
     Optional<Issue> getIssueById(@Param("id") UUID id);
 
+    @Update("""
+            UPDATE issue 
+            SET summary = #{request.summary}, description = #{request.description}, office_id = #{request.officeId}, date_modified = now() 
+            WHERE id = #{id}
+            """)
+    int updateIssue(@Param("id") UUID id, @Param("request") UpdateIssueRequest request);
 
-        @Update("""
-                UPDATE issue
-                SET summary = #{summary},
-                    description = #{description},
-                    office_id = #{officeId},
-                    status = #{status},
-                    date_modified = #{dateModified}
-                WHERE id = #{id}
-                """)
-        void updateIssue(Issue issue);
+    @Update("""
+            UPDATE issue
+            SET status = #{status}, date_modified = now()
+            WHERE id = #{id}
+            """)
+    int updateIssueStatus(@Param("id") UUID id, @Param("status") IssueStatus status);
 }
