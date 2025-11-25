@@ -7,3 +7,11 @@ databaseChangeLog:
       file: db/changelog/db.changelog-003-create-office-table.yaml
   - include:
       file: db/changelog/db.changelog-004-update-issue-table.yaml
+  - include:
+      file: db/changelog/db.changelog-005-insert-mock-users.yaml
+  - include:
+      file: db/changelog/db.changelog-006-insert-mock-offices.yaml
+  - include:
+      file: db/changelog/db.changelog-007-insert-mock-issues.yaml
+  - include:
+      file: db/changelog/db.changelog-008-insert-admin.yaml
