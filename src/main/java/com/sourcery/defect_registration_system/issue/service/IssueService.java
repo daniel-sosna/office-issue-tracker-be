@@ -15,7 +15,7 @@ import com.sourcery.defect_registration_system.user.dto.UserDto;
 import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,7 +93,7 @@ public class IssueService {
         UserDto currentUser = authService.getCurrentUserInfo(principal);
 
         if (currentUser.role() != Role.ADMIN) {
-            throw new UnauthorizedException("You do not have permission to change issue status");
+            throw new AccessDeniedException("You do not have permission to change issue status");
         }
 
         issueRepository.getIssueById(id)
