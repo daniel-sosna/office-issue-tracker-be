@@ -8,7 +8,6 @@ import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundException;
 import com.sourcery.defect_registration_system.issue.repository.IssueRepository;
-
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -69,24 +68,33 @@ public class IssueService {
     }
 
     @Transactional
-    public IssueResponseDto updateIssue(UpdateIssueRequest request, OAuth2User principal) {
+    public IssueResponseDto updateIssue(UUID issueId, UpdateIssueRequest request, OAuth2User principal)
+    {
 
         UUID currentUserId = authService.getCurrentUserId(principal);
 
         UserDto currentUser = authService.getCurrentUserInfo(principal);
 
 
-        Issue issue = issueRepository.getIssueById(currentUserId)
-                        .orElseThrow(() -> new IssueNotFoundException("Issue with " + currentUserId + " id not found"));
+        Issue issue = issueRepository.getIssueById(issueId)
+                .orElseThrow(() -> new IssueNotFoundException("Issue not found"));
 
-        UUID createdBy = issue.getId();
 
-        if(!currentUserId.equals(createdBy) && currentUser.role() != Role.ADMIN){
-            throw new IllegalArgumentException("You can only update the issue if you are the creator or admin");
+        UUID creatorId = issue.getCreatedBy();
+
+
+        if (!creatorId.equals(currentUserId) && currentUser.role() != Role.ADMIN) {
+            throw new IllegalArgumentException("You can only update your own issue, unless you are an admin.");
         }
 
+        issue.setSummary(request.summary());
+        issue.setDescription(request.description());
+        issue.setOfficeId(request.officeId());
+        issue.setStatus(request.status());
+        issue.setDateModified(OffsetDateTime.now());
 
-        issueRepository.insertIssue(issue);
+
+        issueRepository.updateIssue(issue);
 
         return IssueResponseDto.from(issue);
     }

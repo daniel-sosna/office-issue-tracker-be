@@ -17,9 +17,10 @@ public record UpdateIssueRequest(
         String description,
 
         @NotNull(message = "Office must be selected")
-        UUID officeId
+        UUID officeId,
 
-
+        @NotNull(message = "Status must be selected")
+        IssueStatus status
 
 
 ) {

@@ -3,6 +3,7 @@ package com.sourcery.defect_registration_system.issue.controller;
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
 import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.service.IssueService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,15 @@ public class IssueController {
     public IssueResponseDto createIssue(@AuthenticationPrincipal OAuth2User principal, @RequestBody @Valid CreateIssueRequest request){
         return issueService.createIssue(request, principal);
     }
+    @PutMapping("/{id}")
+    public IssueResponseDto updateIssue(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateIssueRequest request,
+            @AuthenticationPrincipal OAuth2User principal
+    ) {
+        return issueService.updateIssue(id, request, principal);
+    }
+
 
 
 }

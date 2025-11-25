@@ -40,4 +40,16 @@ public interface IssueRepository {
             WHERE id = #{id}
             """)
     Optional<Issue> getIssueById(@Param("id") UUID id);
+
+
+        @Update("""
+                UPDATE issue
+                SET summary = #{summary},
+                    description = #{description},
+                    office_id = #{officeId},
+                    status = #{status},
+                    date_modified = #{dateModified}
+                WHERE id = #{id}
+                """)
+        void updateIssue(Issue issue);
 }
