@@ -69,4 +69,11 @@ public class IssueController {
     public IssueResponseDto updateIssueStatus(@PathVariable("id") UUID id, @RequestBody @Valid ChangeIssueStatusRequest request, @AuthenticationPrincipal OAuth2User principal) {
         return issueService.updateIssueStatus(id, request, principal);
     }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteIssue(@PathVariable("id") UUID id, @AuthenticationPrincipal OAuth2User principal) {
+        issueService.deleteIssue(id, principal);
+    }
+
 }

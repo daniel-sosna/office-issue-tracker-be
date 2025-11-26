@@ -217,6 +217,9 @@ public class IssueServiceTest {
         UpdateIssueRequest request = new UpdateIssueRequest(
                 "New summary", "New desc", UUID.randomUUID());
 
+        when(issueRepository.updateIssue(issueId, request))
+                .thenReturn(1);
+
         IssueResponseDto result = issueService.updateIssue(issueId, request, principal);
 
         verify(issueRepository).updateIssue(issueId, request);
@@ -261,6 +264,9 @@ public class IssueServiceTest {
                 .thenReturn(Optional.of(oldIssue))
                 .thenReturn(Optional.of(updatedIssue));
 
+        when(issueRepository.updateIssueStatus(issueId, IssueStatus.RESOLVED))
+                .thenReturn(1);
+
         ChangeIssueStatusRequest request = new ChangeIssueStatusRequest(IssueStatus.RESOLVED);
 
         IssueResponseDto result = issueService.updateIssueStatus(issueId, request, principal);
@@ -283,5 +289,66 @@ public class IssueServiceTest {
 
         verify(issueRepository, never()).updateIssueStatus(any(), any());
     }
+
+    @Test
+    void deleteIssue_whenUserIsOwner_shouldSucceed() {
+        UUID issueId = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+
+        Issue issue = new Issue();
+        issue.setId(issueId);
+        issue.setCreatedBy(ownerId);
+
+        when(authService.getCurrentUserId(principal)).thenReturn(ownerId);
+        when(issueRepository.getIssueById(issueId)).thenReturn(Optional.of(issue));
+
+        issueService.deleteIssue(issueId, principal);
+
+        verify(issueRepository).deleteIssue(issueId);
+    }
+
+    @Test
+    void deleteIssue_whenUserIsAdmin_shouldSucceed() {
+        UUID issueId = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+
+        Issue issue = new Issue();
+        issue.setId(issueId);
+        issue.setCreatedBy(ownerId);
+
+        UserDto admin = new UserDto("admin@mail.com", "Admin", Role.ADMIN, null);
+
+        when(authService.getCurrentUserId(principal)).thenReturn(UUID.randomUUID());
+        when(authService.getCurrentUserInfo(principal)).thenReturn(admin);
+        when(issueRepository.getIssueById(issueId)).thenReturn(Optional.of(issue));
+
+        issueService.deleteIssue(issueId, principal);
+
+        verify(issueRepository).deleteIssue(issueId);
+    }
+
+    @Test
+    void deleteIssue_whenUserNotOwnerAndNotAdmin_shouldThrowException() {
+        UUID issueId = UUID.randomUUID();
+
+        UUID ownerId = UUID.randomUUID();
+        UUID otherUserId = UUID.randomUUID();
+
+        Issue issue = new Issue();
+        issue.setId(issueId);
+        issue.setCreatedBy(ownerId);
+
+        UserDto regular = new UserDto("user@mail.com", "User", Role.USER, null);
+
+        when(authService.getCurrentUserId(principal)).thenReturn(otherUserId);
+        when(authService.getCurrentUserInfo(principal)).thenReturn(regular);
+        when(issueRepository.getIssueById(issueId)).thenReturn(Optional.of(issue));
+
+        assertThrows(UnauthorizedException.class,
+                () -> issueService.deleteIssue(issueId, principal));
+
+        verify(issueRepository, never()).deleteIssue(issueId);
+    }
+
 }
 

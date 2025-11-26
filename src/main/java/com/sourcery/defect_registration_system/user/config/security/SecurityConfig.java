@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -38,10 +39,26 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/offices/**")
 
                 )
+
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/", "/login").permitAll()
-                        .requestMatchers("/api/**").authenticated()
-                        .anyRequest().authenticated())
+                        .requestMatchers(
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
+
+                        .requestMatchers(HttpMethod.PATCH, "/issues/*/status").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/issues/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/issues/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/issues").authenticated()
+
+                        .requestMatchers("/issues/**", "/offices/**", "/api/**").authenticated()
+
+                        .anyRequest().authenticated()
+                )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.oidcUserService(customOidUserService))
                         .defaultSuccessUrl("http://localhost:5174/", true))

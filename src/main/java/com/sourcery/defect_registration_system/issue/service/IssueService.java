@@ -72,17 +72,23 @@ public class IssueService {
 
         UUID currentUserId = authService.getCurrentUserId(principal);
 
+        UserDto currentUser = authService.getCurrentUserInfo(principal);
+
         Issue existingIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
 
-        if (!existingIssue.getCreatedBy().equals(currentUserId)) {
+        if (!existingIssue.getCreatedBy().equals(currentUserId) && currentUser.role() != Role.ADMIN) {
             throw new UnauthorizedException("You are not allowed to update this issue");
         }
 
-        issueRepository.updateIssue(id, request);
+        int updatedRows = issueRepository.updateIssue(id, request);
+
+        if (updatedRows == 0) {
+            throw new IssueNotFoundException("Failed to update issue");
+        }
 
         Issue updatedIssue = issueRepository.getIssueById(id)
-                .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
+                .orElseThrow(() -> new IllegalStateException("Issue missing after update"));
 
         return IssueResponseDto.from(updatedIssue);
     }
@@ -99,10 +105,31 @@ public class IssueService {
         issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
 
-        issueRepository.updateIssueStatus(id, request.status());
-        Issue updatedIssue = issueRepository.getIssueById(id)
-                .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
+        int updatedRows = issueRepository.updateIssueStatus(id, request.status());
+
+        if (updatedRows == 0) {
+                         throw new IssueNotFoundException("Failed to update status");
+        }
+
+       Issue updatedIssue = issueRepository.getIssueById(id)
+               .orElseThrow(() -> new IllegalStateException("Issue missing after update"));
 
         return IssueResponseDto.from(updatedIssue);
+
     }
+    @Transactional
+    public void deleteIssue(UUID id, OAuth2User principal) {
+
+        UUID currentUserId = authService.getCurrentUserId(principal);
+
+        Issue existingIssue = issueRepository.getIssueById(id)
+                .orElseThrow(() -> new IssueNotFoundException("Issue with id " + id + " not found"));
+
+        if (!existingIssue.getCreatedBy().equals(currentUserId) && authService.getCurrentUserInfo(principal).role() != Role.ADMIN) {
+            throw new UnauthorizedException("You are not allowed to delete this issue.");
+        }
+
+        issueRepository.deleteIssue(id);
+    }
+
 }
