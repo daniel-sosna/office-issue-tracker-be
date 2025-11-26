@@ -1,34 +1,51 @@
 package com.sourcery.defect_registration_system.unit.issue;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
+import com.sourcery.defect_registration_system.exception.UnauthorizedException;
+import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
 import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundException;
 import com.sourcery.defect_registration_system.issue.repository.IssueRepository;
 import com.sourcery.defect_registration_system.issue.service.IssueService;
-
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
+import com.sourcery.defect_registration_system.user.dto.UserDto;
+import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.service.AuthService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class IssueServiceTest {
+    @Mock
+    private IssueRepository issueRepository;
+    @Mock
+    private AuthService authService;
+    @Mock
+    private OAuth2User principal;
+    @InjectMocks
+    private IssueService issueService;
+
     private Issue buildIssue(String summary, IssueStatus status) {
         return Issue.builder()
                 .id(UUID.randomUUID())
@@ -39,19 +56,6 @@ public class IssueServiceTest {
                 .createdBy(UUID.randomUUID())
                 .build();
     }
-
-    @Mock
-    private IssueRepository issueRepository;
-
-    @Mock
-    private AuthService  authService;
-
-    @Mock
-    private OAuth2User principal;
-
-    @InjectMocks
-    private IssueService issueService;
-
 
     @Test
     void shouldReturnFirstPageOfIssues() {
@@ -192,6 +196,100 @@ public class IssueServiceTest {
         assertThrows(IssueNotFoundException.class, () ->
                 issueService.getIssueById(id)
         );
+    }
+
+    @Test
+    void updateIssue_whenUserIsOwner_shouldSucceed() {
+        UUID issueId = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+
+        Issue oldIssue = buildIssue("Old summary", IssueStatus.OPEN);
+        oldIssue.setId(issueId);
+        oldIssue.setCreatedBy(ownerId);
+
+        Issue updatedIssue = buildIssue("New summary", IssueStatus.OPEN);
+        updatedIssue.setId(issueId);
+        updatedIssue.setCreatedBy(ownerId);
+
+        when(authService.getCurrentUserId(principal)).thenReturn(ownerId);
+        when(issueRepository.getIssueById(issueId))
+                .thenReturn(Optional.of(oldIssue))
+                .thenReturn(Optional.of(updatedIssue));
+
+        UpdateIssueRequest request = new UpdateIssueRequest(
+                "New summary", "New desc", UUID.randomUUID());
+
+        when(issueRepository.updateIssue(issueId, request))
+                .thenReturn(1);
+
+        IssueResponseDto result = issueService.updateIssue(issueId, request, principal);
+
+        verify(issueRepository).updateIssue(issueId, request);
+        assertThat(result.summary()).isEqualTo("New summary");
+    }
+
+    @Test
+    void updateIssue_whenUserIsNotOwner_shouldThrowUnauthorized() {
+        UUID issueId = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+        UUID otherUserId = UUID.randomUUID();
+
+        Issue existing = buildIssue("Test", IssueStatus.OPEN);
+        existing.setId(issueId);
+        existing.setCreatedBy(ownerId);
+
+        when(authService.getCurrentUserId(principal)).thenReturn(otherUserId);
+        when(issueRepository.getIssueById(issueId)).thenReturn(Optional.of(existing));
+
+        UpdateIssueRequest request = new UpdateIssueRequest("x", "y", UUID.randomUUID());
+
+        assertThrows(UnauthorizedException.class, () ->
+                issueService.updateIssue(issueId, request, principal));
+
+        verify(issueRepository, never()).updateIssue(any(), any());
+    }
+
+    @Test
+    void updateIssueStatus_whenAdmin_shouldUpdateStatus() {
+        UUID issueId = UUID.randomUUID();
+
+        Issue oldIssue = buildIssue("Test", IssueStatus.OPEN);
+        oldIssue.setId(issueId);
+
+        Issue updatedIssue = buildIssue("Test", IssueStatus.RESOLVED);
+        updatedIssue.setId(issueId);
+
+        UserDto admin = new UserDto("admin@x.lt", "Admin", Role.ADMIN, null);
+
+        when(authService.getCurrentUserInfo(principal)).thenReturn(admin);
+        when(issueRepository.getIssueById(issueId))
+                .thenReturn(Optional.of(oldIssue))
+                .thenReturn(Optional.of(updatedIssue));
+
+        when(issueRepository.updateIssueStatus(issueId, IssueStatus.RESOLVED))
+                .thenReturn(1);
+
+        ChangeIssueStatusRequest request = new ChangeIssueStatusRequest(IssueStatus.RESOLVED);
+
+        IssueResponseDto result = issueService.updateIssueStatus(issueId, request, principal);
+
+        verify(issueRepository).updateIssueStatus(issueId, IssueStatus.RESOLVED);
+        assertThat(result.status()).isEqualTo(IssueStatus.RESOLVED);
+    }
+
+    @Test
+    void updateIssueStatus_whenNotAdmin_shouldThrowAccessDenied() {
+        UUID issueId = UUID.randomUUID();
+        UserDto regularUser = new UserDto("user@x.lt", "User", Role.USER, null);
+
+        when(authService.getCurrentUserInfo(principal)).thenReturn(regularUser);
+
+        ChangeIssueStatusRequest request = new ChangeIssueStatusRequest(IssueStatus.CLOSED);
+
+        assertThrows(AccessDeniedException.class, () ->
+                issueService.updateIssueStatus(issueId, request, principal));
+
+        verify(issueRepository, never()).updateIssueStatus(any(), any());
     }
 }
 
