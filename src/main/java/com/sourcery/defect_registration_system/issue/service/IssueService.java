@@ -1,16 +1,15 @@
 package com.sourcery.defect_registration_system.issue.service;
 
 import com.sourcery.defect_registration_system.exception.UnauthorizedException;
-import com.sourcery.defect_registration_system.issue.dto.*;
+import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
+import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
+import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundException;
 import com.sourcery.defect_registration_system.issue.repository.IssueRepository;
-
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.UUID;
-
 import com.sourcery.defect_registration_system.user.dto.UserDto;
 import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.service.AuthService;
@@ -19,6 +18,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -82,7 +85,6 @@ public class IssueService {
         }
 
         int updatedRows = issueRepository.updateIssue(id, request);
-
         if (updatedRows == 0) {
             throw new IssueNotFoundException("Failed to update issue");
         }
@@ -106,16 +108,14 @@ public class IssueService {
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
 
         int updatedRows = issueRepository.updateIssueStatus(id, request.status());
-
         if (updatedRows == 0) {
-                         throw new IssueNotFoundException("Failed to update status");
+            throw new IssueNotFoundException("Failed to update status");
         }
 
-       Issue updatedIssue = issueRepository.getIssueById(id)
-               .orElseThrow(() -> new IllegalStateException("Issue missing after update"));
+        Issue updatedIssue = issueRepository.getIssueById(id)
+                .orElseThrow(() -> new IllegalStateException("Issue missing after update"));
 
         return IssueResponseDto.from(updatedIssue);
-
     }
     @Transactional
     public void deleteIssue(UUID id, OAuth2User principal) {

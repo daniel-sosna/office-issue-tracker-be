@@ -39,7 +39,6 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/offices/**")
 
                 )
-
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/", "/login").permitAll()
                         .requestMatchers(
