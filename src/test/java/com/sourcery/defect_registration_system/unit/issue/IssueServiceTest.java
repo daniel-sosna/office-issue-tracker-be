@@ -1,23 +1,16 @@
 package com.sourcery.defect_registration_system.unit.issue;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 import com.sourcery.defect_registration_system.exception.UnauthorizedException;
-import com.sourcery.defect_registration_system.issue.dto.*;
+import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
+import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
+import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundException;
 import com.sourcery.defect_registration_system.issue.repository.IssueRepository;
 import com.sourcery.defect_registration_system.issue.service.IssueService;
-
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import com.sourcery.defect_registration_system.user.dto.UserDto;
 import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.service.AuthService;
@@ -29,8 +22,30 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 public class IssueServiceTest {
+    @Mock
+    private IssueRepository issueRepository;
+    @Mock
+    private AuthService authService;
+    @Mock
+    private OAuth2User principal;
+    @InjectMocks
+    private IssueService issueService;
+
     private Issue buildIssue(String summary, IssueStatus status) {
         return Issue.builder()
                 .id(UUID.randomUUID())
@@ -41,19 +56,6 @@ public class IssueServiceTest {
                 .createdBy(UUID.randomUUID())
                 .build();
     }
-
-    @Mock
-    private IssueRepository issueRepository;
-
-    @Mock
-    private AuthService authService;
-
-    @Mock
-    private OAuth2User principal;
-
-    @InjectMocks
-    private IssueService issueService;
-
 
     @Test
     void shouldReturnFirstPageOfIssues() {
@@ -217,6 +219,9 @@ public class IssueServiceTest {
         UpdateIssueRequest request = new UpdateIssueRequest(
                 "New summary", "New desc", UUID.randomUUID());
 
+        when(issueRepository.updateIssue(issueId, request))
+                .thenReturn(1);
+
         IssueResponseDto result = issueService.updateIssue(issueId, request, principal);
 
         verify(issueRepository).updateIssue(issueId, request);
@@ -260,6 +265,9 @@ public class IssueServiceTest {
         when(issueRepository.getIssueById(issueId))
                 .thenReturn(Optional.of(oldIssue))
                 .thenReturn(Optional.of(updatedIssue));
+
+        when(issueRepository.updateIssueStatus(issueId, IssueStatus.RESOLVED))
+                .thenReturn(1);
 
         ChangeIssueStatusRequest request = new ChangeIssueStatusRequest(IssueStatus.RESOLVED);
 

@@ -1,13 +1,26 @@
 package com.sourcery.defect_registration_system.issue.controller;
 
-import com.sourcery.defect_registration_system.issue.dto.*;
+import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
+import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
+import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.service.IssueService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
@@ -53,7 +66,7 @@ public class IssueController {
         return issueService.updateIssue(id, request, principal);
     }
 
-//    @Operation(
+    //    @Operation(
 //            summary = "Change issue status",
 //            description = "Allows coordinator to change the status of any issue. Regular users cannot use this endpoint."
 //    )
