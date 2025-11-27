@@ -71,12 +71,14 @@ public class IssueService {
     }
 
     public IssueDetailsResponseDto getIssueDetailsById(UUID id) {
-        IssueResponseDto issueResponse = getIssueById(id);
-        String officeName = officeService.getOfficeDisplayNameById(issueResponse.officeId());
-        UserDto user = userService.getUserById(issueResponse.officeId());
+        Issue issue = issueRepository.getIssueById(id)
+                .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
+
+        String officeName = officeService.getOfficeDisplayNameById(issue.getOfficeId());
+        UserDto user = userService.getUserById(issue.getCreatedBy());
 
         return new IssueDetailsResponseDto(
-                issueResponse,
+                IssueResponseDto.from(issue),
                 officeName,
                 user.name(),
                 user.picture()

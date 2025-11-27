@@ -10,7 +10,6 @@ public record IssueResponseDto(
         UUID id,
         String summary,
         String description,
-        UUID officeId,
         IssueStatus status,
         OffsetDateTime date
 ) {
@@ -19,7 +18,6 @@ public record IssueResponseDto(
                 issue.getId(),
                 issue.getSummary(),
                 issue.getDescription(),
-                issue.getOfficeId(),
                 issue.getStatus(),
                 issue.getDateCreated()
         );
