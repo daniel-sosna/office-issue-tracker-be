@@ -10,6 +10,7 @@ import com.sourcery.defect_registration_system.office.service.OfficeService;
 import com.sourcery.defect_registration_system.user.dto.UserDto;
 import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.service.AuthService;
+import com.sourcery.defect_registration_system.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -26,6 +27,7 @@ public class IssueService {
     private final IssueRepository issueRepository;
     private final AuthService authService;
     private final OfficeService officeService;
+    private final UserService userService;
 
     public PageResponseDto<IssueResponseDto> getAllIssues(int page, int size) {
         int offset = (page - 1) * size;
@@ -71,12 +73,13 @@ public class IssueService {
     public IssueDetailsResponseDto getIssueDetailsById(UUID id) {
         IssueResponseDto issueResponse = getIssueById(id);
         String officeName = officeService.getOfficeNameById(issueResponse.officeId());
+        UserDto user = userService.getUserById(issueResponse.officeId());
 
         return new IssueDetailsResponseDto(
                 issueResponse,
                 officeName,
-                "John Doe",
-                "/src/assets/profile_placeholder.jpeg"
+                user.name(),
+                user.picture()
         );
     }
 
