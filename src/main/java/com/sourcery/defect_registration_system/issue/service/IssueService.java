@@ -125,7 +125,7 @@ public class IssueService {
         Issue existingIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with id " + id + " not found"));
 
-        if (!existingIssue.getCreatedBy().equals(currentUserId) && authService.getCurrentUserInfo(principal).role() != Role.ADMIN) {
+        if (!existingIssue.getCreatedBy().equals(currentUserId) && !Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role())) {
             throw new UnauthorizedException("You are not allowed to delete this issue.");
         }
 
