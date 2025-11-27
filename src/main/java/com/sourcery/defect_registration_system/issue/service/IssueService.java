@@ -1,11 +1,7 @@
 package com.sourcery.defect_registration_system.issue.service;
 
 import com.sourcery.defect_registration_system.exception.UnauthorizedException;
-import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
-import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
-import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
-import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
-import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
+import com.sourcery.defect_registration_system.issue.dto.*;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundException;
@@ -33,7 +29,7 @@ public class IssueService {
         int offset = (page - 1) * size;
         List<IssueResponseDto> content = issueRepository.getAllIssuesPaged(size, offset)
                 .stream()
-                .map(IssueResponseDto::from)
+                .map(issue -> IssueResponseDto.from(issue, 0, 0))
                 .toList();
 
         long totalElements = issueRepository.countAllIssues();
@@ -60,14 +56,14 @@ public class IssueService {
 
         issueRepository.insertIssue(issue);
 
-        return IssueResponseDto.from(issue);
+        return IssueResponseDto.from(issue, 0, 0);
     }
 
     public IssueResponseDto getIssueById(UUID id) {
         Issue issue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
 
-        return IssueResponseDto.from(issue);
+        return IssueResponseDto.from(issue, 0, 0);
     }
 
     @Transactional
@@ -90,7 +86,7 @@ public class IssueService {
         Issue updatedIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IllegalStateException("Issue missing after update"));
 
-        return IssueResponseDto.from(updatedIssue);
+        return IssueResponseDto.from(updatedIssue, 0, 0);
     }
 
     @Transactional
@@ -113,6 +109,6 @@ public class IssueService {
         Issue updatedIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IllegalStateException("Issue missing after update"));
 
-        return IssueResponseDto.from(updatedIssue);
+        return IssueResponseDto.from(updatedIssue, 0, 0);
     }
 }

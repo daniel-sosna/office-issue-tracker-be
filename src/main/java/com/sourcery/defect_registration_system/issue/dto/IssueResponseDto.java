@@ -3,6 +3,7 @@ package com.sourcery.defect_registration_system.issue.dto;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public record IssueResponseDto(
@@ -10,15 +11,21 @@ public record IssueResponseDto(
         String summary,
         String description,
         UUID officeId,
-        IssueStatus status
+        IssueStatus status,
+        int votes,
+        int comments,
+        OffsetDateTime date
 ) {
-    public static IssueResponseDto from(Issue issue) {
+    public static IssueResponseDto from(Issue issue, int votes, int comments) {
         return new IssueResponseDto(
                 issue.getId(),
                 issue.getSummary(),
                 issue.getDescription(),
                 issue.getOfficeId(),
-                issue.getStatus()
+                issue.getStatus(),
+                votes,
+                comments,
+                issue.getDateCreated()
         );
     }
 }
