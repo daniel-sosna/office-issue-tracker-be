@@ -6,6 +6,7 @@ import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundException;
 import com.sourcery.defect_registration_system.issue.repository.IssueRepository;
+import com.sourcery.defect_registration_system.office.service.OfficeService;
 import com.sourcery.defect_registration_system.user.dto.UserDto;
 import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.service.AuthService;
@@ -24,6 +25,7 @@ import java.util.UUID;
 public class IssueService {
     private final IssueRepository issueRepository;
     private final AuthService authService;
+    private final OfficeService officeService;
 
     public PageResponseDto<IssueResponseDto> getAllIssues(int page, int size) {
         int offset = (page - 1) * size;
@@ -64,6 +66,18 @@ public class IssueService {
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
 
         return IssueResponseDto.from(issue, 0, 0);
+    }
+
+    public IssueDetailsResponseDto getIssueDetailsById(UUID id) {
+        IssueResponseDto issueResponse = getIssueById(id);
+        String officeName = officeService.getOfficeNameById(issueResponse.officeId());
+
+        return new IssueDetailsResponseDto(
+                issueResponse,
+                officeName,
+                "John Doe",
+                "/src/assets/profile_placeholder.jpeg"
+        );
     }
 
     @Transactional
