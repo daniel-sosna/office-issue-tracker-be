@@ -12,19 +12,15 @@ public record IssueResponseDto(
         String description,
         UUID officeId,
         IssueStatus status,
-        int votes,
-        int comments,
         OffsetDateTime date
 ) {
-    public static IssueResponseDto from(Issue issue, int votes, int comments) {
+    public static IssueResponseDto from(Issue issue) {
         return new IssueResponseDto(
                 issue.getId(),
                 issue.getSummary(),
                 issue.getDescription(),
                 issue.getOfficeId(),
                 issue.getStatus(),
-                votes,
-                comments,
                 issue.getDateCreated()
         );
     }

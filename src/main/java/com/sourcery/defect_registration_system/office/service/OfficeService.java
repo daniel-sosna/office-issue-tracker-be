@@ -27,7 +27,7 @@ public class OfficeService {
         return OfficeResponse.from(office);
     }
 
-    public String getOfficeNameById(UUID id) {
+    public String getOfficeDisplayNameById(UUID id) {
         OfficeResponse office = getOfficeById(id);
 
         return office.title() + ", " + office.country();

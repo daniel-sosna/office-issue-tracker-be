@@ -33,7 +33,7 @@ public class IssueService {
         int offset = (page - 1) * size;
         List<IssueResponseDto> content = issueRepository.getAllIssuesPaged(size, offset)
                 .stream()
-                .map(issue -> IssueResponseDto.from(issue, 0, 0))
+                .map(IssueResponseDto::from)
                 .toList();
 
         long totalElements = issueRepository.countAllIssues();
@@ -60,19 +60,19 @@ public class IssueService {
 
         issueRepository.insertIssue(issue);
 
-        return IssueResponseDto.from(issue, 0, 0);
+        return IssueResponseDto.from(issue);
     }
 
     public IssueResponseDto getIssueById(UUID id) {
         Issue issue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
 
-        return IssueResponseDto.from(issue, 0, 0);
+        return IssueResponseDto.from(issue);
     }
 
     public IssueDetailsResponseDto getIssueDetailsById(UUID id) {
         IssueResponseDto issueResponse = getIssueById(id);
-        String officeName = officeService.getOfficeNameById(issueResponse.officeId());
+        String officeName = officeService.getOfficeDisplayNameById(issueResponse.officeId());
         UserDto user = userService.getUserById(issueResponse.officeId());
 
         return new IssueDetailsResponseDto(
@@ -103,7 +103,7 @@ public class IssueService {
         Issue updatedIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IllegalStateException("Issue missing after update"));
 
-        return IssueResponseDto.from(updatedIssue, 0, 0);
+        return IssueResponseDto.from(updatedIssue);
     }
 
     @Transactional
@@ -126,6 +126,6 @@ public class IssueService {
         Issue updatedIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IllegalStateException("Issue missing after update"));
 
-        return IssueResponseDto.from(updatedIssue, 0, 0);
+        return IssueResponseDto.from(updatedIssue);
     }
 }
