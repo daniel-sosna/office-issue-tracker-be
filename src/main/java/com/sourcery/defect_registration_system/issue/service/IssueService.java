@@ -10,7 +10,6 @@ import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundException;
 import com.sourcery.defect_registration_system.issue.repository.IssueRepository;
-import com.sourcery.defect_registration_system.user.dto.UserDto;
 import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -75,12 +74,10 @@ public class IssueService {
 
         UUID currentUserId = authService.getCurrentUserId(principal);
 
-        UserDto currentUser = authService.getCurrentUserInfo(principal);
-
         Issue existingIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
 
-        if (!existingIssue.getCreatedBy().equals(currentUserId) && currentUser.role() != Role.ADMIN) {
+        if (!existingIssue.getCreatedBy().equals(currentUserId) &&  !Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role())) {
             throw new UnauthorizedException("You are not allowed to update this issue");
         }
 
@@ -98,9 +95,7 @@ public class IssueService {
     @Transactional
     public IssueResponseDto updateIssueStatus(UUID id, ChangeIssueStatusRequest request, OAuth2User principal) {
 
-        UserDto currentUser = authService.getCurrentUserInfo(principal);
-
-        if (currentUser.role() != Role.ADMIN) {
+        if (!Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role())) {
             throw new AccessDeniedException("You do not have permission to change issue status");
         }
 
