@@ -12,11 +12,15 @@ import com.sourcery.defect_registration_system.office.enums.Country;
 import com.sourcery.defect_registration_system.office.exceptions.OfficeNotFoundException;
 import com.sourcery.defect_registration_system.office.repository.OfficeRepository;
 import com.sourcery.defect_registration_system.office.service.OfficeService;
+import com.sourcery.defect_registration_system.user.dto.UserDto;
+import com.sourcery.defect_registration_system.user.enums.Role;
+import com.sourcery.defect_registration_system.user.service.AuthService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -28,6 +32,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class OfficeServiceTest {
+
+    @Mock
+    private AuthService authService;
 
     @Mock
     private OfficeRepository officeRepository;
@@ -94,10 +101,22 @@ class OfficeServiceTest {
 
     @Test
     void createOffice_shouldCreateOfficeAndReturnResponse() {
+
         CreateOfficeRequest request = new CreateOfficeRequest(
                 "Riga Office",
                 Country.LATVIA
         );
+
+        OAuth2User principal = mock(OAuth2User.class);
+
+        UserDto adminUser = new UserDto(
+                "office.issue.moderator@gmail.com",
+                "Admin Moderator",
+                Role.ADMIN,
+                "https://lh3.googleusercontent.com/a/ACg8ocJ8KceWUfbItuN3KT6RSBnFy1gLOis2-78JotlHGTPcGHEg8Yk=s96-c"
+        );
+
+        when(authService.getCurrentUserInfo(principal)).thenReturn(adminUser);
 
         doAnswer(invocation -> {
             Office office = invocation.getArgument(0);
@@ -105,13 +124,15 @@ class OfficeServiceTest {
             return null;
         }).when(officeRepository).insertOffice(any(Office.class));
 
-        OfficeResponse response = officeService.createOffice(request);
+        OfficeResponse response = officeService.createOffice(request, principal);
 
         assertThat(response.id()).isNotNull();
         assertThat(response.title()).isEqualTo("Riga Office");
         assertThat(response.country()).isEqualTo(Country.LATVIA);
 
         verify(officeRepository).insertOffice(any(Office.class));
+        verify(authService).getCurrentUserInfo(principal);
     }
+
 }
 

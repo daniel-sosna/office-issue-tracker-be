@@ -117,6 +117,16 @@ public class IssueController {
         return issueService.updateIssueStatus(id, request, principal);
     }
 
+    @Operation(
+            summary = "Delete an issue",
+            description = "Deletes an issue by its ID. Only the creator or an admin can delete the issue."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Issue successfully deleted"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized – authentication required"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - only coordinator/owner can delete this issue"),
+            @ApiResponse(responseCode = "404", description = "Issue not found")
+    })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteIssue(@PathVariable("id") UUID id, @AuthenticationPrincipal OAuth2User principal) {

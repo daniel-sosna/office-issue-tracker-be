@@ -10,13 +10,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -67,8 +67,9 @@ public class OfficeController {
             @ApiResponse(responseCode = "401", description = "Unauthorized – user must be authenticated")
     })
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public OfficeResponse createOffice(@RequestBody @Valid CreateOfficeRequest request) {
-        return officeService.createOffice(request);
+    public OfficeResponse createOffice(
+            @RequestBody @Valid CreateOfficeRequest request,
+            @AuthenticationPrincipal OAuth2User principal) {
+        return officeService.createOffice(request, principal);
     }
 }
