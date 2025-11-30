@@ -70,6 +70,29 @@ class OfficeServiceTest {
     }
 
     @Test
+    void getOfficeDisplayNameById_whenOfficeExists_shouldReturnResponse() {
+        UUID id = UUID.randomUUID();
+        Office office = buildOffice("Vilnius Office", Country.LITHUANIA);
+        office.setId(id);
+
+        when(officeRepository.getOfficeById(id)).thenReturn(Optional.of(office));
+
+        String response = officeService.getOfficeDisplayNameById(id);
+
+        assertThat(response).isEqualTo("Vilnius Office, LITHUANIA");
+    }
+
+    @Test
+    void getOfficeDisplayNameById_whenOfficeNotFound_shouldThrowException() {
+        UUID id = UUID.randomUUID();
+
+        when(officeRepository.getOfficeById(id)).thenReturn(Optional.empty());
+
+        assertThrows(OfficeNotFoundException.class,
+                () -> officeService.getOfficeDisplayNameById(id));
+    }
+
+    @Test
     void getAllOffices_whenOfficesExist_shouldReturnList() {
         Office office1 = buildOffice("Vilnius HQ", Country.LITHUANIA);
         Office office2 = buildOffice("Kaunas Office", Country.LITHUANIA);

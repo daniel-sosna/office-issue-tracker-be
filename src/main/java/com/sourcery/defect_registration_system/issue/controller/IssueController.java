@@ -2,6 +2,7 @@ package com.sourcery.defect_registration_system.issue.controller;
 
 import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
+import com.sourcery.defect_registration_system.issue.dto.IssueDetailsResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
@@ -64,6 +65,20 @@ public class IssueController {
     @GetMapping("/{id}")
     public IssueResponseDto getIssueById(@PathVariable("id") UUID id) {
         return issueService.getIssueById(id);
+    }
+
+    @Operation(
+            summary = "Get issue details by ID",
+            description = "Returns the issue with more details for the given UUID."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Issue returned successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized – user must be authenticated"),
+            @ApiResponse(responseCode = "404", description = "Issue not found")
+    })
+    @GetMapping("/{id}/details")
+    public IssueDetailsResponseDto getIssueDetailsById(@PathVariable("id") UUID id) {
+        return issueService.getIssueDetailsById(id);
     }
 
     @Operation(
