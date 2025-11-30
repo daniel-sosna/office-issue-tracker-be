@@ -8,10 +8,18 @@ import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @Mapper
 public interface UserRepository {
+
+    @Select("""
+              SELECT *
+              FROM users
+              WHERE id = #{id}
+            """)
+    Optional<User> findById(@Param("id") UUID id);
 
     @Select("""
               SELECT *
