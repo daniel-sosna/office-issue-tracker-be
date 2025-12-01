@@ -6,6 +6,7 @@ import com.sourcery.defect_registration_system.attachment.dto.IssueAttachmentRes
 import com.sourcery.defect_registration_system.attachment.entity.IssueAttachment;
 import com.sourcery.defect_registration_system.attachment.exceptions.InvalidFileException;
 import com.sourcery.defect_registration_system.attachment.repository.IssueAttachmentRepository;
+import com.sourcery.defect_registration_system.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
@@ -106,5 +107,20 @@ public class IssueAttachmentService {
                         attachment.getFileSize()
                 ))
                 .toList();
+    }
+
+    @Transactional
+    public void deleteAttachment(UUID attachmentId) {
+
+        IssueAttachment attachment = issueAttachmentRepository.getAttachmentById(attachmentId)
+                .orElseThrow(() -> new NotFoundException("Attachment not found"));
+
+        try {
+            cloudinary.uploader().destroy(attachment.getPublicId(), ObjectUtils.emptyMap());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete file from Cloudinary", e);
+        }
+
+        issueAttachmentRepository.deleteAttachmentById(attachmentId);
     }
 }

@@ -275,7 +275,7 @@ public class IssueServiceTest {
         when(issueRepository.updateIssue(issueId, request))
                 .thenReturn(1);
 
-        IssueResponseDto result = issueService.updateIssue(issueId, request, principal);
+        IssueResponseDto result = issueService.updateIssue(issueId, request, List.of(), List.of(), principal);
 
         verify(issueRepository).updateIssue(issueId, request);
         assertThat(result.summary()).isEqualTo("New summary");
@@ -297,7 +297,7 @@ public class IssueServiceTest {
         UpdateIssueRequest request = new UpdateIssueRequest("x", "y", UUID.randomUUID());
 
         assertThrows(UnauthorizedException.class, () ->
-                issueService.updateIssue(issueId, request, principal));
+                issueService.updateIssue(issueId, request, List.of(), List.of(), principal));
 
         verify(issueRepository, never()).updateIssue(any(), any());
     }

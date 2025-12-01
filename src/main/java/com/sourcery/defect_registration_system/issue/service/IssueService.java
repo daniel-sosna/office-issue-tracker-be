@@ -101,7 +101,8 @@ public class IssueService {
     }
 
     @Transactional
-    public IssueResponseDto updateIssue(UUID id, UpdateIssueRequest request, OAuth2User principal) {
+    public IssueResponseDto updateIssue(UUID id, UpdateIssueRequest request, List<MultipartFile> newFiles,
+                                        List<UUID> deleteAttachmentIds, OAuth2User principal) {
 
         UUID currentUserId = authService.getCurrentUserId(principal);
 
@@ -115,6 +116,16 @@ public class IssueService {
         int updatedRows = issueRepository.updateIssue(id, request);
         if (updatedRows == 0) {
             throw new IssueNotFoundException("Failed to update issue");
+        }
+
+        if (deleteAttachmentIds != null && !deleteAttachmentIds.isEmpty()) {
+            for (UUID attachmentId : deleteAttachmentIds) {
+                issueAttachmentService.deleteAttachment(attachmentId);
+            }
+        }
+
+        if (newFiles != null && !newFiles.isEmpty()) {
+            issueAttachmentService.uploadAttachments(id, currentUserId, newFiles);
         }
 
         Issue updatedIssue = issueRepository.getIssueById(id)

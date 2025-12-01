@@ -117,10 +117,15 @@ public class IssueController {
             @ApiResponse(responseCode = "403", description = "Forbidden – you can only edit your own issues"),
             @ApiResponse(responseCode = "404", description = "Issue not found")
     })
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public IssueResponseDto updateIssue(@PathVariable("id") UUID id, @AuthenticationPrincipal OAuth2User principal, @Valid @RequestBody UpdateIssueRequest request) {
-        return issueService.updateIssue(id, request, principal);
+    public IssueResponseDto updateIssue(
+            @PathVariable("id") UUID id,
+            @AuthenticationPrincipal OAuth2User principal,
+            @RequestPart("issue") @Valid UpdateIssueRequest request,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @RequestPart(value = "deleteAttachmentIds", required = false) List<UUID> deleteAttachmentIds) {
+        return issueService.updateIssue(id, request, files, deleteAttachmentIds, principal);
     }
 
     @Operation(
