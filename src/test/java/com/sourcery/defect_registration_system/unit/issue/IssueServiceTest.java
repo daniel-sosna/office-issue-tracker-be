@@ -1,5 +1,6 @@
 package com.sourcery.defect_registration_system.unit.issue;
 
+import com.sourcery.defect_registration_system.attachment.service.IssueAttachmentService;
 import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
@@ -52,6 +53,8 @@ public class IssueServiceTest {
     private OfficeService officeService;
     @Mock
     private UserService userService;
+    @Mock
+    private IssueAttachmentService issueAttachmentService;
 
     private Issue buildIssue(String summary, IssueStatus status) {
         return Issue.builder()
@@ -87,7 +90,6 @@ public class IssueServiceTest {
         assertThat(result.page()).isEqualTo(1);
         assertThat(result.size()).isEqualTo(5);
     }
-
 
     @Test
     void getAllIssues_shouldReturnSecondPageOfIssues() {
@@ -162,7 +164,7 @@ public class IssueServiceTest {
             return null;
         }).when(issueRepository).insertIssue(any(Issue.class));
 
-        IssueResponseDto result = issueService.createIssue(request, principal);
+        IssueResponseDto result = issueService.createIssue(request, null, principal);
 
         assertThat(result.summary()).isEqualTo("We’re out of bread kvass");
         assertThat(result.status()).isEqualTo(IssueStatus.OPEN);

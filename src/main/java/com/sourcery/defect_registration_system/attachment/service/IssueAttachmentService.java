@@ -92,4 +92,19 @@ public class IssueAttachmentService {
             throw new InvalidFileException("File is too large. Max allowed: 5MB");
         }
     }
+
+    public List<IssueAttachmentResponse> getAttachmentsByIssueId(UUID issueId) {
+
+        List<IssueAttachment> attachments = issueAttachmentRepository.getAttachmentsByIssueId(issueId);
+
+        return attachments.stream()
+                .map(attachment -> new IssueAttachmentResponse(
+                        attachment.getId(),
+                        attachment.getUrl(),
+                        attachment.getFormat(),
+                        attachment.getOriginalFilename(),
+                        attachment.getFileSize()
+                ))
+                .toList();
+    }
 }
