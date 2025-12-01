@@ -33,6 +33,12 @@ public class OfficeService {
         return OfficeResponse.from(office);
     }
 
+    public String getOfficeDisplayNameById(UUID id) {
+        OfficeResponse office = getOfficeById(id);
+
+        return office.title() + ", " + office.country();
+    }
+
     public List<OfficeResponse> getAllOffices() {
 
         return officeRepository.getAllOffices().stream()

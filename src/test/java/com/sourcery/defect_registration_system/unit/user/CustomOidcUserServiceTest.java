@@ -1,8 +1,9 @@
-package com.sourcery.defect_registration_system.user.service;
+package com.sourcery.defect_registration_system.unit.user;
 
 import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.entity.User;
 import com.sourcery.defect_registration_system.user.repository.UserRepository;
+import com.sourcery.defect_registration_system.user.service.CustomOidcUserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

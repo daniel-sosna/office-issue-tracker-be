@@ -3,6 +3,7 @@ package com.sourcery.defect_registration_system.unit.issue;
 import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
+import com.sourcery.defect_registration_system.issue.dto.IssueDetailsResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
@@ -11,9 +12,11 @@ import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundException;
 import com.sourcery.defect_registration_system.issue.repository.IssueRepository;
 import com.sourcery.defect_registration_system.issue.service.IssueService;
+import com.sourcery.defect_registration_system.office.service.OfficeService;
 import com.sourcery.defect_registration_system.user.dto.UserDto;
 import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.service.AuthService;
+import com.sourcery.defect_registration_system.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -45,6 +48,10 @@ public class IssueServiceTest {
     private OAuth2User principal;
     @InjectMocks
     private IssueService issueService;
+    @Mock
+    private OfficeService officeService;
+    @Mock
+    private UserService userService;
 
     private Issue buildIssue(String summary, IssueStatus status) {
         return Issue.builder()
@@ -58,7 +65,7 @@ public class IssueServiceTest {
     }
 
     @Test
-    void shouldReturnFirstPageOfIssues() {
+    void getAllIssues_shouldReturnFirstPageOfIssues() {
         Issue issue1 = buildIssue("summary1", IssueStatus.OPEN);
         Issue issue2 = buildIssue("summary2", IssueStatus.OPEN);
         int page = 1;
@@ -83,7 +90,7 @@ public class IssueServiceTest {
 
 
     @Test
-    void shouldReturnSecondPageOfIssues() {
+    void getAllIssues_shouldReturnSecondPageOfIssues() {
         Issue issue3 = buildIssue("summary3", IssueStatus.RESOLVED);
 
         int page = 2;
@@ -101,7 +108,7 @@ public class IssueServiceTest {
     }
 
     @Test
-    void shouldReturnEmptyPageWhenNoIssuesExist() {
+    void getAllIssues_shouldReturnEmptyPageWhenNoIssuesExist() {
         int page = 1;
         int size = 5;
 
@@ -118,7 +125,7 @@ public class IssueServiceTest {
     }
 
     @Test
-    void shouldReturnCorrectTotalPagesForMultiplePages() {
+    void getAllIssues_shouldReturnCorrectTotalPagesForMultiplePages() {
         Issue issue1 = buildIssue("summary1", IssueStatus.OPEN);
         Issue issue2 = buildIssue("summary2", IssueStatus.OPEN);
         Issue issue3 = buildIssue("summary3", IssueStatus.OPEN);
@@ -138,7 +145,6 @@ public class IssueServiceTest {
 
     @Test
     void createIssue_shouldSetDefaultOpenStatusAndReturnDto() {
-
         UUID officeId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -158,8 +164,8 @@ public class IssueServiceTest {
 
         IssueResponseDto result = issueService.createIssue(request, principal);
 
+        assertThat(result.summary()).isEqualTo("We’re out of bread kvass");
         assertThat(result.status()).isEqualTo(IssueStatus.OPEN);
-        assertThat(result.officeId()).isEqualTo(officeId);
         verify(issueRepository).insertIssue(any(Issue.class));
     }
 
@@ -167,6 +173,7 @@ public class IssueServiceTest {
     void getIssueById_whenFound_shouldReturnDto() {
         UUID issueId = UUID.randomUUID();
         UUID officeId = UUID.randomUUID();
+        OffsetDateTime dateCreated = OffsetDateTime.now();
 
         Issue issue = Issue.builder()
                 .id(issueId)
@@ -175,7 +182,7 @@ public class IssueServiceTest {
                 .officeId(officeId)
                 .status(IssueStatus.OPEN)
                 .createdBy(UUID.randomUUID())
-                .dateCreated(OffsetDateTime.now())
+                .dateCreated(dateCreated)
                 .build();
 
         when(issueRepository.getIssueById(issueId)).thenReturn(Optional.of(issue));
@@ -185,7 +192,7 @@ public class IssueServiceTest {
         assertThat(result.id()).isEqualTo(issueId);
         assertThat(result.summary()).isEqualTo("Test issue");
         assertThat(result.status()).isEqualTo(IssueStatus.OPEN);
-        assertThat(result.officeId()).isEqualTo(officeId);
+        assertThat(result.date()).isEqualTo(dateCreated);
     }
 
     @Test
@@ -195,6 +202,50 @@ public class IssueServiceTest {
 
         assertThrows(IssueNotFoundException.class, () ->
                 issueService.getIssueById(id)
+        );
+    }
+
+    @Test
+    void getIssueDetailsById_whenFound_shouldReturnDto() {
+        UUID issueId = UUID.randomUUID();
+        UUID officeId = UUID.randomUUID();
+        UUID createdById = UUID.randomUUID();
+        OffsetDateTime dateCreated = OffsetDateTime.now();
+
+        Issue issue = Issue.builder()
+                .id(issueId)
+                .summary("Test issue")
+                .description("Test desc")
+                .officeId(officeId)
+                .status(IssueStatus.OPEN)
+                .createdBy(createdById)
+                .dateCreated(dateCreated)
+                .build();
+
+        UserDto user = new UserDto("test@gmail.com", "User", Role.USER, "http://image.jpg");
+
+        when(issueRepository.getIssueById(issueId)).thenReturn(Optional.of(issue));
+        when(officeService.getOfficeDisplayNameById(officeId)).thenReturn("Vilnius, Lithuania");
+        when(userService.getUserById(createdById)).thenReturn(user);
+
+        IssueDetailsResponseDto result = issueService.getIssueDetailsById(issueId);
+
+        assertThat(result.issue().id()).isEqualTo(issueId);
+        assertThat(result.issue().summary()).isEqualTo("Test issue");
+        assertThat(result.issue().status()).isEqualTo(IssueStatus.OPEN);
+        assertThat(result.issue().date()).isEqualTo(dateCreated);
+        assertThat(result.officeName()).isEqualTo("Vilnius, Lithuania");
+        assertThat(result.reportedBy()).isEqualTo("User");
+        assertThat(result.reportedByAvatar()).isEqualTo("http://image.jpg");
+    }
+
+    @Test
+    void getIssueDetailsById_whenNotFound_shouldThrowException() {
+        UUID id = UUID.randomUUID();
+        when(issueRepository.getIssueById(id)).thenReturn(Optional.empty());
+
+        assertThrows(IssueNotFoundException.class, () ->
+                issueService.getIssueDetailsById(id)
         );
     }
 
