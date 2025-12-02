@@ -41,10 +41,4 @@ public interface IssueAttachmentRepository {
             WHERE id = #{id}
             """)
     void deleteAttachmentById(@Param("id") UUID id);
-
-    @Delete("""
-            DELETE FROM issue_attachments
-            WHERE issue_id = #{issueId}
-            """)
-    void deleteAttachmentByIssueId(@Param("issueId") UUID issueId);
 }
