@@ -86,4 +86,11 @@ public class GlobalExceptionHandler {
                 "fields", fieldErrors
         ));
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR,
+                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                "An unexpected error occurred");
+    }
 }
