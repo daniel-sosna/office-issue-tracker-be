@@ -40,7 +40,7 @@ public class SecurityConfig {
 
                 )
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/", "/login").permitAll()
+                        .requestMatchers( "/login").permitAll()
                         .requestMatchers(
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
@@ -50,11 +50,7 @@ public class SecurityConfig {
                         ).permitAll()
 
                         .requestMatchers(HttpMethod.PATCH, "/issues/*/status").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/issues/").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/issues/").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/issues").authenticated()
                         .requestMatchers(HttpMethod.POST, "/offices").hasRole("ADMIN")
-                        .requestMatchers("/issues/**", "/offices/**", "/api/**").authenticated()
 
                         .anyRequest().authenticated()
                 )
