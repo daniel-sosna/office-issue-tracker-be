@@ -98,7 +98,7 @@ public class IssueService {
         Issue existingIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
 
-        if (!existingIssue.getCreatedBy().equals(currentUserId) &&  !Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role())) {
+        if (!existingIssue.getCreatedBy().equals(currentUserId)) {
             throw new UnauthorizedException("You are not allowed to update this issue");
         }
 
