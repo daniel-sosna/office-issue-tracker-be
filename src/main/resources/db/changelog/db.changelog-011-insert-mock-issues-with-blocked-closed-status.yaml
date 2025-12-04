@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 010
+      id: 011
       author: kostas
       context: local
       changes:
