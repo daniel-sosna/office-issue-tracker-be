@@ -116,9 +116,7 @@ public class IssueService {
     @Transactional
     public IssueResponseDto updateIssueStatus(UUID id, ChangeIssueStatusRequest request, OAuth2User principal) {
 
-        UserDto currentUser = authService.getCurrentUserInfo(principal);
-
-        if (currentUser.role() != Role.ADMIN) {
+        if (!Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role())) {
             throw new AccessDeniedException("You do not have permission to change issue status");
         }
 
@@ -135,4 +133,19 @@ public class IssueService {
 
         return IssueResponseDto.from(updatedIssue);
     }
+    @Transactional
+    public void deleteIssue(UUID id, OAuth2User principal) {
+
+        UUID currentUserId = authService.getCurrentUserId(principal);
+
+        Issue existingIssue = issueRepository.getIssueById(id)
+                .orElseThrow(() -> new IssueNotFoundException("Issue with id " + id + " not found"));
+
+        if (!existingIssue.getCreatedBy().equals(currentUserId) && !Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role())) {
+            throw new UnauthorizedException("You are not allowed to delete this issue.");
+        }
+
+        issueRepository.deleteIssue(id);
+    }
+
 }
