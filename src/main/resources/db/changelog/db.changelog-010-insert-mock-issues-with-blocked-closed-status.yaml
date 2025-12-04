@@ -46,7 +46,7 @@ databaseChangeLog:
               - column: { name: description, value: "Power socket not supplying power in the meeting room." }
               - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='VILNIUS')" }
               - column: { name: status, value: "CLOSED" }
-              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='kostas.zibulskis@gmail.com')" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='john.smith@gmail.com')" }
               - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
 
         - insert:
@@ -59,17 +59,6 @@ databaseChangeLog:
               - column: { name: status, value: "BLOCKED" }
               - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='james.parker@gmail.com')" }
               - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
-
-        - insert:
-            tableName: issue
-            columns:
-              - column: { name: id, valueComputed: gen_random_uuid() }
-              - column: { name: summary, value: "The gira is out of stock" }
-              - column: { name: description, value: "There are no barrels of gira left." }
-              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='VILNIUS')" }
-              - column: { name: status, value: "OPEN" }
-              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='kostas.zibulskis@gmail.com')" }
-              - column: { name: date_created, valueComputed: CURRENT-TIMESTAMP }
 
 
 
