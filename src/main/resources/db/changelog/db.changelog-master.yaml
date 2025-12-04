@@ -17,3 +17,5 @@ databaseChangeLog:
       file: db/changelog/db.changelog-008-insert-admin.yaml
   - include:
       file: db/changelog/db.changelog-009-update-mock-office-countries.yaml
+  - include:
+      file: db/changelog/db.changelog-011-insert-mock-issues-with-blocked-closed-status.yaml
