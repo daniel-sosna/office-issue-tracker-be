@@ -1,6 +1,11 @@
 package com.sourcery.defect_registration_system.issue.controller;
 
-import com.sourcery.defect_registration_system.issue.dto.*;
+import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
+import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
+import com.sourcery.defect_registration_system.issue.dto.IssueDetailsResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.service.IssueService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
