@@ -114,6 +114,7 @@ public class IssueController {
             @ApiResponse(responseCode = "404", description = "Issue not found")
     })
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public IssueResponseDto updateIssue(@PathVariable("id") UUID id,
                                         @AuthenticationPrincipal OAuth2User principal,
                                         @Valid @RequestBody UpdateIssueRequest request) {
@@ -132,6 +133,7 @@ public class IssueController {
             @ApiResponse(responseCode = "404", description = "Issue not found")
     })
     @PatchMapping("/{id}/status")
+    @ResponseStatus(HttpStatus.OK)
     public IssueResponseDto updateIssueStatus(@PathVariable("id") UUID id,
                                               @RequestBody @Valid ChangeIssueStatusRequest request,
                                               @AuthenticationPrincipal OAuth2User principal) {
