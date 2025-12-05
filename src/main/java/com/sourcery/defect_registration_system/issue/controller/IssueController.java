@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -105,7 +106,6 @@ public class IssueController {
         return issueService.createIssue(request, files, principal);
     }
 
-
     @Operation(
             summary = "Update an existing issue",
             description = "Allows the issue creator to update summary, description and office. Only the owner can modify their own issue."
@@ -144,4 +144,21 @@ public class IssueController {
     public IssueResponseDto updateIssueStatus(@PathVariable("id") UUID id, @RequestBody @Valid ChangeIssueStatusRequest request, @AuthenticationPrincipal OAuth2User principal) {
         return issueService.updateIssueStatus(id, request, principal);
     }
+
+    @Operation(
+            summary = "Delete an issue",
+            description = "Deletes an issue by its ID. Only the creator or an admin can delete the issue."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Issue successfully deleted"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized – authentication required"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - only coordinator/owner can delete this issue"),
+            @ApiResponse(responseCode = "404", description = "Issue not found")
+    })
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteIssue(@PathVariable("id") UUID id, @AuthenticationPrincipal OAuth2User principal) {
+        issueService.deleteIssue(id, principal);
+    }
+
 }

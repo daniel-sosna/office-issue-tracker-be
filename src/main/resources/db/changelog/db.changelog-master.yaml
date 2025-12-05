@@ -19,3 +19,5 @@ databaseChangeLog:
       file: db/changelog/db.changelog-009-update-mock-office-countries.yaml
   - include:
       file: db/changelog/db.changelog-010-create-issue-attachments-table.yaml
+  - include:
+      file: db/changelog/db.changelog-011-insert-mock-issues-with-blocked-closed-status.yaml

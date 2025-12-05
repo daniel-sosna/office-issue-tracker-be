@@ -1,0 +1,65 @@
+databaseChangeLog:
+  - changeSet:
+      id: 011
+      author: kostas
+      context: local
+      changes:
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "VPN connection unavailable" }
+              - column: { name: description, value: "Inappropriate description" }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Vilnius')" }
+              - column: { name: status, value: "BLOCKED" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='emma.johnson@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Kitchen dishwasher broken" }
+              - column: { name: description, value: "Inappropriate description" }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Kaunas')" }
+              - column: { name: status, value: "BLOCKED" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='john.smith@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Parking access card deactivated" }
+              - column: { name: description, value: "I cannot enter underground parking." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Gdansk')" }
+              - column: { name: status, value: "CLOSED" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='sophia.wilson@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Broken charging station" }
+              - column: { name: description, value: "Power socket not supplying power in the meeting room." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Vilnius')" }
+              - column: { name: status, value: "CLOSED" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='john.smith@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: issue
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column: { name: summary, value: "Inappropriate summary" }
+              - column: { name: description, value: "Alarm system malfunction." }
+              - column: { name: office_id, valueComputed: "(SELECT id FROM office WHERE title='Krakow')" }
+              - column: { name: status, value: "BLOCKED" }
+              - column: { name: created_by, valueComputed: "(SELECT id FROM users WHERE email='james.parker@gmail.com')" }
+              - column: { name: date_created, valueComputed: CURRENT_TIMESTAMP }
+
+
+
+

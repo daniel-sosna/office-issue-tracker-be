@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -39,14 +40,20 @@ public class SecurityConfig {
 
                 )
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/", "/login").permitAll()
+                        .requestMatchers( "/login").permitAll()
                         .requestMatchers(
-                                "/v3/api-docs/**",
+                                "/swagger-ui.html",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/webjars/**"
                         ).permitAll()
-                        .requestMatchers("/api/**").authenticated()
-                        .anyRequest().authenticated())
+
+                        .requestMatchers(HttpMethod.PATCH, "/issues/*/status").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/offices").hasRole("ADMIN")
+
+                        .anyRequest().authenticated()
+                )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.oidcUserService(customOidUserService))
                         .defaultSuccessUrl("http://localhost:5174/", true))

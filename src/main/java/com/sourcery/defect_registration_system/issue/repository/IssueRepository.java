@@ -41,15 +41,15 @@ public interface IssueRepository {
     void insertIssue(Issue issue);
 
     @Select("""
-            SELECT * 
+            SELECT *
             FROM issue
             WHERE id = #{id}
             """)
     Optional<Issue> getIssueById(@Param("id") UUID id);
 
     @Update("""
-            UPDATE issue 
-            SET summary = #{request.summary}, description = #{request.description}, office_id = #{request.officeId}, date_modified = now() 
+            UPDATE issue
+            SET summary = #{request.summary}, description = #{request.description}, office_id = #{request.officeId}, date_modified = now()
             WHERE id = #{id}
             """)
     int updateIssue(@Param("id") UUID id, @Param("request") UpdateIssueRequest request);
@@ -60,4 +60,10 @@ public interface IssueRepository {
             WHERE id = #{id}
             """)
     int updateIssueStatus(@Param("id") UUID id, @Param("status") IssueStatus status);
+
+    @Delete("""
+            DELETE from issue
+            WHERE id = #{id}
+            """)
+    void deleteIssue(UUID id);
 }
