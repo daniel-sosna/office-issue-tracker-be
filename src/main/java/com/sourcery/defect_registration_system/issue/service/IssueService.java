@@ -86,7 +86,8 @@ public class IssueService {
                 IssueResponseDto.from(issue),
                 officeName,
                 user.name(),
-                user.picture()
+                user.picture(),
+                user.email()
         );
     }
 

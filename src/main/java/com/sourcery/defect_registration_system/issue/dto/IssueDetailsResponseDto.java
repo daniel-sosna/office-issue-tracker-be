@@ -4,6 +4,7 @@ public record IssueDetailsResponseDto(
         IssueResponseDto issue,
         String officeName,
         String reportedBy,
-        String reportedByAvatar
+        String reportedByAvatar,
+        String reportedByEmail
 ) {
 }
