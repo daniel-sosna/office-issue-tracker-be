@@ -3,12 +3,22 @@ package com.sourcery.defect_registration_system.issue.repository;
 import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
-import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
+import org.apache.ibatis.annotations.*;
+import org.springframework.stereotype.Repository;
 
 @Repository
 @Mapper
@@ -72,7 +82,11 @@ public interface IssueRepository {
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     void insertIssue(Issue issue);
 
-    @Select("SELECT * FROM issue WHERE id = #{id}")
+    @Select("""
+            SELECT *
+            FROM issue
+            WHERE id = #{id}
+            """)
     Optional<Issue> getIssueById(@Param("id") UUID id);
 
     @Update("""
@@ -89,6 +103,9 @@ public interface IssueRepository {
             """)
     int updateIssueStatus(@Param("id") UUID id, @Param("status") IssueStatus status);
 
-    @Delete("DELETE FROM issue WHERE id = #{id}")
+    @Delete("""
+            DELETE from issue
+            WHERE id = #{id}
+            """)
     void deleteIssue(UUID id);
 }
