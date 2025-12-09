@@ -7,9 +7,6 @@ import java.util.UUID;
 public record CreateVoteRequestDto(
 
         @NotBlank(message = "Issue ID is required")
-        UUID issueId,
-
-        @NotBlank(message = "User ID is required")
-        UUID userId
+        UUID issueId
 ) {
 }
