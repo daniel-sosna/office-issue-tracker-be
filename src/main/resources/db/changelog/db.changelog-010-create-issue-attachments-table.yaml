@@ -1,0 +1,87 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010
+      author: auste
+      changes:
+        - createTable:
+            tableName: issue_attachments
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: issue_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: public_id
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: url
+                  type: TEXT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: format
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: original_filename
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: file_size
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: date_created
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: uploaded_by
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: issue_attachments
+            baseColumnNames: issue_id
+            referencedTableName: issue
+            referencedColumnNames: id
+            onDelete: CASCADE
+            constraintName: fk_issue_attachments
+
+        - addForeignKeyConstraint:
+            baseTableName: issue_attachments
+            baseColumnNames: uploaded_by
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: RESTRICT
+            constraintName: fk_issue_attachments_uploaded_by
+
+        - createIndex:
+            tableName: issue_attachments
+            indexName: idx_issue_attachments_issue_id
+            columns:
+              - column:
+                  name: issue_id

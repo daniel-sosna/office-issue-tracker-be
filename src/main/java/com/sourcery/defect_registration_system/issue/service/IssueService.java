@@ -1,7 +1,14 @@
 package com.sourcery.defect_registration_system.issue.service;
 
+import com.sourcery.defect_registration_system.attachment.dto.IssueAttachmentResponse;
+import com.sourcery.defect_registration_system.attachment.service.IssueAttachmentService;
 import com.sourcery.defect_registration_system.exception.UnauthorizedException;
-import com.sourcery.defect_registration_system.issue.dto.*;
+import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
+import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
+import com.sourcery.defect_registration_system.issue.dto.IssueDetailsResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundException;
@@ -16,6 +23,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -28,6 +36,7 @@ public class IssueService {
     private final AuthService authService;
     private final OfficeService officeService;
     private final UserService userService;
+    private final IssueAttachmentService issueAttachmentService;
 
     public PageResponseDto<IssueResponseDto> getAllIssues(
             String status, UUID office, UUID reportedBy, String sort, int page, int size) {
@@ -59,7 +68,8 @@ public class IssueService {
     }
 
     @Transactional
-    public IssueResponseDto createIssue(CreateIssueRequest request, OAuth2User principal) {
+    public IssueResponseDto createIssue(CreateIssueRequest request, List<MultipartFile> files, OAuth2User principal) {
+
         UUID createdBy = authService.getCurrentUserId(principal);
 
         Issue issue = Issue.builder()
@@ -74,6 +84,10 @@ public class IssueService {
                 .build();
 
         issueRepository.insertIssue(issue);
+
+        if (files != null && !files.isEmpty()) {
+            issueAttachmentService.uploadAttachments(issue.getId(), createdBy, files);
+        }
 
         return IssueResponseDto.from(issue);
     }
@@ -91,17 +105,21 @@ public class IssueService {
 
         String officeName = officeService.getOfficeDisplayNameById(issue.getOfficeId());
         UserDto user = userService.getUserById(issue.getCreatedBy());
+        List<IssueAttachmentResponse> attachments = issueAttachmentService.getAttachmentsByIssueId(issue.getId());
 
         return new IssueDetailsResponseDto(
                 IssueResponseDto.from(issue),
                 officeName,
                 user.name(),
-                user.picture()
+                user.picture(),
+                attachments
         );
     }
 
     @Transactional
-    public IssueResponseDto updateIssue(UUID id, UpdateIssueRequest request, OAuth2User principal) {
+    public IssueResponseDto updateIssue(UUID id, UpdateIssueRequest request, List<MultipartFile> newFiles,
+                                        List<UUID> deleteAttachmentIds, OAuth2User principal) {
+
         UUID currentUserId = authService.getCurrentUserId(principal);
 
         Issue existingIssue = issueRepository.getIssueById(id)
@@ -116,6 +134,16 @@ public class IssueService {
             throw new IssueNotFoundException("Failed to update issue");
         }
 
+        if (deleteAttachmentIds != null && !deleteAttachmentIds.isEmpty()) {
+            for (UUID attachmentId : deleteAttachmentIds) {
+                issueAttachmentService.deleteAttachment(attachmentId);
+            }
+        }
+
+        if (newFiles != null && !newFiles.isEmpty()) {
+            issueAttachmentService.uploadAttachments(id, currentUserId, newFiles);
+        }
+
         Issue updatedIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IllegalStateException("Issue missing after update"));
 
@@ -124,6 +152,7 @@ public class IssueService {
 
     @Transactional
     public IssueResponseDto updateIssueStatus(UUID id, ChangeIssueStatusRequest request, OAuth2User principal) {
+
         if (!Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role())) {
             throw new AccessDeniedException("You do not have permission to change issue status");
         }
@@ -141,19 +170,19 @@ public class IssueService {
 
         return IssueResponseDto.from(updatedIssue);
     }
-
     @Transactional
     public void deleteIssue(UUID id, OAuth2User principal) {
+
         UUID currentUserId = authService.getCurrentUserId(principal);
 
         Issue existingIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with id " + id + " not found"));
 
-        if (!existingIssue.getCreatedBy().equals(currentUserId)
-                && !Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role())) {
+        if (!existingIssue.getCreatedBy().equals(currentUserId) && !Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role())) {
             throw new UnauthorizedException("You are not allowed to delete this issue.");
         }
 
         issueRepository.deleteIssue(id);
     }
+
 }

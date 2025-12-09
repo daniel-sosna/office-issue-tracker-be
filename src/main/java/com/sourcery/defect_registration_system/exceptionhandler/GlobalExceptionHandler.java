@@ -1,5 +1,6 @@
 package com.sourcery.defect_registration_system.exceptionhandler;
 
+import com.sourcery.defect_registration_system.attachment.exceptions.InvalidFileException;
 import com.sourcery.defect_registration_system.exception.BadRequestException;
 import com.sourcery.defect_registration_system.exception.NotFoundException;
 import com.sourcery.defect_registration_system.exception.UnauthorizedException;
@@ -58,6 +59,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex) {
         return buildErrorResponse(HttpStatus.FORBIDDEN, HttpStatus.FORBIDDEN.getReasonPhrase(), ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidFileException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidFile(InvalidFileException ex) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReasonPhrase(), ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
