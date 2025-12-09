@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -33,4 +34,7 @@ public interface UserRepository {
               VALUES (#{id}, #{name}, #{email}, #{imageUrl}, #{role})
             """)
     void insert(User user);
+
+    @Update("UPDATE users SET name = #{name} WHERE id = #{userId}")
+    void updateUserName(@Param("userId") UUID userId, @Param("name") String name);
 }
