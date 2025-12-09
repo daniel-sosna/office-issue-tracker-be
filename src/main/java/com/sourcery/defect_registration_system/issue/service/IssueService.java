@@ -126,6 +126,7 @@ public class IssueService {
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
 
         int updatedRows = issueRepository.updateIssueStatus(id, request.status());
+
         if (updatedRows == 0) {
             throw new IssueNotFoundException("Failed to update status");
         }
