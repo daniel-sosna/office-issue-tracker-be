@@ -1,25 +1,30 @@
 package com.sourcery.defect_registration_system.issue.dto;
 
 import com.sourcery.defect_registration_system.issue.entity.Issue;
-import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 
-import java.time.OffsetDateTime;
-import java.util.UUID;
 
 public record IssueResponseDto(
-        UUID id,
+        String id,
         String summary,
         String description,
-        IssueStatus status,
-        OffsetDateTime date
+        String status,
+        String createdBy,
+        String officeId,
+        String dateCreated,
+        String dateModified
 ) {
     public static IssueResponseDto from(Issue issue) {
         return new IssueResponseDto(
-                issue.getId(),
+                issue.getId().toString(),
                 issue.getSummary(),
                 issue.getDescription(),
-                issue.getStatus(),
-                issue.getDateCreated()
+                issue.getStatus().name(),
+                issue.getCreatedBy().toString(),
+                issue.getOfficeId().toString(),
+                issue.getDateCreated().toString(),
+                issue.getDateModified() == null ? null : issue.getDateModified().toString()
+
         );
     }
 }
+

@@ -85,6 +85,7 @@ public class IssueService {
         return new IssueDetailsResponseDto(
                 IssueResponseDto.from(issue),
                 officeName,
+                issue.getOfficeId().toString(),
                 user.name(),
                 user.picture(),
                 user.email()
