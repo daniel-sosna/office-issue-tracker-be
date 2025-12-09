@@ -38,14 +38,30 @@ public class IssueService {
     private final UserService userService;
     private final IssueAttachmentService issueAttachmentService;
 
-    public PageResponseDto<IssueResponseDto> getAllIssues(int page, int size) {
+    public PageResponseDto<IssueResponseDto> getAllIssues(
+            String status, UUID office, UUID reportedBy, String sort, int page, int size) {
+
         int offset = (page - 1) * size;
-        List<IssueResponseDto> content = issueRepository.getAllIssuesPaged(size, offset)
-                .stream()
+
+        String orderBy;
+        if (sort == null) {
+            orderBy = "date_created DESC";
+        } else {
+            switch (sort.toLowerCase()) {
+                case "dateasc": orderBy = "date_created ASC"; break;
+                case "votesdesc": orderBy = "votes DESC"; break;
+                case "commentsdesc": orderBy = "comments DESC"; break;
+                default: orderBy = "date_created DESC";
+            }
+        }
+
+        List<IssueResponseDto> content = issueRepository.getAllIssues(
+                        status, office, reportedBy, orderBy, size, offset
+                ).stream()
                 .map(IssueResponseDto::from)
                 .toList();
 
-        long totalElements = issueRepository.countAllIssues();
+        long totalElements = issueRepository.countAllIssues(status, office, reportedBy);
         int totalPages = (int) Math.ceil(totalElements / (double) size);
 
         return new PageResponseDto<>(content, totalElements, totalPages, page, size);

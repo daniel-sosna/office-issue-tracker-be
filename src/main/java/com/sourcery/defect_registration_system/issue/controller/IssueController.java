@@ -44,19 +44,16 @@ import java.util.UUID;
 public class IssueController {
     private final IssueService issueService;
 
-    @Operation(
-            summary = "Get paginated list of issues",
-            description = "Returns a paginated list of issues with page and size parameters."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Page of issues returned successfully"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized – user must be authenticated"),
-    })
     @GetMapping
     public PageResponseDto<IssueResponseDto> getAllIssuesPaginated(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return issueService.getAllIssues(page, size);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) UUID office,
+            @RequestParam(required = false) UUID reportedBy,
+            @RequestParam(defaultValue = "dateDesc") String sort) {
+
+        return issueService.getAllIssues(status, office, reportedBy, sort, page, size);
     }
 
     @Operation(
