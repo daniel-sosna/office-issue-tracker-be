@@ -1,6 +1,5 @@
 package com.sourcery.defect_registration_system.issue_vote.service;
 
-import com.sourcery.defect_registration_system.issue_vote.dto.CreateVoteRequestDto;
 import com.sourcery.defect_registration_system.issue_vote.dto.VoteResponseDto;
 import com.sourcery.defect_registration_system.issue_vote.entity.Vote;
 import com.sourcery.defect_registration_system.issue_vote.exceptions.VoteAlreadyExistsException;
@@ -27,6 +26,13 @@ public class VoteService {
         return voteRepository.isVoteExists(vote.getIssueId(), vote.getUserId());
     }
 
+    public boolean hasVotedOnIssue(UUID issueId, OAuth2User principal) {
+
+        UUID userId = authService.getCurrentUserId(principal);
+
+        return voteRepository.isVoteExists(issueId, userId);
+    }
+
     public List<VoteResponseDto> getAllVotes() {
 
         return voteRepository.getAllVotes().stream()
@@ -35,16 +41,16 @@ public class VoteService {
     }
 
     @Transactional
-    public VoteResponseDto createVote(CreateVoteRequestDto request, OAuth2User principal) {
+    public VoteResponseDto createVote(UUID issueId, OAuth2User principal) {
 
         UUID userId = authService.getCurrentUserId(principal);
 
-        if (voteRepository.isVoteExists(request.issueId(), userId)) {
-            throw new VoteAlreadyExistsException(request.issueId(), userId);
+        if (voteRepository.isVoteExists(issueId, userId)) {
+            throw new VoteAlreadyExistsException(issueId, userId);
         }
 
         Vote vote = Vote.builder()
-                .issueId(request.issueId())
+                .issueId(issueId)
                 .userId(userId)
                 .build();
 
