@@ -4,6 +4,7 @@ import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusReques
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
 import com.sourcery.defect_registration_system.issue.dto.IssueDetailsResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.PageIssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.service.IssueService;
@@ -53,10 +54,11 @@ public class IssueController {
             @ApiResponse(responseCode = "401", description = "Unauthorized – user must be authenticated"),
     })
     @GetMapping
-    public PageResponseDto<IssueResponseDto> getAllIssuesPaginated(
+    public PageResponseDto<PageIssueResponseDto> getAllIssuesPaginated(
+            @AuthenticationPrincipal OAuth2User principal,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return issueService.getAllIssues(page, size);
+        return issueService.getAllIssues(page, size, principal);
     }
 
     @Operation(
