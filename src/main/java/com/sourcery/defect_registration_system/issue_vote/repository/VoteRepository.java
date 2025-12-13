@@ -24,9 +24,15 @@ public interface VoteRepository {
     boolean isVoteExist(@Param("issueId") UUID issueId, @Param("userId") UUID userId);
 
     @Select("""
-            SELECT issueId
-            FROM IssueVote
-            WHERE issueId IN #{issueIds} AND userId = #{userId}
+            <script>
+            SELECT issue_id
+            FROM issue_vote
+            WHERE issue_id IN
+                <foreach collection="issueIds" item="id" open="(" separator="," close=")">
+                  #{id}
+                </foreach>
+            AND user_id = #{userId}
+            </script>
     """)
     List<UUID> findIssuesVotedByUser(@Param("issueIds") List<UUID> issueIds, @Param("userId") UUID userId);
 
@@ -38,10 +44,15 @@ public interface VoteRepository {
     int countVotesOnIssue(@Param("id") UUID issueId);
 
     @Select("""
+            <script>
             SELECT issue_id AS issueId, COUNT(*) AS voteCount
-            FROM IssueVote
-            WHERE issue_id IN #{ids}
+            FROM issue_vote
+            WHERE issue_id IN
+                <foreach collection="ids" item="id" open="(" separator="," close=")">
+                  #{id}
+                </foreach>
             GROUP BY issue_id
+            </script>
     """)
     List<IssueVoteCountDto> countVotesOnIssues(@Param("ids") List<UUID> issueIds);
 
@@ -58,8 +69,8 @@ public interface VoteRepository {
     void insertVote(Vote vote);
 
     @Delete("""
-            DELETE from issue
+            DELETE from issue_vote
             WHERE issue_id = #{issueId} AND user_id = #{userId}
-        """)
+            """)
     void deleteVote(@Param("issueId") UUID issueId, @Param("userId") UUID userId);
 }
