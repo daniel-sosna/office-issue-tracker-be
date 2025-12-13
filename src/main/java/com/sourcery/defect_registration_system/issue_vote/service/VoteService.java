@@ -28,21 +28,11 @@ public class VoteService {
     private final VoteRepository voteRepository;
     private final AuthService authService;
 
-    public boolean isVoteExist(Vote vote) {
-
-        return voteRepository.isVoteExist(vote.getIssueId(), vote.getUserId());
-    }
-
     public boolean hasVotedOnIssue(UUID issueId, OAuth2User principal) {
 
         UUID userId = authService.getCurrentUserId(principal);
 
         return voteRepository.isVoteExist(issueId, userId);
-    }
-
-    public int countVotesOnIssue(UUID issueId) {
-
-        return voteRepository.countVotesOnIssue(issueId);
     }
 
     public List<VoteResponseDto> getAllVotes() {

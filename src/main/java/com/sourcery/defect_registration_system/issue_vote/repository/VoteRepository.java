@@ -37,13 +37,6 @@ public interface VoteRepository {
     List<UUID> findIssuesVotedByUser(@Param("issueIds") List<UUID> issueIds, @Param("userId") UUID userId);
 
     @Select("""
-            SELECT COUNT(*)
-            FROM issue_vote
-            WHERE issue_id = #{id}
-    """)
-    int countVotesOnIssue(@Param("id") UUID issueId);
-
-    @Select("""
             <script>
             SELECT issue_id AS issueId, COUNT(*) AS voteCount
             FROM issue_vote
