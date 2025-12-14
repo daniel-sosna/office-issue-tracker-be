@@ -67,11 +67,6 @@ public class NotificationService {
         createNotification(issueReporterId, issueId, NotificationType.COMMENT, message);
     }
 
-    public void notifyUpvote(UUID issueId, UUID issueReporterId, String upvotedBy) {
-        String message = upvotedBy + " upvoted your issue.";
-        createNotification(issueReporterId, issueId, NotificationType.UPVOTE, message);
-    }
-
     public void notifyStatusChange(UUID issueId, UUID issueReporterId, String adminName, String newStatus) {
         String message = adminName + " changed status to " + newStatus;
         createNotification(issueReporterId, issueId, NotificationType.ISSUE_STATUS_CHANGE, message);
