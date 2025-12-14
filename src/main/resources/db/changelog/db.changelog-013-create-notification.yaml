@@ -1,0 +1,94 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 013
+      author: pratik
+      changes:
+
+        - createTable:
+            tableName: notification
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: user_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: issue_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: type
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: message
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: read_flag
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            constraintName: fk_notification_user
+            baseTableName: notification
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            constraintName: fk_notification_issue
+            baseTableName: notification
+            baseColumnNames: issue_id
+            referencedTableName: issue
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - createIndex:
+            tableName: notification
+            indexName: idx_notification_user
+            columns:
+              - column:
+                  name: user_id
+
+        - createIndex:
+            tableName: notification
+            indexName: idx_notification_user_read
+            columns:
+              - column:
+                  name: user_id
+              - column:
+                  name: read_flag
+
+        - createIndex:
+            tableName: notification
+            indexName: idx_notification_issue
+            columns:
+              - column:
+                  name: issue_id

@@ -38,6 +38,7 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/issues/**")
                         .ignoringRequestMatchers("/offices/**")
                         .ignoringRequestMatchers("/api/profile/**")
+                        .ignoringRequestMatchers("/api/notifications/**")
                 )
                 .authorizeHttpRequests(req -> req
                         .requestMatchers( "/login").permitAll()
@@ -48,10 +49,11 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
-
                         .requestMatchers(HttpMethod.PATCH, "/issues/*/status").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/offices").hasRole("ADMIN")
                         .requestMatchers("/api/profile/**").authenticated()
+                        .requestMatchers("/api/notifications/**").authenticated()
+                        .requestMatchers("/notifications/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
