@@ -21,3 +21,5 @@ databaseChangeLog:
       file: db/changelog/db.changelog-010-create-issue-attachments-table.yaml
   - include:
       file: db/changelog/db.changelog-011-insert-mock-issues-with-blocked-closed-status.yaml
+  - include:
+      file: db/changelog/db.changelog-013-create-notification.yaml

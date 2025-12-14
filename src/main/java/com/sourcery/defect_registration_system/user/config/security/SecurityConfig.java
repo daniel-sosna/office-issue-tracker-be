@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/logout")
                         .ignoringRequestMatchers("/issues/**")
                         .ignoringRequestMatchers("/offices/**")
+                        .ignoringRequestMatchers("/api/notifications/**")
 
                 )
                 .authorizeHttpRequests(req -> req
@@ -51,6 +52,9 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.PATCH, "/issues/*/status").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/offices").hasRole("ADMIN")
+                        .requestMatchers("/api/profile/**").authenticated()
+                        .requestMatchers("/api/notifications/**").authenticated()
+                        .requestMatchers("/notifications/**").permitAll()
 
                         .anyRequest().authenticated()
                 )
