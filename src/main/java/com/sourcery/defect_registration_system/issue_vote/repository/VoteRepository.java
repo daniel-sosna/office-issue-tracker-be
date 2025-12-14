@@ -17,9 +17,11 @@ import java.util.UUID;
 public interface VoteRepository {
 
     @Select("""
-            SELECT 1
-            FROM issue_vote
-            WHERE issue_id = #{issueId} AND user_id = #{userId}
+            SELECT EXISTS (
+                SELECT 1
+                FROM issue_vote
+                WHERE issue_id = #{issueId} AND user_id = #{userId}
+            )
             """)
     boolean isVoteExist(@Param("issueId") UUID issueId, @Param("userId") UUID userId);
 

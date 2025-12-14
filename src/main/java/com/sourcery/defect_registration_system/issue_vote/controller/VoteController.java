@@ -26,7 +26,7 @@ import java.util.UUID;
 @SecurityRequirement(name = "cookieAuth")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/issue")
+@RequestMapping("/issues")
 public class VoteController {
 
     private final VoteService voteService;
