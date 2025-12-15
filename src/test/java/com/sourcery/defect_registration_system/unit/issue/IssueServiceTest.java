@@ -73,10 +73,11 @@ public class IssueServiceTest {
         Issue issue2 = buildIssue("summary2", IssueStatus.OPEN);
         int page = 1;
         int size = 5;
-        when(issueRepository.getAllIssuesPaged(size, 0)).thenReturn(List.of(issue1, issue2));
-        when(issueRepository.countAllIssues()).thenReturn(2L);
+        when(authService.getCurrentUserInfo(principal)).thenReturn(new UserDto("email", "name", Role.USER, null));
+        when(issueRepository.getAllIssuesPaged(size, 0, false)).thenReturn(List.of(issue1, issue2));
+        when(issueRepository.countAllIssues(false)).thenReturn(2L);
 
-        PageResponseDto<IssueResponseDto> result = issueService.getAllIssues(page, size);
+        PageResponseDto<IssueResponseDto> result = issueService.getAllIssues(page, size, principal);
 
         assertThat(result).isNotNull();
         assertThat(result.content()).hasSize(2);
@@ -98,10 +99,11 @@ public class IssueServiceTest {
         int page = 2;
         int size = 2;
 
-        when(issueRepository.getAllIssuesPaged(size, 2)).thenReturn(List.of(issue3));
-        when(issueRepository.countAllIssues()).thenReturn(3L);
+        when(authService.getCurrentUserInfo(principal)).thenReturn(new UserDto("email", "name", Role.USER, null));
+        when(issueRepository.getAllIssuesPaged(size, 2, false)).thenReturn(List.of(issue3));
+        when(issueRepository.countAllIssues(false)).thenReturn(3L);
 
-        PageResponseDto<IssueResponseDto> result = issueService.getAllIssues(page, size);
+        PageResponseDto<IssueResponseDto> result = issueService.getAllIssues(page, size, principal);
 
         assertThat(result.content()).hasSize(1);
         assertThat(result.content().getFirst().summary()).isEqualTo("summary3");
@@ -114,10 +116,11 @@ public class IssueServiceTest {
         int page = 1;
         int size = 5;
 
-        when(issueRepository.getAllIssuesPaged(size, 0)).thenReturn(List.of());
-        when(issueRepository.countAllIssues()).thenReturn(0L);
+        when(authService.getCurrentUserInfo(principal)).thenReturn(new UserDto("email", "name", Role.USER, null));
+        when(issueRepository.getAllIssuesPaged(size, 0, false)).thenReturn(List.of());
+        when(issueRepository.countAllIssues(false)).thenReturn(0L);
 
-        PageResponseDto<IssueResponseDto> result = issueService.getAllIssues(page, size);
+        PageResponseDto<IssueResponseDto> result = issueService.getAllIssues(page, size, principal);
 
         assertThat(result.content()).isEmpty();
         assertThat(result.totalElements()).isEqualTo(0);
@@ -135,10 +138,11 @@ public class IssueServiceTest {
         int page = 1;
         int size = 2;
 
-        when(issueRepository.getAllIssuesPaged(size, 0)).thenReturn(List.of(issue1, issue2));
-        when(issueRepository.countAllIssues()).thenReturn(3L);
+        when(authService.getCurrentUserInfo(principal)).thenReturn(new UserDto("email", "name", Role.USER, null));
+        when(issueRepository.getAllIssuesPaged(size, 0, false)).thenReturn(List.of(issue1, issue2));
+        when(issueRepository.countAllIssues(false)).thenReturn(3L);
 
-        PageResponseDto<IssueResponseDto> result = issueService.getAllIssues(page, size);
+        PageResponseDto<IssueResponseDto> result = issueService.getAllIssues(page, size, principal);
 
         assertThat(result.content()).hasSize(2);
         assertThat(result.totalElements()).isEqualTo(3);
@@ -194,7 +198,7 @@ public class IssueServiceTest {
         assertThat(result.id()).isEqualTo(issueId);
         assertThat(result.summary()).isEqualTo("Test issue");
         assertThat(result.status()).isEqualTo(IssueStatus.OPEN);
-        assertThat(result.date()).isEqualTo(dateCreated);
+        assertThat(result.dateCreated()).isEqualTo(dateCreated);
     }
 
     @Test
@@ -229,13 +233,14 @@ public class IssueServiceTest {
         when(issueRepository.getIssueById(issueId)).thenReturn(Optional.of(issue));
         when(officeService.getOfficeDisplayNameById(officeId)).thenReturn("Vilnius, Lithuania");
         when(userService.getUserById(createdById)).thenReturn(user);
+        when(issueAttachmentService.getAttachmentsByIssueId(issueId)).thenReturn(List.of());
 
         IssueDetailsResponseDto result = issueService.getIssueDetailsById(issueId);
 
         assertThat(result.issue().id()).isEqualTo(issueId);
         assertThat(result.issue().summary()).isEqualTo("Test issue");
         assertThat(result.issue().status()).isEqualTo(IssueStatus.OPEN);
-        assertThat(result.issue().date()).isEqualTo(dateCreated);
+        assertThat(result.issue().dateCreated()).isEqualTo(dateCreated);
         assertThat(result.officeName()).isEqualTo("Vilnius, Lithuania");
         assertThat(result.reportedBy()).isEqualTo("User");
         assertThat(result.reportedByAvatar()).isEqualTo("http://image.jpg");
@@ -346,7 +351,7 @@ public class IssueServiceTest {
     }
 
     @Test
-    void deleteIssue_whenUserIsOwner_shouldSucceed() {
+    void softDeleteIssue_whenUserIsOwner_shouldSucceed() {
         UUID issueId = UUID.randomUUID();
         UUID ownerId = UUID.randomUUID();
 
@@ -357,13 +362,13 @@ public class IssueServiceTest {
         when(authService.getCurrentUserId(principal)).thenReturn(ownerId);
         when(issueRepository.getIssueById(issueId)).thenReturn(Optional.of(issue));
 
-        issueService.deleteIssue(issueId, principal);
+        issueService.softDeleteIssue(issueId, principal);
 
-        verify(issueRepository).deleteIssue(issueId);
+        verify(issueRepository).updateIssueStatus(issueId, IssueStatus.DELETED);
     }
 
     @Test
-    void deleteIssue_whenUserIsAdmin_shouldSucceed() {
+    void softDeleteIssue_whenUserIsAdmin_shouldSucceed() {
         UUID issueId = UUID.randomUUID();
         UUID ownerId = UUID.randomUUID();
 
@@ -377,13 +382,13 @@ public class IssueServiceTest {
         when(authService.getCurrentUserInfo(principal)).thenReturn(admin);
         when(issueRepository.getIssueById(issueId)).thenReturn(Optional.of(issue));
 
-        issueService.deleteIssue(issueId, principal);
+        issueService.softDeleteIssue(issueId, principal);
 
-        verify(issueRepository).deleteIssue(issueId);
+        verify(issueRepository).updateIssueStatus(issueId, IssueStatus.DELETED);
     }
 
     @Test
-    void deleteIssue_whenUserNotOwnerAndNotAdmin_shouldThrowException() {
+    void softDeleteIssue_whenUserNotOwnerAndNotAdmin_shouldThrowException() {
         UUID issueId = UUID.randomUUID();
 
         UUID ownerId = UUID.randomUUID();
@@ -400,10 +405,9 @@ public class IssueServiceTest {
         when(issueRepository.getIssueById(issueId)).thenReturn(Optional.of(issue));
 
         assertThrows(UnauthorizedException.class,
-                () -> issueService.deleteIssue(issueId, principal));
+                () -> issueService.softDeleteIssue(issueId, principal));
 
-        verify(issueRepository, never()).deleteIssue(issueId);
+        verify(issueRepository, never()).updateIssueStatus(any(), any());
     }
 
 }
-

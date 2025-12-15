@@ -38,14 +38,16 @@ public class IssueService {
     private final UserService userService;
     private final IssueAttachmentService issueAttachmentService;
 
-    public PageResponseDto<IssueResponseDto> getAllIssues(int page, int size) {
+    public PageResponseDto<IssueResponseDto> getAllIssues(int page, int size, OAuth2User principal) {
+        boolean isAdmin = Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role());
         int offset = (page - 1) * size;
-        List<IssueResponseDto> content = issueRepository.getAllIssuesPaged(size, offset)
+        List<IssueResponseDto> content = issueRepository
+                .getAllIssuesPaged(size, offset, isAdmin)
                 .stream()
                 .map(IssueResponseDto::from)
                 .toList();
 
-        long totalElements = issueRepository.countAllIssues();
+        long totalElements = issueRepository.countAllIssues(isAdmin);
         int totalPages = (int) Math.ceil(totalElements / (double) size);
 
         return new PageResponseDto<>(content, totalElements, totalPages, page, size);
@@ -94,7 +96,7 @@ public class IssueService {
         return new IssueDetailsResponseDto(
                 IssueResponseDto.from(issue),
                 officeName,
-                issue.getOfficeId().toString(),
+                issue.getOfficeId(),
                 user.name(),
                 user.picture(),
                 user.email(),
@@ -157,7 +159,7 @@ public class IssueService {
         return IssueResponseDto.from(updatedIssue);
     }
     @Transactional
-    public void deleteIssue(UUID id, OAuth2User principal) {
+    public void softDeleteIssue(UUID id, OAuth2User principal) {
 
         UUID currentUserId = authService.getCurrentUserId(principal);
 
@@ -168,7 +170,7 @@ public class IssueService {
             throw new UnauthorizedException("You are not allowed to delete this issue.");
         }
 
-        issueRepository.deleteIssue(id);
+        issueRepository.updateIssueStatus(id, IssueStatus.DELETED);
     }
 
 }

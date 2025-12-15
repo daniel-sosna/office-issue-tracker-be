@@ -3,7 +3,6 @@ package com.sourcery.defect_registration_system.issue.repository;
 import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
-import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
@@ -23,16 +22,23 @@ public interface IssueRepository {
     @Select("""
             SELECT *
             FROM issue
+            WHERE
+                status != 'DELETED'
+                AND (#{isAdmin} = TRUE OR status != 'BLOCKED')
             ORDER BY date_created DESC
             LIMIT #{limit} OFFSET #{offset}
             """)
-    List<Issue> getAllIssuesPaged(int limit, int offset);
+    List<Issue> getAllIssuesPaged(@Param("limit") int limit, @Param("offset") int offset, @Param("isAdmin") boolean isAdmin);
+
 
     @Select("""
             SELECT COUNT(*)
             FROM issue
+            WHERE
+                status != 'DELETED'
+                AND (#{isAdmin} = TRUE OR status != 'BLOCKED')
             """)
-    long countAllIssues();
+    long countAllIssues(@Param("isAdmin") boolean isAdmin);
 
     @Insert("""
             INSERT INTO issue (id, summary, description, office_id, status, created_by, date_created, date_modified)
@@ -62,9 +68,4 @@ public interface IssueRepository {
             """)
     int updateIssueStatus(@Param("id") UUID id, @Param("status") IssueStatus status);
 
-    @Delete("""
-            DELETE from issue
-            WHERE id = #{id}
-            """)
-    void deleteIssue(UUID id);
 }
