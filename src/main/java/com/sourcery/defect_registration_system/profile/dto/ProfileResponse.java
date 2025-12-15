@@ -4,10 +4,12 @@ import com.sourcery.defect_registration_system.office.enums.Country;
 import com.sourcery.defect_registration_system.profile.entity.Profile;
 import com.sourcery.defect_registration_system.user.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
 import java.util.UUID;
 
+@Slf4j
 public record ProfileResponse(
         @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
         UUID userId,
@@ -51,7 +53,7 @@ public record ProfileResponse(
             try {
                 countryEnum = Country.valueOf(profile.getCountry().toUpperCase());
             } catch (IllegalArgumentException ignored) {
-                // invalid value
+                log.warn("Invalid country value: {}", profile.getCountry());
             }
         }
 

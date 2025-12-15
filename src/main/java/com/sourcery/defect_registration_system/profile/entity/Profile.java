@@ -1,22 +1,23 @@
 package com.sourcery.defect_registration_system.profile.entity;
 
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @Entity
 @Table(name = "user_profile", uniqueConstraints = {@UniqueConstraint(columnNames = "user_id")})
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -51,11 +52,5 @@ public class Profile {
     private String country;
 
     @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
-
-    @PrePersist
-    @PreUpdate
-    public void setUpdatedAt() {
-        this.updatedAt = Instant.now();
-    }
+    private java.time.Instant updatedAt;
 }
