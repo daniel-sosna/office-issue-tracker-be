@@ -43,9 +43,9 @@ public class ProfileService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new InvalidProfileDataException("User not found for id: " + userId));
 
-        if (request.getName() != null && !request.getName().isBlank()) {
-            userRepository.updateUserName(userId, request.getName());
-            user.setName(request.getName());
+        if (request.name() != null && !request.name().isBlank()) {
+            userRepository.updateUserName(userId, request.name());
+            user.setName(request.name());
         }
 
         Profile profile = profileRepository.findProfileByUserId(userId)
@@ -54,15 +54,15 @@ public class ProfileService {
                         .userId(userId)
                         .build());
 
-        profile.setDepartment(request.getDepartment());
-        profile.setRole(request.getRole());
-        profile.setStreetAddress(request.getStreetAddress());
-        profile.setCity(request.getCity());
-        profile.setStateProvince(request.getStateProvince());
-        profile.setPostcode(request.getPostcode());
+        profile.setDepartment(request.department());
+        profile.setRole(request.role());
+        profile.setStreetAddress(request.streetAddress());
+        profile.setCity(request.city());
+        profile.setStateProvince(request.stateProvince());
+        profile.setPostcode(request.postcode());
 
-        if (request.getCountry() != null) {
-            profile.setCountry(request.getCountry().toUpperCase());
+        if (request.country() != null) {
+            profile.setCountry(request.country().toUpperCase());
         }
 
         if (profileRepository.existsByUserId(userId)) {
@@ -73,6 +73,7 @@ public class ProfileService {
 
         return ProfileResponse.from(user, profile);
     }
+
 
     private UUID getUserIdFromPrincipal(OAuth2User principal) {
         String email = principal.getAttribute("email");
