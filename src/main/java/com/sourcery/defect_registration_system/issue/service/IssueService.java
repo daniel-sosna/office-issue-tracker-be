@@ -44,41 +44,41 @@ public class IssueService {
             UUID reportedBy,
             String sort,
             int page,
-            int size
+            int size,
+            OAuth2User principal
     ) {
+        boolean isAdmin = Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role());
         int offset = (page - 1) * size;
         String orderBy;
         if (sort == null) {
             orderBy = "date_created DESC";
         } else {
             switch (sort.toLowerCase()) {
-                case "dateasc": orderBy = "date_created ASC"; break;
-                case "votesdesc": orderBy = "votes DESC"; break;
-                case "commentsdesc": orderBy = "comments DESC"; break;
-                default: orderBy = "date_created DESC";
+                case "dateasc":
+                    orderBy = "date_created ASC";
+                    break;
+                case "votesdesc":
+                    orderBy = "votes DESC";
+                    break;
+                case "commentsdesc":
+                    orderBy = "comments DESC";
+                    break;
+                default:
+                    orderBy = "date_created DESC";
             }
         }
         List<IssueResponseDto> content = issueRepository
-                .getAllIssues(status, office, reportedBy, orderBy, size, offset)
+                .getAllIssues(status, office, reportedBy, orderBy, size, offset, isAdmin)
                 .stream()
                 .map(IssueResponseDto::from)
                 .toList();
-        long totalElements = issueRepository.countAllIssues(status, office, reportedBy);
+        long totalElements = issueRepository.countAllIssues(status, office, reportedBy, isAdmin);
         int totalPages = (int) Math.ceil(totalElements / (double) size);
         return new PageResponseDto<>(content, totalElements, totalPages, page, size);
     }
 
     public PageResponseDto<IssueResponseDto> getAllIssues(int page, int size, OAuth2User principal) {
-        boolean isAdmin = Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role());
-        int offset = (page - 1) * size;
-        List<IssueResponseDto> content = issueRepository
-                .getAllIssuesPaged(size, offset, isAdmin)
-                .stream()
-                .map(IssueResponseDto::from)
-                .toList();
-        long totalElements = issueRepository.countAllIssues(isAdmin);
-        int totalPages = (int) Math.ceil(totalElements / (double) size);
-        return new PageResponseDto<>(content, totalElements, totalPages, page, size);
+        return getAllIssues(null, null, null, "dateDesc", page, size, principal);
     }
 
     @Transactional

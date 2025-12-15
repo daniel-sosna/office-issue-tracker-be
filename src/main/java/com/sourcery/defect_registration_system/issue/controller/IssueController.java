@@ -51,9 +51,8 @@ public class IssueController {
             @RequestParam(required = false) UUID office,
             @RequestParam(required = false) UUID reportedBy,
             @RequestParam(defaultValue = "dateDesc") String sort,
-            @AuthenticationPrincipal OAuth2User principal)
-    {
-
+            @AuthenticationPrincipal OAuth2User principal
+    ) {
         return issueService.getAllIssues(status, office, reportedBy, sort, page, size, principal);
     }
 
@@ -158,5 +157,4 @@ public class IssueController {
     public void softDeleteIssue(@PathVariable("id") UUID id, @AuthenticationPrincipal OAuth2User principal) {
         issueService.softDeleteIssue(id, principal);
     }
-
 }

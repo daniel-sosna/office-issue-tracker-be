@@ -3,23 +3,12 @@ package com.sourcery.defect_registration_system.issue.repository;
 import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
-import org.apache.ibatis.annotations.*;
-import org.springframework.stereotype.Repository;
-
 
 @Repository
 @Mapper
@@ -30,7 +19,10 @@ public interface IssueRepository {
             SELECT *
             FROM issue
             WHERE 1=1
-              AND status != 'BLOCKED'
+              AND status != 'DELETED'
+              <if test="isAdmin == false">
+                AND status != 'BLOCKED'
+              </if>
               <if test='status != null'>
                 AND status = #{status}
               </if>
@@ -50,16 +42,45 @@ public interface IssueRepository {
             @Param("reportedBy") UUID reportedBy,
             @Param("orderBy") String orderBy,
             @Param("size") int size,
-            @Param("offset") int offset
+            @Param("offset") int offset,
+            @Param("isAdmin") boolean isAdmin
+    );
+
+    @Select("""
+            <script>
+            SELECT COUNT(*)
+            FROM issue
+            WHERE 1=1
+              AND status != 'DELETED'
+              <if test="isAdmin == false">
+                AND status != 'BLOCKED'
+              </if>
+              <if test='status != null'>
+                AND status = #{status}
+              </if>
+              <if test='office != null'>
+                AND office_id = #{office}
+              </if>
+              <if test='reportedBy != null'>
+                AND created_by = #{reportedBy}
+              </if>
+            </script>
+            """)
+    long countAllIssues(
+            @Param("status") String status,
+            @Param("office") UUID office,
+            @Param("reportedBy") UUID reportedBy,
+            @Param("isAdmin") boolean isAdmin
     );
 
     @Select("""
             SELECT COUNT(*)
             FROM issue
-            WHERE 1=1
-              AND status != 'BLOCKED'
+            WHERE
+                status != 'DELETED'
+                AND (#{isAdmin} = TRUE OR status != 'BLOCKED')
             """)
-    long countAllIssues();
+    long countAllIssues(@Param("isAdmin") boolean isAdmin);
 
     @Select("""
             SELECT *
@@ -104,7 +125,7 @@ public interface IssueRepository {
     int updateIssueStatus(@Param("id") UUID id, @Param("status") IssueStatus status);
 
     @Delete("""
-            DELETE from issue
+            DELETE FROM issue
             WHERE id = #{id}
             """)
     void deleteIssue(UUID id);

@@ -73,7 +73,7 @@ public class IssueServiceTest {
         Issue issue2 = buildIssue("summary2", IssueStatus.OPEN);
         int page = 1;
         int size = 5;
-        when(authService.getCurrentUserInfo(principal)).thenReturn(new UserDto("email", "name", Role.USER, null));
+        when(authService.getCurrentUserInfo(principal)).thenReturn(new UserDto(UUID.randomUUID(), "email", "name", Role.USER, null));
         when(issueRepository.getAllIssuesPaged(size, 0, false)).thenReturn(List.of(issue1, issue2));
         when(issueRepository.countAllIssues(false)).thenReturn(2L);
 
@@ -99,7 +99,7 @@ public class IssueServiceTest {
         int page = 2;
         int size = 2;
 
-        when(authService.getCurrentUserInfo(principal)).thenReturn(new UserDto("email", "name", Role.USER, null));
+        when(authService.getCurrentUserInfo(principal)).thenReturn(new UserDto(UUID.randomUUID(), "email", "name", Role.USER, null));
         when(issueRepository.getAllIssuesPaged(size, 2, false)).thenReturn(List.of(issue3));
         when(issueRepository.countAllIssues(false)).thenReturn(3L);
 
@@ -116,7 +116,7 @@ public class IssueServiceTest {
         int page = 1;
         int size = 5;
 
-        when(authService.getCurrentUserInfo(principal)).thenReturn(new UserDto("email", "name", Role.USER, null));
+        when(authService.getCurrentUserInfo(principal)).thenReturn(new UserDto(UUID.randomUUID(), "email", "name", Role.USER, null));
         when(issueRepository.getAllIssuesPaged(size, 0, false)).thenReturn(List.of());
         when(issueRepository.countAllIssues(false)).thenReturn(0L);
 
@@ -138,7 +138,7 @@ public class IssueServiceTest {
         int page = 1;
         int size = 2;
 
-        when(authService.getCurrentUserInfo(principal)).thenReturn(new UserDto("email", "name", Role.USER, null));
+        when(authService.getCurrentUserInfo(principal)).thenReturn(new UserDto(UUID.randomUUID(), "email", "name", Role.USER, null));
         when(issueRepository.getAllIssuesPaged(size, 0, false)).thenReturn(List.of(issue1, issue2));
         when(issueRepository.countAllIssues(false)).thenReturn(3L);
 
@@ -228,7 +228,7 @@ public class IssueServiceTest {
                 .dateCreated(dateCreated)
                 .build();
 
-        UserDto user = new UserDto("test@gmail.com", "User", Role.USER, "http://image.jpg");
+        UserDto user = new UserDto(UUID.randomUUID(),"test@gmail.com", "User", Role.USER, "http://image.jpg");
 
         when(issueRepository.getIssueById(issueId)).thenReturn(Optional.of(issue));
         when(officeService.getOfficeDisplayNameById(officeId)).thenReturn("Vilnius, Lithuania");
@@ -317,7 +317,7 @@ public class IssueServiceTest {
         Issue updatedIssue = buildIssue("Test", IssueStatus.RESOLVED);
         updatedIssue.setId(issueId);
 
-        UserDto admin = new UserDto("admin@x.lt", "Admin", Role.ADMIN, null);
+        UserDto admin = new UserDto(UUID.randomUUID(),"admin@x.lt", "Admin", Role.ADMIN, null);
 
         when(authService.getCurrentUserInfo(principal)).thenReturn(admin);
         when(issueRepository.getIssueById(issueId))
@@ -338,7 +338,7 @@ public class IssueServiceTest {
     @Test
     void updateIssueStatus_whenNotAdmin_shouldThrowAccessDenied() {
         UUID issueId = UUID.randomUUID();
-        UserDto regularUser = new UserDto("user@x.lt", "User", Role.USER, null);
+        UserDto regularUser = new UserDto(UUID.randomUUID(),"user@x.lt", "User", Role.USER, null);
 
         when(authService.getCurrentUserInfo(principal)).thenReturn(regularUser);
 
@@ -376,7 +376,7 @@ public class IssueServiceTest {
         issue.setId(issueId);
         issue.setCreatedBy(ownerId);
 
-        UserDto admin = new UserDto("admin@mail.com", "Admin", Role.ADMIN, null);
+        UserDto admin = new UserDto(UUID.randomUUID(),"admin@mail.com", "Admin", Role.ADMIN, null);
 
         when(authService.getCurrentUserId(principal)).thenReturn(UUID.randomUUID());
         when(authService.getCurrentUserInfo(principal)).thenReturn(admin);
@@ -398,7 +398,7 @@ public class IssueServiceTest {
         issue.setId(issueId);
         issue.setCreatedBy(ownerId);
 
-        UserDto regular = new UserDto("user@mail.com", "User", Role.USER, null);
+        UserDto regular = new UserDto(UUID.randomUUID(),"user@mail.com", "User", Role.USER, null);
 
         when(authService.getCurrentUserId(principal)).thenReturn(otherUserId);
         when(authService.getCurrentUserInfo(principal)).thenReturn(regular);
