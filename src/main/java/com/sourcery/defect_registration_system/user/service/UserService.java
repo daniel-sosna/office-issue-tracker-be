@@ -19,6 +19,7 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("User with " + id + " id not found"));
 
         return new UserDto(
+                user.getId(),
                 user.getEmail(),
                 user.getName(),
                 user.getRole(),
