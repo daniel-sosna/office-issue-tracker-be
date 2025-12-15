@@ -43,11 +43,11 @@ public class IssueAttachmentService {
         }
 
         List<IssueAttachmentResponse> responses = new ArrayList<>();
+        List<IssueAttachment> existingAttachments = issueAttachmentRepository.getAttachmentsByIssueId(issueId);
 
         for (MultipartFile file : files) {
 
             validateFile(file);
-            List<IssueAttachment> existingAttachments = issueAttachmentRepository.getAttachmentsByIssueId(issueId);
 
             boolean alreadyExists = existingAttachments.stream()
                     .anyMatch(attachment -> attachment.getOriginalFilename().equals(file.getOriginalFilename())
@@ -73,6 +73,7 @@ public class IssueAttachmentService {
                         .build();
 
                 issueAttachmentRepository.insertAttachment(attachment);
+                existingAttachments.add(attachment);
 
                 responses.add(new IssueAttachmentResponse(
                         attachment.getId(),
