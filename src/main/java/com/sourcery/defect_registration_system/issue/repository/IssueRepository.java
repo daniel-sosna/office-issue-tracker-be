@@ -3,6 +3,7 @@ package com.sourcery.defect_registration_system.issue.repository;
 import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
@@ -15,30 +16,64 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
+import org.apache.ibatis.annotations.*;
+import org.springframework.stereotype.Repository;
+
+
 @Repository
 @Mapper
 public interface IssueRepository {
 
     @Select("""
+            <script>
             SELECT *
             FROM issue
-            WHERE
-                status != 'DELETED'
-                AND (#{isAdmin} = TRUE OR status != 'BLOCKED')
-            ORDER BY date_created DESC
-            LIMIT #{limit} OFFSET #{offset}
+            WHERE 1=1
+              AND status != 'BLOCKED'
+              <if test='status != null'>
+                AND status = #{status}
+              </if>
+              <if test='office != null'>
+                AND office_id = #{office}
+              </if>
+              <if test='reportedBy != null'>
+                AND created_by = #{reportedBy}
+              </if>
+            ORDER BY ${orderBy}
+            LIMIT #{size} OFFSET #{offset}
+            </script>
             """)
-    List<Issue> getAllIssuesPaged(@Param("limit") int limit, @Param("offset") int offset, @Param("isAdmin") boolean isAdmin);
-
+    List<Issue> getAllIssues(
+            @Param("status") String status,
+            @Param("office") UUID office,
+            @Param("reportedBy") UUID reportedBy,
+            @Param("orderBy") String orderBy,
+            @Param("size") int size,
+            @Param("offset") int offset
+    );
 
     @Select("""
             SELECT COUNT(*)
             FROM issue
-            WHERE
-                status != 'DELETED'
-                AND (#{isAdmin} = TRUE OR status != 'BLOCKED')
+            WHERE 1=1
+              AND status != 'BLOCKED'
             """)
-    long countAllIssues(@Param("isAdmin") boolean isAdmin);
+    long countAllIssues();
+
+    @Select("""
+            SELECT *
+            FROM issue
+            WHERE status != 'DELETED'
+              AND (#{isAdmin} = TRUE OR status != 'BLOCKED')
+            ORDER BY date_created DESC
+            LIMIT #{limit} OFFSET #{offset}
+            """)
+    List<Issue> getAllIssuesPaged(
+            @Param("limit") int limit,
+            @Param("offset") int offset,
+            @Param("isAdmin") boolean isAdmin
+    );
 
     @Insert("""
             INSERT INTO issue (id, summary, description, office_id, status, created_by, date_created, date_modified)
@@ -68,4 +103,9 @@ public interface IssueRepository {
             """)
     int updateIssueStatus(@Param("id") UUID id, @Param("status") IssueStatus status);
 
+    @Delete("""
+            DELETE from issue
+            WHERE id = #{id}
+            """)
+    void deleteIssue(UUID id);
 }

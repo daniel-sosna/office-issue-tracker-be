@@ -43,9 +43,19 @@ public class IssueAttachmentService {
         }
 
         List<IssueAttachmentResponse> responses = new ArrayList<>();
+        List<IssueAttachment> existingAttachments = issueAttachmentRepository.getAttachmentsByIssueId(issueId);
 
         for (MultipartFile file : files) {
+
             validateFile(file);
+
+            boolean alreadyExists = existingAttachments.stream()
+                    .anyMatch(attachment -> attachment.getOriginalFilename().equals(file.getOriginalFilename())
+                            && attachment.getFileSize() == file.getSize());
+
+            if (alreadyExists) {
+                throw new InvalidFileException("File '" + file.getOriginalFilename() + "' already exists");
+            }
 
             try {
                 Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap("resource_type", "image"));
@@ -63,6 +73,7 @@ public class IssueAttachmentService {
                         .build();
 
                 issueAttachmentRepository.insertAttachment(attachment);
+                existingAttachments.add(attachment);
 
                 responses.add(new IssueAttachmentResponse(
                         attachment.getId(),
