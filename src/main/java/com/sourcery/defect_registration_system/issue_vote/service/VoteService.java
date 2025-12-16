@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -74,6 +75,10 @@ public class VoteService {
     }
 
     public Map<UUID, VoteInfoDto> getVoteInfoForIssues(List<UUID> issueIds, UUID userId) {
+
+        if (issueIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
 
         Map<UUID, Integer> voteCounts = voteRepository.countVotesOnIssues(issueIds)
                 .stream()

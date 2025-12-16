@@ -43,13 +43,13 @@ public interface VoteRepository {
             SELECT issue_id AS issueId, COUNT(*) AS voteCount
             FROM issue_vote
             WHERE issue_id IN
-                <foreach collection="ids" item="id" open="(" separator="," close=")">
+                <foreach collection="issueIds" item="id" open="(" separator="," close=")">
                   #{id}
                 </foreach>
             GROUP BY issue_id
             </script>
     """)
-    List<IssueVoteCountDto> countVotesOnIssues(@Param("ids") List<UUID> issueIds);
+    List<IssueVoteCountDto> countVotesOnIssues(@Param("issueIds") List<UUID> issueIds);
 
     @Select("""
             SELECT *
