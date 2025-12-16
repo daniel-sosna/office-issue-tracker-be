@@ -66,6 +66,7 @@ public class VoteController {
             @ApiResponse(responseCode = "401", description = "Unauthorized – user must be authenticated")
     })
     @PostMapping("/{id}/vote")
+    @ResponseStatus(HttpStatus.CREATED)
     public VoteResponseDto createVote(@PathVariable("id") UUID issueId, @AuthenticationPrincipal OAuth2User principal) {
         return voteService.createVote(issueId, principal);
     }
