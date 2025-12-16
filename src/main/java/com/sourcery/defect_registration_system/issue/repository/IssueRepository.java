@@ -74,15 +74,6 @@ public interface IssueRepository {
     );
 
     @Select("""
-            SELECT COUNT(*)
-            FROM issue
-            WHERE
-                status != 'DELETED'
-                AND (#{isAdmin} = TRUE OR status != 'BLOCKED')
-            """)
-    long countAllIssues(@Param("isAdmin") boolean isAdmin);
-
-    @Select("""
             SELECT *
             FROM issue
             WHERE status != 'DELETED'
