@@ -41,6 +41,7 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User not found by email: " + email));
         return new UserDto(
+                user.getId(),
                 user.getEmail(),
                 user.getName(),
                 user.getRole(),
