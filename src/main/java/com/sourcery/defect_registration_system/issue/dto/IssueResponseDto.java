@@ -12,8 +12,6 @@ public record IssueResponseDto(
         String summary,
         String description,
         IssueStatus status,
-        UUID createdBy,
-        UUID officeId,
         OffsetDateTime dateCreated,
         OffsetDateTime dateModified
 )
@@ -24,8 +22,6 @@ public record IssueResponseDto(
                 issue.getSummary(),
                 issue.getDescription(),
                 issue.getStatus(),
-                issue.getCreatedBy(),
-                issue.getOfficeId(),
                 issue.getDateCreated(),
                 issue.getDateModified() == null ? null : issue.getDateModified()
 

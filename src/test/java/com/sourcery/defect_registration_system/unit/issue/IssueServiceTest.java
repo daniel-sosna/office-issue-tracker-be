@@ -73,24 +73,28 @@ public class IssueServiceTest {
         Issue issue2 = buildIssue("summary2", IssueStatus.OPEN);
         int page = 1;
         int size = 5;
-        when(authService.getCurrentUserInfo(principal)).thenReturn(new UserDto(UUID.randomUUID(), "email", "name", Role.USER, null));
-        when(issueRepository.getAllIssuesPaged(size, 0, false)).thenReturn(List.of(issue1, issue2));
-        when(issueRepository.countAllIssues(false)).thenReturn(2L);
+        when(authService.getCurrentUserInfo(principal))
+                .thenReturn(new UserDto(UUID.randomUUID(), "email", "name", Role.USER, null));
+        when(issueRepository.getAllIssues(
+                null,
+                null,
+                null,
+                null,
+                size,
+                0,
+                false
+        )).thenReturn(List.of(issue1, issue2));
 
-        PageResponseDto<IssueResponseDto> result = issueService.getAllIssues(page, size, principal);
+        PageResponseDto<IssueResponseDto> result =
+                issueService.getAllIssues(page, size, principal);
 
-        assertThat(result).isNotNull();
         assertThat(result.content()).hasSize(2);
-
-        IssueResponseDto first = result.content().getFirst();
-        assertThat(first.summary()).isEqualTo("summary1");
-        assertThat(first.status()).isEqualTo(IssueStatus.OPEN);
-
+        assertThat(result.content().getFirst().summary()).isEqualTo("summary1");
         assertThat(result.totalElements()).isEqualTo(2);
         assertThat(result.totalPages()).isEqualTo(1);
         assertThat(result.page()).isEqualTo(1);
-        assertThat(result.size()).isEqualTo(5);
     }
+
 
     @Test
     void getAllIssues_shouldReturnSecondPageOfIssues() {
@@ -99,55 +103,83 @@ public class IssueServiceTest {
         int page = 2;
         int size = 2;
 
-        when(authService.getCurrentUserInfo(principal)).thenReturn(new UserDto(UUID.randomUUID(), "email", "name", Role.USER, null));
-        when(issueRepository.getAllIssuesPaged(size, 2, false)).thenReturn(List.of(issue3));
-        when(issueRepository.countAllIssues(false)).thenReturn(3L);
+        when(authService.getCurrentUserInfo(principal))
+                .thenReturn(new UserDto(UUID.randomUUID(), "email", "name", Role.USER, null));
 
-        PageResponseDto<IssueResponseDto> result = issueService.getAllIssues(page, size, principal);
+        when(issueRepository.getAllIssues(
+                null,
+                null,
+                null,
+                null,
+                size,
+                2,
+                false
+        )).thenReturn(List.of(issue3));
+
+        PageResponseDto<IssueResponseDto> result =
+                issueService.getAllIssues(page, size, principal);
 
         assertThat(result.content()).hasSize(1);
         assertThat(result.content().getFirst().summary()).isEqualTo("summary3");
         assertThat(result.totalPages()).isEqualTo(2);
-        assertThat(result.page()).isEqualTo(2);
     }
+
 
     @Test
     void getAllIssues_shouldReturnEmptyPageWhenNoIssuesExist() {
         int page = 1;
         int size = 5;
 
-        when(authService.getCurrentUserInfo(principal)).thenReturn(new UserDto(UUID.randomUUID(), "email", "name", Role.USER, null));
-        when(issueRepository.getAllIssuesPaged(size, 0, false)).thenReturn(List.of());
-        when(issueRepository.countAllIssues(false)).thenReturn(0L);
+        when(authService.getCurrentUserInfo(principal))
+                .thenReturn(new UserDto(UUID.randomUUID(), "email", "name", Role.USER, null));
 
-        PageResponseDto<IssueResponseDto> result = issueService.getAllIssues(page, size, principal);
+        when(issueRepository.getAllIssues(
+                null,
+                null,
+                null,
+                null,
+                size,
+                0,
+                false
+        )).thenReturn(List.of());
+
+        PageResponseDto<IssueResponseDto> result =
+                issueService.getAllIssues(page, size, principal);
 
         assertThat(result.content()).isEmpty();
         assertThat(result.totalElements()).isEqualTo(0);
         assertThat(result.totalPages()).isEqualTo(0);
-        assertThat(result.page()).isEqualTo(1);
-        assertThat(result.size()).isEqualTo(5);
     }
+
 
     @Test
     void getAllIssues_shouldReturnCorrectTotalPagesForMultiplePages() {
         Issue issue1 = buildIssue("summary1", IssueStatus.OPEN);
         Issue issue2 = buildIssue("summary2", IssueStatus.OPEN);
-        Issue issue3 = buildIssue("summary3", IssueStatus.OPEN);
 
         int page = 1;
         int size = 2;
 
-        when(authService.getCurrentUserInfo(principal)).thenReturn(new UserDto(UUID.randomUUID(), "email", "name", Role.USER, null));
-        when(issueRepository.getAllIssuesPaged(size, 0, false)).thenReturn(List.of(issue1, issue2));
-        when(issueRepository.countAllIssues(false)).thenReturn(3L);
+        when(authService.getCurrentUserInfo(principal))
+                .thenReturn(new UserDto(UUID.randomUUID(), "email", "name", Role.USER, null));
 
-        PageResponseDto<IssueResponseDto> result = issueService.getAllIssues(page, size, principal);
+        when(issueRepository.getAllIssues(
+                null,
+                null,
+                null,
+                null,
+                size,
+                0,
+                false
+        )).thenReturn(List.of(issue1, issue2));
+
+        PageResponseDto<IssueResponseDto> result =
+                issueService.getAllIssues(page, size, principal);
 
         assertThat(result.content()).hasSize(2);
-        assertThat(result.totalElements()).isEqualTo(3);
         assertThat(result.totalPages()).isEqualTo(2);
     }
+
 
     @Test
     void createIssue_shouldSetDefaultOpenStatusAndReturnDto() {

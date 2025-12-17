@@ -24,8 +24,7 @@ public interface IssueRepository {
             <script>
             SELECT *
             FROM issue
-            WHERE 1=1
-              AND status != 'DELETED'
+            WHERE status != 'DELETED'
               <if test="isAdmin == false">
                 AND status != 'BLOCKED'
               </if>
@@ -56,8 +55,7 @@ public interface IssueRepository {
             <script>
             SELECT COUNT(*)
             FROM issue
-            WHERE 1=1
-              AND status != 'DELETED'
+            WHERE status != 'DELETED'
               <if test="isAdmin == false">
                 AND status != 'BLOCKED'
               </if>
@@ -76,20 +74,6 @@ public interface IssueRepository {
             @Param("status") String status,
             @Param("office") UUID office,
             @Param("reportedBy") UUID reportedBy,
-            @Param("isAdmin") boolean isAdmin
-    );
-
-    @Select("""
-            SELECT *
-            FROM issue
-            WHERE status != 'DELETED'
-              AND (#{isAdmin} = TRUE OR status != 'BLOCKED')
-            ORDER BY date_created DESC
-            LIMIT #{limit} OFFSET #{offset}
-            """)
-    List<Issue> getAllIssuesPaged(
-            @Param("limit") int limit,
-            @Param("offset") int offset,
             @Param("isAdmin") boolean isAdmin
     );
 
