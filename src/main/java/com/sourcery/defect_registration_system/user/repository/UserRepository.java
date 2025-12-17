@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.List;
 
 @Repository
 @Mapper
@@ -33,4 +34,11 @@ public interface UserRepository {
               VALUES (#{id}, #{name}, #{email}, #{imageUrl}, #{role})
             """)
     void insert(User user);
+
+    @Select("""
+              SELECT *
+              FROM users
+              ORDER BY name
+            """)
+    List<User> findAllUsers();
 }
