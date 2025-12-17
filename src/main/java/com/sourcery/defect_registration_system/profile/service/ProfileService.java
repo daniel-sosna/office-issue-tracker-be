@@ -7,8 +7,8 @@ import com.sourcery.defect_registration_system.profile.exceptions.InvalidProfile
 import com.sourcery.defect_registration_system.profile.repository.ProfileRepository;
 import com.sourcery.defect_registration_system.user.entity.User;
 import com.sourcery.defect_registration_system.user.repository.UserRepository;
+import com.sourcery.defect_registration_system.user.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,9 +20,10 @@ public class ProfileService {
 
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
+    private final AuthService authService;
 
-    public ProfileResponse getMyProfile(OAuth2User principal) {
-        UUID userId = getUserIdFromPrincipal(principal);
+    public ProfileResponse getMyProfile(org.springframework.security.oauth2.core.user.OAuth2User principal) {
+        UUID userId = authService.getCurrentUserId(principal);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new InvalidProfileDataException("User not found for id: " + userId));
@@ -37,8 +38,8 @@ public class ProfileService {
     }
 
     @Transactional
-    public ProfileResponse updateMyProfile(OAuth2User principal, ProfileRequest request) {
-        UUID userId = getUserIdFromPrincipal(principal);
+    public ProfileResponse updateMyProfile(org.springframework.security.oauth2.core.user.OAuth2User principal, ProfileRequest request) {
+        UUID userId = authService.getCurrentUserId(principal);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new InvalidProfileDataException("User not found for id: " + userId));
@@ -74,15 +75,4 @@ public class ProfileService {
         return ProfileResponse.from(user, profile);
     }
 
-
-    private UUID getUserIdFromPrincipal(OAuth2User principal) {
-        String email = principal.getAttribute("email");
-        if (email == null || email.isEmpty()) {
-            throw new InvalidProfileDataException("Invalid OAuth2 principal: missing email");
-        }
-
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new InvalidProfileDataException("User not found for email: " + email))
-                .getId();
-    }
 }

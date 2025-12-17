@@ -51,7 +51,6 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.PATCH, "/issues/*/status").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/offices").hasRole("ADMIN")
-                        .requestMatchers("/api/profile/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
