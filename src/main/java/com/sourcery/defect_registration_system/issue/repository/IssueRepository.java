@@ -105,6 +105,13 @@ public interface IssueRepository {
             """)
     int updateIssueStatus(@Param("id") UUID id, @Param("status") IssueStatus status);
 
+    @Update("""
+    UPDATE issue
+    SET office_id = #{officeId}, date_modified = now()
+    WHERE id = #{id}
+""")
+    int updateIssueOffice(@Param("id") UUID id, @Param("officeId") UUID officeId);
+
     @Delete("""
             DELETE FROM issue
             WHERE id = #{id}
