@@ -2,6 +2,7 @@ package com.sourcery.defect_registration_system.office.controller;
 
 import com.sourcery.defect_registration_system.office.dto.CreateOfficeRequest;
 import com.sourcery.defect_registration_system.office.dto.OfficeResponse;
+import com.sourcery.defect_registration_system.office.enums.Country;
 import com.sourcery.defect_registration_system.office.service.OfficeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -19,8 +20,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Tag(name = "Offices", description = "Office management endpoints")
 @SecurityRequirement(name = "cookieAuth")
@@ -71,5 +74,20 @@ public class OfficeController {
             @RequestBody @Valid CreateOfficeRequest request,
             @AuthenticationPrincipal OAuth2User principal) {
         return officeService.createOffice(request, principal);
+    }
+
+    @Operation(
+            summary = "Get list of countries",
+            description = "Returns a list of all possible countries for offices."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "List of countries returned successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized – user must be authenticated")
+    })
+    @GetMapping("/countries")
+    public List<String> getAllCountries() {
+        return Arrays.stream(Country.values())
+                .map(Country::getValue)
+                .collect(Collectors.toList());
     }
 }
