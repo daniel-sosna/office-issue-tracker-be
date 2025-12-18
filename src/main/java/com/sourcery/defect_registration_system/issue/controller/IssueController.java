@@ -3,8 +3,8 @@ package com.sourcery.defect_registration_system.issue.controller;
 import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
 import com.sourcery.defect_registration_system.issue.dto.IssueDetailsResponseDto;
-import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.PageIssueResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.UpdateIssueOfficeRequest;
 import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.service.IssueService;
@@ -44,7 +44,7 @@ public class IssueController {
     private final IssueService issueService;
 
     @GetMapping
-    public PageIssueResponseDto<IssueResponseDto> getAllIssuesPaginated(
+    public PageResponseDto<PageIssueResponseDto> getAllIssuesPaginated(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String status,
@@ -66,7 +66,7 @@ public class IssueController {
             @ApiResponse(responseCode = "404", description = "Issue not found")
     })
     @GetMapping("/{id}")
-    public IssueResponseDto getIssueById(@PathVariable("id") UUID id) {
+    public PageIssueResponseDto getIssueById(@PathVariable("id") UUID id) {
         return issueService.getIssueById(id);
     }
 
@@ -95,10 +95,10 @@ public class IssueController {
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public IssueResponseDto createIssue(@AuthenticationPrincipal OAuth2User principal,
-                                        @Parameter(description = "Issue data in JSON format", required = true)
+    public PageIssueResponseDto createIssue(@AuthenticationPrincipal OAuth2User principal,
+                                            @Parameter(description = "Issue data in JSON format", required = true)
                                         @RequestPart("issue") @Valid CreateIssueRequest request,
-                                        @Parameter(description = "Attachment files (optional)", required = false)
+                                            @Parameter(description = "Attachment files (optional)", required = false)
                                         @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         return issueService.createIssue(request, files, principal);
     }
@@ -119,7 +119,7 @@ public class IssueController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     @ResponseStatus(HttpStatus.OK)
-    public IssueResponseDto updateIssue(
+    public PageIssueResponseDto updateIssue(
             @PathVariable UUID id,
             @AuthenticationPrincipal OAuth2User principal,
             @RequestPart("issue") UpdateIssueRequest request,
@@ -143,7 +143,7 @@ public class IssueController {
     })
     @PatchMapping("/{id}/status")
     @ResponseStatus(HttpStatus.OK)
-    public IssueResponseDto updateIssueStatus(@PathVariable("id") UUID id, @RequestBody @Valid ChangeIssueStatusRequest request, @AuthenticationPrincipal OAuth2User principal) {
+    public PageIssueResponseDto updateIssueStatus(@PathVariable("id") UUID id, @RequestBody @Valid ChangeIssueStatusRequest request, @AuthenticationPrincipal OAuth2User principal) {
         return issueService.updateIssueStatus(id, request, principal);
     }
 

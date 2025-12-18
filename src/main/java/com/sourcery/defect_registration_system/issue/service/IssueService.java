@@ -6,8 +6,8 @@ import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
 import com.sourcery.defect_registration_system.issue.dto.IssueDetailsResponseDto;
-import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.PageIssueResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
@@ -39,7 +39,7 @@ public class IssueService {
     private final IssueAttachmentService issueAttachmentService;
 
 
-    public PageIssueResponseDto<IssueResponseDto> getAllIssues(
+    public PageResponseDto<PageIssueResponseDto> getAllIssues(
             String status,
             UUID office,
             UUID reportedBy,
@@ -68,22 +68,22 @@ public class IssueService {
                     orderBy = "date_created DESC";
             }
         }
-        List<IssueResponseDto> content = issueRepository
+        List<PageIssueResponseDto> content = issueRepository
                 .getAllIssues(status, office, reportedBy, orderBy, size, offset, isAdmin)
                 .stream()
-                .map(IssueResponseDto::from)
+                .map(PageIssueResponseDto::from)
                 .toList();
         long totalElements = issueRepository.countAllIssues(status, office, reportedBy, isAdmin);
         int totalPages = (int) Math.ceil(totalElements / (double) size);
-        return new PageIssueResponseDto<>(content, totalElements, totalPages, page, size);
+        return new PageResponseDto<>(content, totalElements, totalPages, page, size);
     }
 
-    public PageIssueResponseDto<IssueResponseDto> getAllIssues(int page, int size, OAuth2User principal) {
+    public PageResponseDto<PageIssueResponseDto> getAllIssues(int page, int size, OAuth2User principal) {
         return getAllIssues(null, null, null, "dateDesc", page, size, principal);
     }
 
     @Transactional
-    public IssueResponseDto createIssue(CreateIssueRequest request, List<MultipartFile> files, OAuth2User principal) {
+    public PageIssueResponseDto createIssue(CreateIssueRequest request, List<MultipartFile> files, OAuth2User principal) {
         UUID createdBy = authService.getCurrentUserId(principal);
         Issue issue = Issue.builder()
                 .id(UUID.randomUUID())
@@ -99,13 +99,13 @@ public class IssueService {
         if (files != null && !files.isEmpty()) {
             issueAttachmentService.uploadAttachments(issue.getId(), createdBy, files);
         }
-        return IssueResponseDto.from(issue);
+        return PageIssueResponseDto.from(issue);
     }
 
-    public IssueResponseDto getIssueById(UUID id) {
+    public PageIssueResponseDto getIssueById(UUID id) {
         Issue issue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
-        return IssueResponseDto.from(issue);
+        return PageIssueResponseDto.from(issue);
     }
 
     public IssueDetailsResponseDto getIssueDetailsById(UUID id) {
@@ -115,7 +115,7 @@ public class IssueService {
         UserDto user = userService.getUserById(issue.getCreatedBy());
         List<IssueAttachmentResponse> attachments = issueAttachmentService.getAttachmentsByIssueId(issue.getId());
         return new IssueDetailsResponseDto(
-                IssueResponseDto.from(issue),
+                PageIssueResponseDto.from(issue),
                 officeName,
                 issue.getOfficeId(),
                 user.name(),
@@ -126,7 +126,7 @@ public class IssueService {
     }
 
     @Transactional
-    public IssueResponseDto updateIssue(
+    public PageIssueResponseDto updateIssue(
             UUID id,
             UpdateIssueRequest request,
             List<MultipartFile> newFiles,
@@ -163,7 +163,7 @@ public class IssueService {
 
             Issue updatedIssue = issueRepository.getIssueById(id)
                     .orElseThrow(() -> new IllegalStateException("Issue missing after update"));
-            return IssueResponseDto.from(updatedIssue);
+            return PageIssueResponseDto.from(updatedIssue);
         }
 
         String summary = request.summary() != null ? request.summary() : existingIssue.getSummary();
@@ -185,12 +185,12 @@ public class IssueService {
 
         Issue updatedIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IllegalStateException("Issue missing after update"));
-        return IssueResponseDto.from(updatedIssue);
+        return PageIssueResponseDto.from(updatedIssue);
     }
 
 
     @Transactional
-    public IssueResponseDto updateIssueStatus(UUID id, ChangeIssueStatusRequest request, OAuth2User principal) {
+    public PageIssueResponseDto updateIssueStatus(UUID id, ChangeIssueStatusRequest request, OAuth2User principal) {
         if (!Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role())) {
             throw new AccessDeniedException("You do not have permission to change issue status");
         }
@@ -202,7 +202,7 @@ public class IssueService {
         }
         Issue updatedIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IllegalStateException("Issue missing after update"));
-        return IssueResponseDto.from(updatedIssue);
+        return PageIssueResponseDto.from(updatedIssue);
     }
 
     @Transactional

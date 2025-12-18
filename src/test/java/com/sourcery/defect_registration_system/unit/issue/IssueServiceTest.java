@@ -5,8 +5,8 @@ import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
 import com.sourcery.defect_registration_system.issue.dto.IssueDetailsResponseDto;
-import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.PageIssueResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
@@ -85,7 +85,7 @@ public class IssueServiceTest {
                 false
         )).thenReturn(List.of(issue1, issue2));
 
-        PageIssueResponseDto<IssueResponseDto> result =
+        PageResponseDto<PageIssueResponseDto> result =
                 issueService.getAllIssues(page, size, principal);
 
         assertThat(result.content()).hasSize(2);
@@ -116,7 +116,7 @@ public class IssueServiceTest {
                 false
         )).thenReturn(List.of(issue3));
 
-        PageIssueResponseDto<IssueResponseDto> result =
+        PageResponseDto<PageIssueResponseDto> result =
                 issueService.getAllIssues(page, size, principal);
 
         assertThat(result.content()).hasSize(1);
@@ -143,7 +143,7 @@ public class IssueServiceTest {
                 false
         )).thenReturn(List.of());
 
-        PageIssueResponseDto<IssueResponseDto> result =
+        PageResponseDto<PageIssueResponseDto> result =
                 issueService.getAllIssues(page, size, principal);
 
         assertThat(result.content()).isEmpty();
@@ -173,7 +173,7 @@ public class IssueServiceTest {
                 false
         )).thenReturn(List.of(issue1, issue2));
 
-        PageIssueResponseDto<IssueResponseDto> result =
+        PageResponseDto<PageIssueResponseDto> result =
                 issueService.getAllIssues(page, size, principal);
 
         assertThat(result.content()).hasSize(2);
@@ -200,7 +200,7 @@ public class IssueServiceTest {
             return null;
         }).when(issueRepository).insertIssue(any(Issue.class));
 
-        IssueResponseDto result = issueService.createIssue(request, null, principal);
+        PageIssueResponseDto result = issueService.createIssue(request, null, principal);
 
         assertThat(result.summary()).isEqualTo("We’re out of bread kvass");
         assertThat(result.status()).isEqualTo(IssueStatus.OPEN);
@@ -225,7 +225,7 @@ public class IssueServiceTest {
 
         when(issueRepository.getIssueById(issueId)).thenReturn(Optional.of(issue));
 
-        IssueResponseDto result = issueService.getIssueById(issueId);
+        PageIssueResponseDto result = issueService.getIssueById(issueId);
 
         assertThat(result.id()).isEqualTo(issueId);
         assertThat(result.summary()).isEqualTo("Test issue");
@@ -312,7 +312,7 @@ public class IssueServiceTest {
         when(issueRepository.updateIssue(issueId, request))
                 .thenReturn(1);
 
-        IssueResponseDto result = issueService.updateIssue(issueId, request, List.of(), List.of(), principal);
+        PageIssueResponseDto result = issueService.updateIssue(issueId, request, List.of(), List.of(), principal);
 
         verify(issueRepository).updateIssue(issueId, request);
         assertThat(result.summary()).isEqualTo("New summary");
@@ -361,7 +361,7 @@ public class IssueServiceTest {
 
         ChangeIssueStatusRequest request = new ChangeIssueStatusRequest(IssueStatus.RESOLVED);
 
-        IssueResponseDto result = issueService.updateIssueStatus(issueId, request, principal);
+        PageIssueResponseDto result = issueService.updateIssueStatus(issueId, request, principal);
 
         verify(issueRepository).updateIssueStatus(issueId, IssueStatus.RESOLVED);
         assertThat(result.status()).isEqualTo(IssueStatus.RESOLVED);
