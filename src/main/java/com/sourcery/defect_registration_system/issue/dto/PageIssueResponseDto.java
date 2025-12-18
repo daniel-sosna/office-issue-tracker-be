@@ -2,7 +2,7 @@ package com.sourcery.defect_registration_system.issue.dto;
 
 import java.util.List;
 
-public record PageResponseDto<T>(
+public record PageIssueResponseDto<T>(
         List<T> content,
         long totalElements,
         long totalPages,

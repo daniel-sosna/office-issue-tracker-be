@@ -6,7 +6,7 @@ import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusReques
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
 import com.sourcery.defect_registration_system.issue.dto.IssueDetailsResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
-import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.PageIssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
@@ -85,7 +85,7 @@ public class IssueServiceTest {
                 false
         )).thenReturn(List.of(issue1, issue2));
 
-        PageResponseDto<IssueResponseDto> result =
+        PageIssueResponseDto<IssueResponseDto> result =
                 issueService.getAllIssues(page, size, principal);
 
         assertThat(result.content()).hasSize(2);
@@ -116,7 +116,7 @@ public class IssueServiceTest {
                 false
         )).thenReturn(List.of(issue3));
 
-        PageResponseDto<IssueResponseDto> result =
+        PageIssueResponseDto<IssueResponseDto> result =
                 issueService.getAllIssues(page, size, principal);
 
         assertThat(result.content()).hasSize(1);
@@ -143,7 +143,7 @@ public class IssueServiceTest {
                 false
         )).thenReturn(List.of());
 
-        PageResponseDto<IssueResponseDto> result =
+        PageIssueResponseDto<IssueResponseDto> result =
                 issueService.getAllIssues(page, size, principal);
 
         assertThat(result.content()).isEmpty();
@@ -173,7 +173,7 @@ public class IssueServiceTest {
                 false
         )).thenReturn(List.of(issue1, issue2));
 
-        PageResponseDto<IssueResponseDto> result =
+        PageIssueResponseDto<IssueResponseDto> result =
                 issueService.getAllIssues(page, size, principal);
 
         assertThat(result.content()).hasSize(2);

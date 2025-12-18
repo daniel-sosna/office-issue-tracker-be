@@ -7,7 +7,7 @@ import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusReques
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
 import com.sourcery.defect_registration_system.issue.dto.IssueDetailsResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
-import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.PageIssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
@@ -39,7 +39,7 @@ public class IssueService {
     private final IssueAttachmentService issueAttachmentService;
 
 
-    public PageResponseDto<IssueResponseDto> getAllIssues(
+    public PageIssueResponseDto<IssueResponseDto> getAllIssues(
             String status,
             UUID office,
             UUID reportedBy,
@@ -75,10 +75,10 @@ public class IssueService {
                 .toList();
         long totalElements = issueRepository.countAllIssues(status, office, reportedBy, isAdmin);
         int totalPages = (int) Math.ceil(totalElements / (double) size);
-        return new PageResponseDto<>(content, totalElements, totalPages, page, size);
+        return new PageIssueResponseDto<>(content, totalElements, totalPages, page, size);
     }
 
-    public PageResponseDto<IssueResponseDto> getAllIssues(int page, int size, OAuth2User principal) {
+    public PageIssueResponseDto<IssueResponseDto> getAllIssues(int page, int size, OAuth2User principal) {
         return getAllIssues(null, null, null, "dateDesc", page, size, principal);
     }
 
