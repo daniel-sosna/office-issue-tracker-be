@@ -6,6 +6,7 @@ import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
 import com.sourcery.defect_registration_system.issue.dto.IssueDetailsResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.PageIssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
@@ -13,6 +14,8 @@ import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundException;
 import com.sourcery.defect_registration_system.issue.repository.IssueRepository;
+import com.sourcery.defect_registration_system.issue_vote.dto.VoteInfoDto;
+import com.sourcery.defect_registration_system.issue_vote.service.VoteService;
 import com.sourcery.defect_registration_system.office.service.OfficeService;
 import com.sourcery.defect_registration_system.user.dto.UserDto;
 import com.sourcery.defect_registration_system.user.enums.Role;
@@ -27,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -34,6 +38,7 @@ import java.util.UUID;
 public class IssueService {
     private final IssueRepository issueRepository;
     private final AuthService authService;
+    private final VoteService voteService;
     private final OfficeService officeService;
     private final UserService userService;
     private final IssueAttachmentService issueAttachmentService;
@@ -50,31 +55,36 @@ public class IssueService {
     ) {
         boolean isAdmin = Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role());
         int offset = (page - 1) * size;
+
         String orderBy;
         if (sort == null) {
             orderBy = "date_created DESC";
         } else {
             switch (sort.toLowerCase()) {
-                case "dateasc":
-                    orderBy = "date_created ASC";
-                    break;
-                case "votesdesc":
-                    orderBy = "votes DESC";
-                    break;
-                case "commentsdesc":
-                    orderBy = "comments DESC";
-                    break;
-                default:
-                    orderBy = "date_created DESC";
+                case "dateasc": orderBy = "date_created ASC"; break;
+                case "votesdesc": orderBy = "votes DESC"; break;
+                case "commentsdesc": orderBy = "comments DESC"; break;
+                default: orderBy = "date_created DESC";
             }
         }
-        List<PageIssueResponseDto> content = issueRepository
-                .getAllIssues(status, office, reportedBy, orderBy, size, offset, isAdmin)
+        List<Issue> issues = issueRepository.getAllIssues(status, office, reportedBy, orderBy, size, offset, isAdmin)
+        List<UUID> ids = issues.stream().map(Issue::getId).toList();
+        UUID userId = authService.getCurrentUserId(principal);
+        Map<UUID, VoteInfoDto> votesInfo = voteService.getVoteInfoForIssues(ids, userId);
+        List<PageIssueResponseDto> content = issues
                 .stream()
-                .map(PageIssueResponseDto::from)
+                .map(issue -> {
+                    VoteInfoDto voteInfoDto = votesInfo.get(issue.getId());
+                    return PageIssueResponseDto.from(
+                            issue,
+                            voteInfoDto.userVoted(),
+                            voteInfoDto.voteCount()
+                    );
+                })
                 .toList();
         long totalElements = issueRepository.countAllIssues(status, office, reportedBy, isAdmin);
         int totalPages = (int) Math.ceil(totalElements / (double) size);
+
         return new PageResponseDto<>(content, totalElements, totalPages, page, size);
     }
 
@@ -83,8 +93,10 @@ public class IssueService {
     }
 
     @Transactional
-    public PageIssueResponseDto createIssue(CreateIssueRequest request, List<MultipartFile> files, OAuth2User principal) {
+    public IssueResponseDto createIssue(CreateIssueRequest request, List<MultipartFile> files, OAuth2User principal) {
+
         UUID createdBy = authService.getCurrentUserId(principal);
+
         Issue issue = Issue.builder()
                 .id(UUID.randomUUID())
                 .summary(request.summary())
@@ -95,27 +107,33 @@ public class IssueService {
                 .dateCreated(OffsetDateTime.now())
                 .dateModified(null)
                 .build();
+
         issueRepository.insertIssue(issue);
+
         if (files != null && !files.isEmpty()) {
             issueAttachmentService.uploadAttachments(issue.getId(), createdBy, files);
         }
-        return PageIssueResponseDto.from(issue);
+
+        return IssueResponseDto.from(issue);
     }
 
-    public PageIssueResponseDto getIssueById(UUID id) {
+    public IssueResponseDto getIssueById(UUID id) {
         Issue issue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
-        return PageIssueResponseDto.from(issue);
+
+        return IssueResponseDto.from(issue);
     }
 
     public IssueDetailsResponseDto getIssueDetailsById(UUID id) {
         Issue issue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
+
         String officeName = officeService.getOfficeDisplayNameById(issue.getOfficeId());
         UserDto user = userService.getUserById(issue.getCreatedBy());
         List<IssueAttachmentResponse> attachments = issueAttachmentService.getAttachmentsByIssueId(issue.getId());
+
         return new IssueDetailsResponseDto(
-                PageIssueResponseDto.from(issue),
+                IssueResponseDto.from(issue),
                 officeName,
                 issue.getOfficeId(),
                 user.name(),
@@ -126,13 +144,9 @@ public class IssueService {
     }
 
     @Transactional
-    public PageIssueResponseDto updateIssue(
-            UUID id,
-            UpdateIssueRequest request,
-            List<MultipartFile> newFiles,
-            List<UUID> deleteAttachmentIds,
-            OAuth2User principal
-    ) {
+    public IssueResponseDto updateIssue(UUID id, UpdateIssueRequest request, List<MultipartFile> newFiles,
+                                        List<UUID> deleteAttachmentIds, OAuth2User principal) {
+
         UUID currentUserId = authService.getCurrentUserId(principal);
         Role role = authService.getCurrentUserInfo(principal).role();
 
@@ -185,33 +199,38 @@ public class IssueService {
 
         Issue updatedIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IllegalStateException("Issue missing after update"));
-        return PageIssueResponseDto.from(updatedIssue);
+
+        return IssueResponseDto.from(updatedIssue);
     }
 
-
     @Transactional
-    public PageIssueResponseDto updateIssueStatus(UUID id, ChangeIssueStatusRequest request, OAuth2User principal) {
+    public IssueResponseDto updateIssueStatus(UUID id, ChangeIssueStatusRequest request, OAuth2User principal) {
+
         if (!Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role())) {
             throw new AccessDeniedException("You do not have permission to change issue status");
         }
+
         issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
+
         int updatedRows = issueRepository.updateIssueStatus(id, request.status());
         if (updatedRows == 0) {
             throw new IssueNotFoundException("Failed to update status");
         }
+
         Issue updatedIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IllegalStateException("Issue missing after update"));
-        return PageIssueResponseDto.from(updatedIssue);
-    }
 
+        return IssueResponseDto.from(updatedIssue);
+    }
     @Transactional
     public void softDeleteIssue(UUID id, OAuth2User principal) {
         UUID currentUserId = authService.getCurrentUserId(principal);
+
         Issue existingIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with id " + id + " not found"));
-        if (!existingIssue.getCreatedBy().equals(currentUserId)
-                && !Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role())) {
+
+        if (!existingIssue.getCreatedBy().equals(currentUserId) && !Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role())) {
             throw new UnauthorizedException("You are not allowed to delete this issue.");
         }
         issueRepository.updateIssueStatus(id, IssueStatus.DELETED);
@@ -236,6 +255,5 @@ public class IssueService {
             throw new IssueNotFoundException("Failed to update issue office");
         }
     }
-
 
 }

@@ -43,16 +43,25 @@ import java.util.UUID;
 public class IssueController {
     private final IssueService issueService;
 
+    @Operation(
+            summary = "Get filtered, sorted, and paginated list of issues",
+            description = """
+                    Optionally filters and sorts existing issues.
+                    Returns a paginated list of these issues with page and size parameters."""
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Page of issues returned successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized – user must be authenticated"),
+    })
     @GetMapping
     public PageResponseDto<PageIssueResponseDto> getAllIssuesPaginated(
+            @AuthenticationPrincipal OAuth2User principal,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) UUID office,
             @RequestParam(required = false) UUID reportedBy,
-            @RequestParam(defaultValue = "dateDesc") String sort,
-            @AuthenticationPrincipal OAuth2User principal
-    ) {
+            @RequestParam(defaultValue = "dateDesc") String sort) {
         return issueService.getAllIssues(status, office, reportedBy, sort, page, size, principal);
     }
 
@@ -66,7 +75,7 @@ public class IssueController {
             @ApiResponse(responseCode = "404", description = "Issue not found")
     })
     @GetMapping("/{id}")
-    public PageIssueResponseDto getIssueById(@PathVariable("id") UUID id) {
+    public IssueResponseDto getIssueById(@PathVariable("id") UUID id) {
         return issueService.getIssueById(id);
     }
 
@@ -95,10 +104,10 @@ public class IssueController {
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public PageIssueResponseDto createIssue(@AuthenticationPrincipal OAuth2User principal,
-                                            @Parameter(description = "Issue data in JSON format", required = true)
+    public IssueResponseDto createIssue(@AuthenticationPrincipal OAuth2User principal,
+                                        @Parameter(description = "Issue data in JSON format", required = true)
                                         @RequestPart("issue") @Valid CreateIssueRequest request,
-                                            @Parameter(description = "Attachment files (optional)", required = false)
+                                        @Parameter(description = "Attachment files (optional)", required = false)
                                         @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         return issueService.createIssue(request, files, principal);
     }
@@ -129,7 +138,6 @@ public class IssueController {
         return issueService.updateIssue(id, request, files, deleteAttachmentIds, principal);
     }
 
-
     @Operation(
             summary = "Change issue status",
             description = "Allows coordinator to change the status of any issue. Regular users cannot use this endpoint."
@@ -143,7 +151,7 @@ public class IssueController {
     })
     @PatchMapping("/{id}/status")
     @ResponseStatus(HttpStatus.OK)
-    public PageIssueResponseDto updateIssueStatus(@PathVariable("id") UUID id, @RequestBody @Valid ChangeIssueStatusRequest request, @AuthenticationPrincipal OAuth2User principal) {
+    public IssueResponseDto updateIssueStatus(@PathVariable("id") UUID id, @RequestBody @Valid ChangeIssueStatusRequest request, @AuthenticationPrincipal OAuth2User principal) {
         return issueService.updateIssueStatus(id, request, principal);
     }
 
