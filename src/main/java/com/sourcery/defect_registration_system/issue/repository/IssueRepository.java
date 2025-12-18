@@ -1,6 +1,5 @@
 package com.sourcery.defect_registration_system.issue.repository;
 
-import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import org.apache.ibatis.annotations.Mapper;
@@ -92,11 +91,18 @@ public interface IssueRepository {
     Optional<Issue> getIssueById(@Param("id") UUID id);
 
     @Update("""
-            UPDATE issue
-            SET summary = #{request.summary}, description = #{request.description}, office_id = #{request.officeId}, date_modified = now()
-            WHERE id = #{id}
-            """)
-    int updateIssue(@Param("id") UUID id, @Param("request") UpdateIssueRequest request);
+    UPDATE issue
+    SET summary = #{summary},
+        description = #{description},
+        office_id = #{officeId},
+        date_modified = now()
+    WHERE id = #{id}
+""")
+    int updateIssue(@Param("id") UUID id,
+                          @Param("summary") String summary,
+                          @Param("description") String description,
+                          @Param("officeId") UUID officeId);
+
 
     @Update("""
             UPDATE issue
