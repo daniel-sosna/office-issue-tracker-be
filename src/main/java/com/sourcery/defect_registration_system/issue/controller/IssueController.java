@@ -3,6 +3,7 @@ package com.sourcery.defect_registration_system.issue.controller;
 import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
 import com.sourcery.defect_registration_system.issue.dto.IssueDetailsResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.PageIssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.UpdateIssueOfficeRequest;
@@ -128,7 +129,7 @@ public class IssueController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     @ResponseStatus(HttpStatus.OK)
-    public PageIssueResponseDto updateIssue(
+    public IssueResponseDto updateIssue(
             @PathVariable UUID id,
             @AuthenticationPrincipal OAuth2User principal,
             @RequestPart("issue") UpdateIssueRequest request,

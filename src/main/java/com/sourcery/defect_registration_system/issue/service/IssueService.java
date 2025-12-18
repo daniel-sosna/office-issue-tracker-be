@@ -67,7 +67,7 @@ public class IssueService {
                 default: orderBy = "date_created DESC";
             }
         }
-        List<Issue> issues = issueRepository.getAllIssues(status, office, reportedBy, orderBy, size, offset, isAdmin)
+        List<Issue> issues = issueRepository.getAllIssues(status, office, reportedBy, orderBy, size, offset, isAdmin);
         List<UUID> ids = issues.stream().map(Issue::getId).toList();
         UUID userId = authService.getCurrentUserId(principal);
         Map<UUID, VoteInfoDto> votesInfo = voteService.getVoteInfoForIssues(ids, userId);
@@ -177,7 +177,7 @@ public class IssueService {
 
             Issue updatedIssue = issueRepository.getIssueById(id)
                     .orElseThrow(() -> new IllegalStateException("Issue missing after update"));
-            return PageIssueResponseDto.from(updatedIssue);
+            return IssueResponseDto.from(updatedIssue);
         }
 
         String summary = request.summary() != null ? request.summary() : existingIssue.getSummary();
