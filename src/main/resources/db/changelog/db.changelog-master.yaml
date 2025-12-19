@@ -22,9 +22,13 @@ databaseChangeLog:
   - include:
       file: db/changelog/db.changelog-011-insert-mock-issues-with-blocked-closed-status.yaml
   - include:
+<<<<<<< HEAD
       file: db/changelog/db.changelog-014-create-issue-vote-table.yaml
 
   - include:
       file: db/changelog/db.changelog-012-create-user-profile.yaml
   - include:
       file: db/changelog/db.changelog-013-create-notification.yaml
+=======
+      file: db/changelog/db.changelog-013-create-notification.yaml
+>>>>>>> 805a4ebe6b6727922566af9ca914410cb041642d

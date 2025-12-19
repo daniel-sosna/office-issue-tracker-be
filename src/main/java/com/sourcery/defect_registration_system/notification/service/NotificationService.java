@@ -21,6 +21,12 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
+    public NotificationService(NotificationRepository notificationRepository,
+                               SimpMessagingTemplate messagingTemplate) {
+        this.notificationRepository = notificationRepository;
+        this.messagingTemplate = messagingTemplate;
+    }
+
     @Transactional
     public void createNotification(UUID userId, UUID issueId, NotificationType type, String message) {
         Notification notification = Notification.builder()
@@ -61,6 +67,11 @@ public class NotificationService {
     public void notifyComment(UUID issueId, UUID issueReporterId, String commenterName) {
         String message = commenterName + " commented on your issue.";
         createNotification(issueReporterId, issueId, NotificationType.COMMENT, message);
+    }
+
+    public void notifyUpvote(UUID issueId, UUID issueReporterId, String upvotedBy) {
+        String message = upvotedBy + " upvoted your issue.";
+        createNotification(issueReporterId, issueId, NotificationType.UPVOTE, message);
     }
 
     public void notifyStatusChange(UUID issueId, UUID issueReporterId, String adminName, String newStatus) {

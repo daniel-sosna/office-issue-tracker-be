@@ -27,6 +27,7 @@ public class NotificationController {
 
     @GetMapping
     public List<NotificationDTO> getNotifications(@AuthenticationPrincipal OAuth2User principal) {
+        // Always use authenticated user's ID
         UUID userId = authService.getCurrentUserId(principal);
         return notificationService.getNotificationsForUser(userId);
     }
