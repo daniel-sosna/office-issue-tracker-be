@@ -1,6 +1,7 @@
 package com.sourcery.defect_registration_system.user.repository;
 
 import com.sourcery.defect_registration_system.user.entity.User;
+import com.sourcery.defect_registration_system.user.dto.UserSummaryDto;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -40,5 +41,5 @@ public interface UserRepository {
               FROM users
               ORDER BY name
             """)
-    List<User> findAllUsers();
+    List<UserSummaryDto> findUsersForDropdown();
 }

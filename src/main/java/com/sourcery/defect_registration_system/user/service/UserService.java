@@ -1,7 +1,7 @@
 package com.sourcery.defect_registration_system.user.service;
 
 import com.sourcery.defect_registration_system.exception.NotFoundException;
-import com.sourcery.defect_registration_system.user.dto.AllUserDto;
+import com.sourcery.defect_registration_system.user.dto.UserSummaryDto;
 import com.sourcery.defect_registration_system.user.dto.UserDto;
 import com.sourcery.defect_registration_system.user.entity.User;
 import com.sourcery.defect_registration_system.user.repository.UserRepository;
@@ -29,10 +29,8 @@ public class UserService {
         );
     }
 
-    public List<AllUserDto> getAllUsersForDropdown() {
-        List<User> allUsers = userRepository.findAllUsers();
-        return allUsers.stream()
-                .map(user -> new AllUserDto(user.getId(), user.getName()))
-                .toList();
+    public List<UserSummaryDto> getUsersForDropdown() {
+        List<UserSummaryDto> allUsers = userRepository.findUsersForDropdown();
+        return userRepository.findUsersForDropdown();
     }
 }
