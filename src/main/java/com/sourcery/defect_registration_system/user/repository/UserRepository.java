@@ -37,7 +37,7 @@ public interface UserRepository {
     void insert(User user);
 
     @Select("""
-              SELECT *
+              SELECT id,name
               FROM users
               ORDER BY name
             """)
