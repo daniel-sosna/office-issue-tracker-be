@@ -4,6 +4,7 @@ import com.sourcery.defect_registration_system.notification.dto.NotificationDTO;
 import com.sourcery.defect_registration_system.notification.entity.Notification;
 import com.sourcery.defect_registration_system.notification.enums.NotificationType;
 import com.sourcery.defect_registration_system.notification.repository.NotificationRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,16 +15,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final SimpMessagingTemplate messagingTemplate;
-
-    public NotificationService(NotificationRepository notificationRepository,
-                               SimpMessagingTemplate messagingTemplate) {
-        this.notificationRepository = notificationRepository;
-        this.messagingTemplate = messagingTemplate;
-    }
 
     @Transactional
     public void createNotification(UUID userId, UUID issueId, NotificationType type, String message) {
