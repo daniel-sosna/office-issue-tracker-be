@@ -1,14 +1,17 @@
 package com.sourcery.defect_registration_system.profile.service;
 
+import com.sourcery.defect_registration_system.office.enums.Country;
 import com.sourcery.defect_registration_system.profile.dto.ProfileRequest;
 import com.sourcery.defect_registration_system.profile.dto.ProfileResponse;
 import com.sourcery.defect_registration_system.profile.entity.Profile;
 import com.sourcery.defect_registration_system.profile.exceptions.InvalidProfileDataException;
+import com.sourcery.defect_registration_system.profile.exceptions.UserNotFoundException;
 import com.sourcery.defect_registration_system.profile.repository.ProfileRepository;
 import com.sourcery.defect_registration_system.user.entity.User;
 import com.sourcery.defect_registration_system.user.repository.UserRepository;
 import com.sourcery.defect_registration_system.user.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +19,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProfileService {
 
     private final ProfileRepository profileRepository;
@@ -26,7 +30,7 @@ public class ProfileService {
         UUID userId = authService.getCurrentUserId(principal);
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new InvalidProfileDataException("User not found for id: " + userId));
+                .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId));
 
         Profile profile = profileRepository.findProfileByUserId(userId)
                 .orElseGet(() -> Profile.builder()
@@ -34,7 +38,8 @@ public class ProfileService {
                         .userId(userId)
                         .build());
 
-        return ProfileResponse.from(user, profile);
+        Country countryEnum = convertToCountryEnum(profile.getCountry());
+        return ProfileResponse.from(user, profile, countryEnum);
     }
 
     @Transactional
@@ -72,7 +77,18 @@ public class ProfileService {
             profileRepository.insertProfile(profile);
         }
 
-        return ProfileResponse.from(user, profile);
+        Country countryEnum = convertToCountryEnum(profile.getCountry());
+        return ProfileResponse.from(user, profile, countryEnum);
     }
 
+    // Helper method to safely convert String to Country enum
+    private Country convertToCountryEnum(String country) {
+        if (country == null) return null;
+        try {
+            return Country.valueOf(country.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid country value: {}", country);
+            return null;
+        }
+    }
 }
