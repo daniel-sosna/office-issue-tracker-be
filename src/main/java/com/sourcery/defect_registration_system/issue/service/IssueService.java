@@ -7,12 +7,15 @@ import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusReques
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
 import com.sourcery.defect_registration_system.issue.dto.IssueDetailsResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.PageIssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundException;
 import com.sourcery.defect_registration_system.issue.repository.IssueRepository;
+import com.sourcery.defect_registration_system.issue_vote.dto.VoteInfoDto;
+import com.sourcery.defect_registration_system.issue_vote.service.VoteService;
 import com.sourcery.defect_registration_system.office.service.OfficeService;
 import com.sourcery.defect_registration_system.user.dto.UserDto;
 import com.sourcery.defect_registration_system.user.enums.Role;
@@ -27,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -34,18 +38,48 @@ import java.util.UUID;
 public class IssueService {
     private final IssueRepository issueRepository;
     private final AuthService authService;
+    private final VoteService voteService;
     private final OfficeService officeService;
     private final UserService userService;
     private final IssueAttachmentService issueAttachmentService;
 
-    public PageResponseDto<IssueResponseDto> getAllIssues(int page, int size) {
+    public PageResponseDto<PageIssueResponseDto> getAllIssues(
+            String status, UUID office, UUID reportedBy, String sort, int page, int size, OAuth2User principal) {
+
         int offset = (page - 1) * size;
-        List<IssueResponseDto> content = issueRepository.getAllIssuesPaged(size, offset)
+
+        String orderBy;
+        if (sort == null) {
+            orderBy = "date_created DESC";
+        } else {
+            switch (sort.toLowerCase()) {
+                case "dateasc": orderBy = "date_created ASC"; break;
+                case "votesdesc": orderBy = "votes DESC"; break;
+                case "commentsdesc": orderBy = "comments DESC"; break;
+                default: orderBy = "date_created DESC";
+            }
+        }
+
+        List<Issue> issues = issueRepository.getAllIssues(status, office, reportedBy, orderBy, size, offset);
+
+        List<UUID> ids = issues.stream().map(Issue::getId).toList();
+        UUID userId = authService.getCurrentUserId(principal);
+
+        Map<UUID, VoteInfoDto> votesInfo = voteService.getVoteInfoForIssues(ids, userId);
+
+        List<PageIssueResponseDto> content = issues
                 .stream()
-                .map(IssueResponseDto::from)
+                .map(issue -> {
+                    VoteInfoDto voteInfoDto = votesInfo.get(issue.getId());
+                    return PageIssueResponseDto.from(
+                            issue,
+                            voteInfoDto.userVoted(),
+                            voteInfoDto.voteCount()
+                    );
+                })
                 .toList();
 
-        long totalElements = issueRepository.countAllIssues();
+        long totalElements = issueRepository.countAllIssues(status, office, reportedBy);
         int totalPages = (int) Math.ceil(totalElements / (double) size);
 
         return new PageResponseDto<>(content, totalElements, totalPages, page, size);
@@ -154,6 +188,7 @@ public class IssueService {
 
         return IssueResponseDto.from(updatedIssue);
     }
+
     @Transactional
     public void deleteIssue(UUID id, OAuth2User principal) {
 

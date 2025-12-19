@@ -3,35 +3,78 @@ package com.sourcery.defect_registration_system.issue.repository;
 import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.entity.Issue;
 import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
+import org.apache.ibatis.annotations.*;
+import org.springframework.stereotype.Repository;
+
 @Repository
 @Mapper
 public interface IssueRepository {
 
     @Select("""
+            <script>
             SELECT *
             FROM issue
-            ORDER BY date_created DESC
-            LIMIT #{limit} OFFSET #{offset}
+            WHERE 1=1
+            AND status != 'BLOCKED'
+              <if test='status != null'>
+                AND status = #{status}
+              </if>
+              <if test='office != null'>
+                AND office_id = #{office}
+              </if>
+              <if test='reportedBy != null'>
+                AND created_by = #{reportedBy}
+              </if>
+            ORDER BY ${orderBy}
+            LIMIT #{size} OFFSET #{offset}
+            </script>
             """)
-    List<Issue> getAllIssuesPaged(int limit, int offset);
+    List<Issue> getAllIssues(
+            @Param("status") String status,
+            @Param("office") UUID office,
+            @Param("reportedBy") UUID reportedBy,
+            @Param("orderBy") String orderBy,
+            @Param("size") int size,
+            @Param("offset") int offset
+    );
 
     @Select("""
+            <script>
             SELECT COUNT(*)
             FROM issue
+            WHERE 1=1
+            AND status != 'BLOCKED'
+              <if test='status != null'>
+                AND status = #{status}
+              </if>
+              <if test='office != null'>
+                AND office_id = #{office}
+              </if>
+              <if test='reportedBy != null'>
+                AND created_by = #{reportedBy}
+              </if>
+            </script>
             """)
-    long countAllIssues();
+    long countAllIssues(
+            @Param("status") String status,
+            @Param("office") UUID office,
+            @Param("reportedBy") UUID reportedBy
+    );
 
     @Insert("""
             INSERT INTO issue (id, summary, description, office_id, status, created_by, date_created, date_modified)

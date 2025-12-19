@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: 014
+      author: daniel
+      changes:
+        - createTable:
+            tableName: issue_vote
+            columns:
+              - column:
+                  name: issue_id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: user_id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: issue_vote
+            baseColumnNames: issue_id
+            constraintName: fk_issue
+            referencedTableName: issue
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: issue_vote
+            baseColumnNames: user_id
+            constraintName: fk_user
+            referencedTableName: users
+            referencedColumnNames: id
