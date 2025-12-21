@@ -2,6 +2,8 @@ package com.sourcery.defect_registration_system.issue.service;
 
 import com.sourcery.defect_registration_system.attachment.dto.IssueAttachmentResponse;
 import com.sourcery.defect_registration_system.attachment.service.IssueAttachmentService;
+import com.sourcery.defect_registration_system.comment.dto.CommentCountProjection;
+import com.sourcery.defect_registration_system.comment.repository.CommentRepository;
 import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
@@ -21,6 +23,7 @@ import com.sourcery.defect_registration_system.user.dto.UserDto;
 import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.service.AuthService;
 import com.sourcery.defect_registration_system.user.service.UserService;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -42,6 +45,7 @@ public class IssueService {
     private final OfficeService officeService;
     private final UserService userService;
     private final IssueAttachmentService issueAttachmentService;
+    private final CommentRepository commentRepository;
 
     public PageResponseDto<PageIssueResponseDto> getAllIssues(
             String status, UUID office, UUID reportedBy, String sort, int page, int size, OAuth2User principal) {
@@ -66,15 +70,26 @@ public class IssueService {
         UUID userId = authService.getCurrentUserId(principal);
 
         Map<UUID, VoteInfoDto> votesInfo = voteService.getVoteInfoForIssues(ids, userId);
+        Map<UUID, Integer> commentCounts =
+            ids.isEmpty()
+                ? Map.of()
+                : commentRepository.countByIssueIds(ids)
+                    .stream()
+                    .collect(Collectors.toMap(
+                        CommentCountProjection::issueId,
+                        CommentCountProjection::commentCount
+                    ));
 
         List<PageIssueResponseDto> content = issues
                 .stream()
                 .map(issue -> {
                     VoteInfoDto voteInfoDto = votesInfo.get(issue.getId());
+                    int commentCount = commentRepository.countByIssueId(issue.getId());
                     return PageIssueResponseDto.from(
                             issue,
                             voteInfoDto.userVoted(),
-                            voteInfoDto.voteCount()
+                            voteInfoDto.voteCount(),
+                            commentCount
                     );
                 })
                 .toList();
@@ -124,13 +139,14 @@ public class IssueService {
         String officeName = officeService.getOfficeDisplayNameById(issue.getOfficeId());
         UserDto user = userService.getUserById(issue.getCreatedBy());
         List<IssueAttachmentResponse> attachments = issueAttachmentService.getAttachmentsByIssueId(issue.getId());
-
+        int commentCount = commentRepository.countByIssueId(issue.getId());
         return new IssueDetailsResponseDto(
                 IssueResponseDto.from(issue),
                 officeName,
                 user.name(),
                 user.picture(),
-                attachments
+                attachments,
+                commentCount
         );
     }
 
