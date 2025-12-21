@@ -1,12 +1,14 @@
 package com.sourcery.defect_registration_system.user.service;
 
 import com.sourcery.defect_registration_system.exception.NotFoundException;
+import com.sourcery.defect_registration_system.user.dto.UserSummaryDto;
 import com.sourcery.defect_registration_system.user.dto.UserDto;
 import com.sourcery.defect_registration_system.user.entity.User;
 import com.sourcery.defect_registration_system.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -25,5 +27,10 @@ public class UserService {
                 user.getRole(),
                 user.getImageUrl()
         );
+    }
+
+    public List<UserSummaryDto> getUsersForDropdown() {
+        List<UserSummaryDto> allUsers = userRepository.findUsersForDropdown();
+        return userRepository.findUsersForDropdown();
     }
 }
