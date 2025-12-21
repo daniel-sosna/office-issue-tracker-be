@@ -21,12 +21,6 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
-    public NotificationService(NotificationRepository notificationRepository,
-                               SimpMessagingTemplate messagingTemplate) {
-        this.notificationRepository = notificationRepository;
-        this.messagingTemplate = messagingTemplate;
-    }
-
     @Transactional
     public void createNotification(UUID userId, UUID issueId, NotificationType type, String message) {
         Notification notification = Notification.builder()

@@ -1,6 +1,7 @@
 package com.sourcery.defect_registration_system.user.repository;
 
 import com.sourcery.defect_registration_system.user.entity.User;
+import com.sourcery.defect_registration_system.user.dto.UserSummaryDto;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.List;
 
 @Repository
 @Mapper
@@ -35,6 +37,11 @@ public interface UserRepository {
             """)
     void insert(User user);
 
-    @Update("UPDATE users SET name = #{name} WHERE id = #{userId}")
-    void updateUserName(@Param("userId") UUID userId, @Param("name") String name);
+    @Select("""
+              SELECT id,name
+              FROM users
+              ORDER BY name
+            """)
+    List<UserSummaryDto> findUsersForDropdown();
+
 }

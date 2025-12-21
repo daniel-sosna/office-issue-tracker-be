@@ -37,13 +37,8 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/logout")
                         .ignoringRequestMatchers("/issues/**")
                         .ignoringRequestMatchers("/offices/**")
-<<<<<<< HEAD
                         .ignoringRequestMatchers("/api/profile/**")
                         .ignoringRequestMatchers("/api/notifications/**")
-=======
-                        .ignoringRequestMatchers("/api/notifications/**")
-
->>>>>>> 805a4ebe6b6727922566af9ca914410cb041642d
                 )
                 .authorizeHttpRequests(req -> req
                         .requestMatchers( "/login").permitAll()
@@ -59,10 +54,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/profile/**").authenticated()
                         .requestMatchers("/api/notifications/**").authenticated()
                         .requestMatchers("/notifications/**").permitAll()
-<<<<<<< HEAD
-=======
-
->>>>>>> 805a4ebe6b6727922566af9ca914410cb041642d
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
