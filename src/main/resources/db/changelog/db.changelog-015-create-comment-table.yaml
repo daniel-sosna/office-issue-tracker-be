@@ -1,0 +1,70 @@
+databaseChangeLog:
+  - changeSet:
+      id: 015
+      author: auste
+      changes:
+        - createTable:
+            tableName: comment
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: issue_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: user_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: comment_text
+                  type: TEXT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: date_created
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: comment
+            baseColumnNames: issue_id
+            referencedTableName: issue
+            referencedColumnNames: id
+            constraintName: fk_comment_issue
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: comment
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_comment_user
+            onDelete: RESTRICT
+
+        - createIndex:
+            tableName: comment
+            indexName: idx_comment_issue_id
+            columns:
+              - column:
+                  name: issue_id
+
+        - createIndex:
+            tableName: comment
+            indexName: idx_comment_user_id
+            columns:
+              - column:
+                  name: user_id
