@@ -3,6 +3,7 @@ package com.sourcery.defect_registration_system.comment.controller;
 import com.sourcery.defect_registration_system.comment.dto.CommentRequestDto;
 import com.sourcery.defect_registration_system.comment.dto.CommentResponseDto;
 import com.sourcery.defect_registration_system.comment.service.CommentService;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ public class CommentController {
     @ResponseStatus(HttpStatus.CREATED)
     public CommentResponseDto postComment(
         @AuthenticationPrincipal OAuth2User principal,
-        @RequestBody CommentRequestDto commentDto,
+        @Valid @RequestBody CommentRequestDto commentDto,
         @PathVariable("issueId") UUID issueId) {
         return commentService.postComment(principal, commentDto, issueId);
     }
