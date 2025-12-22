@@ -7,12 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class CommentRequestDto {
+public record CommentRequestDto (
     @NotBlank
     @Size(max = 500, message = "Comment must not exceed 500 characters")
-    private String commentText;
-}
+    String commentText
+){ }

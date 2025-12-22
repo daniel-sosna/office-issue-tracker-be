@@ -31,7 +31,7 @@ public class CommentService {
         .id(UUID.randomUUID())
         .issueId(issueId)
         .userId(userId)
-        .commentText(commentDto.getCommentText())
+        .commentText(commentDto.commentText())
         .dateCreated(OffsetDateTime.now())
         .build();
 
@@ -39,13 +39,12 @@ public class CommentService {
 
     UserDto user = userService.getUserById(comment.getUserId());
 
-    CommentResponseDto response = new CommentResponseDto();
-    response.setUserName(user.name());
-    response.setImageUrl(user.picture());
-    response.setCommentText(comment.getCommentText());
-    response.setCreationDateTime(comment.getDateCreated());
-
-    return response;
+    return new CommentResponseDto(
+        user.name(),
+        user.picture(),
+        comment.getCommentText(),
+        comment.getDateCreated()
+    );
   }
 
   @Transactional(readOnly = true)
@@ -60,13 +59,12 @@ public class CommentService {
         .map(comment -> {
           UserDto user = userService.getUserById(comment.getUserId());
 
-          CommentResponseDto commentDto = new CommentResponseDto();
-          commentDto.setUserName(user.name());
-          commentDto.setImageUrl(user.picture());
-          commentDto.setCommentText(comment.getCommentText());
-          commentDto.setCreationDateTime(comment.getDateCreated());
-
-          return commentDto;
+          return new CommentResponseDto(
+              user.name(),
+              user.picture(),
+              comment.getCommentText(),
+              comment.getDateCreated()
+          );
         })
         .toList();
   }
