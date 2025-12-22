@@ -12,7 +12,8 @@ public record IssueResponseDto(
         String description,
         IssueStatus status,
         OffsetDateTime dateCreated,
-        OffsetDateTime dateModified
+        OffsetDateTime dateModified,
+        int voteCount
 ) {
     public static IssueResponseDto from(Issue issue) {
         return new IssueResponseDto(
@@ -21,7 +22,8 @@ public record IssueResponseDto(
                 issue.getDescription(),
                 issue.getStatus(),
                 issue.getDateCreated(),
-                issue.getDateModified() == null ? null : issue.getDateModified()
+                issue.getDateModified() == null ? null : issue.getDateModified(),
+                issue.getVoteCount()
         );
     }
 }

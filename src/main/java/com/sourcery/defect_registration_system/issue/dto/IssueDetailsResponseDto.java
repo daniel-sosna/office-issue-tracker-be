@@ -12,6 +12,7 @@ public record IssueDetailsResponseDto(
         String reportedBy,
         String reportedByAvatar,
         String reportedByEmail,
-        List<IssueAttachmentResponse> attachments
+        List<IssueAttachmentResponse> attachments,
+        int voteCount
 ) {
 }

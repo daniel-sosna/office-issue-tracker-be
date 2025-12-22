@@ -139,7 +139,8 @@ public class IssueService {
                 user.name(),
                 user.picture(),
                 user.email(),
-                attachments
+                attachments,
+                issue.getVoteCount()
         );
     }
 

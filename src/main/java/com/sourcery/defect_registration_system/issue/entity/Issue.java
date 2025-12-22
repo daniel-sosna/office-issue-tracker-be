@@ -21,4 +21,5 @@ public class Issue {
   private UUID createdBy;
   private OffsetDateTime dateCreated;
   private OffsetDateTime dateModified;
+  private int voteCount;
 }
