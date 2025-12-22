@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: 015
-      author: auste
+      author: edgar miloš
       changes:
         - createTable:
             tableName: comment
