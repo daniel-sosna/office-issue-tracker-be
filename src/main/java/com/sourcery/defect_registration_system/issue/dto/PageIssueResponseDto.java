@@ -12,7 +12,6 @@ public record PageIssueResponseDto(
         String description,
         IssueStatus status,
         OffsetDateTime dateCreated,
-        OffsetDateTime dateModified,
         boolean hasVoted,
         int voteCount
 ) {
@@ -23,7 +22,6 @@ public record PageIssueResponseDto(
                 issue.getDescription(),
                 issue.getStatus(),
                 issue.getDateCreated(),
-                issue.getDateModified() == null ? null : issue.getDateModified(),
                 hasVoted,
                 voteCount
         );

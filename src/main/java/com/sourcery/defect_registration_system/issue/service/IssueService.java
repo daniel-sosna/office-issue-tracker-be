@@ -135,12 +135,11 @@ public class IssueService {
         return new IssueDetailsResponseDto(
                 IssueResponseDto.from(issue),
                 officeName,
-                issue.getOfficeId(),
                 user.name(),
                 user.picture(),
                 user.email(),
-                attachments,
-                issue.getVoteCount()
+                issue.getDateModified(),
+                attachments
         );
     }
 

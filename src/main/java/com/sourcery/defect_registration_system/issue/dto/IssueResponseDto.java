@@ -22,7 +22,7 @@ public record IssueResponseDto(
                 issue.getDescription(),
                 issue.getStatus(),
                 issue.getDateCreated(),
-                issue.getDateModified() == null ? null : issue.getDateModified(),
+                issue.getDateModified(),
                 issue.getVoteCount()
         );
     }
