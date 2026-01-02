@@ -85,20 +85,16 @@ public interface IssueRepository {
 
     @Select("""
     SELECT
-      i.id              AS id,
-      i.summary         AS summary,
-      i.description     AS description,
-      i.office_id       AS officeId,
-      i.status          AS status,
-      i.created_by      AS createdBy,
-      i.date_created    AS dateCreated,
-      i.date_modified   AS dateModified,
-      COUNT(iv.user_id) AS voteCount
-    FROM issue i
-    LEFT JOIN issue_vote iv ON iv.issue_id = i.id
-    WHERE i.id = #{id}
-    GROUP BY
-      i.id, i.summary, i.description, i.office_id, i.status, i.created_by, i.date_created, i.date_modified
+      id,
+      summary,
+      description,
+      office_id    AS officeId,
+      status,
+      created_by  AS createdBy,
+      date_created AS dateCreated,
+      date_modified AS dateModified
+    FROM issue
+    WHERE id = #{id}
     """)
     Optional<Issue> getIssueById(@Param("id") UUID id);
 
