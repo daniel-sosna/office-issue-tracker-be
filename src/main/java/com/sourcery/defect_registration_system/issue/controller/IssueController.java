@@ -130,9 +130,9 @@ public class IssueController {
     )
     @ResponseStatus(HttpStatus.OK)
     public IssueResponseDto updateIssue(
-            @PathVariable UUID id,
+            @PathVariable("id") UUID id,
             @AuthenticationPrincipal OAuth2User principal,
-            @RequestPart("issue") UpdateIssueRequest request,
+            @RequestPart("issue") @Valid UpdateIssueRequest request,
             @RequestPart(value = "files", required = false) List<MultipartFile> files,
             @RequestPart(value = "deleteAttachmentIds", required = false) List<UUID> deleteAttachmentIds
     ) {

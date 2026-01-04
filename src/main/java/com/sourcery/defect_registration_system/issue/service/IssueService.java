@@ -162,7 +162,7 @@ public class IssueService {
 
         if (isAdmin && !isOwner) {
             if (request.summary() != null || request.description() != null) {
-                throw new UnauthorizedException("Admin can only change issue office");
+                throw new UnauthorizedException("Admin can only change issue office/status");
             }
             if ((newFiles != null && !newFiles.isEmpty()) ||
                     (deleteAttachmentIds != null && !deleteAttachmentIds.isEmpty())) {
