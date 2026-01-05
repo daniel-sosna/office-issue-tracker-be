@@ -6,7 +6,6 @@ import com.sourcery.defect_registration_system.issue.dto.IssueDetailsResponseDto
 import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.PageIssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
-import com.sourcery.defect_registration_system.issue.dto.UpdateIssueOfficeRequest;
 import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.service.IssueService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -172,13 +171,6 @@ public class IssueController {
     public void softDeleteIssue(@PathVariable("id") UUID id, @AuthenticationPrincipal OAuth2User principal) {
         issueService.softDeleteIssue(id, principal);
     }
-    @PatchMapping("/{id}/office")
-    public void updateIssueOffice(
-            @PathVariable UUID id,
-            @RequestBody @Valid UpdateIssueOfficeRequest request,
-            @AuthenticationPrincipal OAuth2User principal
-    ) {
-        issueService.updateIssueOffice(id, request.officeId(), principal);
-    }
+
 
 }

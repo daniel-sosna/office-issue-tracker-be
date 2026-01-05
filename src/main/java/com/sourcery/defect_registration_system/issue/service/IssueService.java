@@ -235,25 +235,4 @@ public class IssueService {
         }
         issueRepository.updateIssueStatus(id, IssueStatus.DELETED);
     }
-    @Transactional
-    public void updateIssueOffice(UUID id, UUID officeId, OAuth2User principal) {
-        UUID currentUserId = authService.getCurrentUserId(principal);
-        Role role = authService.getCurrentUserInfo(principal).role();
-
-        Issue issue = issueRepository.getIssueById(id)
-                .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
-
-        boolean isOwner = issue.getCreatedBy().equals(currentUserId);
-        boolean isAdmin = role == Role.ADMIN;
-
-        if (!isOwner && !isAdmin) {
-            throw new UnauthorizedException("You are not allowed to change issue office");
-        }
-
-        int updated = issueRepository.updateIssueOffice(id, officeId);
-        if (updated == 0) {
-            throw new IssueNotFoundException("Failed to update issue office");
-        }
-    }
-
 }
