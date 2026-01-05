@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -157,16 +158,16 @@ public class IssueController {
     }
 
     @Operation(
-            summary = "Soft delete an issue",
-            description = "Changes the status of the issue to DELETED."
+            summary = "Delete an issue",
+            description = "Deletes an issue by its ID. Only the creator or an admin can delete the issue."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Issue successfully soft-deleted"),
+            @ApiResponse(responseCode = "204", description = "Issue successfully deleted"),
             @ApiResponse(responseCode = "401", description = "Unauthorized – authentication required"),
-            @ApiResponse(responseCode = "403", description = "Forbidden - only coordinator/owner can soft-delete this issue"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - only coordinator/owner can delete this issue"),
             @ApiResponse(responseCode = "404", description = "Issue not found")
     })
-    @PatchMapping("/{id}/delete")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void softDeleteIssue(@PathVariable("id") UUID id, @AuthenticationPrincipal OAuth2User principal) {
         issueService.softDeleteIssue(id, principal);
