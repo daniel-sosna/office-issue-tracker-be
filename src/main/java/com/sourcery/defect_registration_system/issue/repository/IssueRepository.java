@@ -84,28 +84,20 @@ public interface IssueRepository {
     void insertIssue(Issue issue);
 
     @Select("""
-    SELECT
-      id,
-      summary,
-      description,
-      office_id    AS officeId,
-      status,
-      created_by  AS createdBy,
-      date_created AS dateCreated,
-      date_modified AS dateModified
-    FROM issue
-    WHERE id = #{id}
-    """)
+            SELECT *
+            FROM issue
+            WHERE id = #{id}
+            """)
     Optional<Issue> getIssueById(@Param("id") UUID id);
 
     @Update("""
-    UPDATE issue
-    SET summary = #{summary},
-        description = #{description},
-        office_id = #{officeId},
-        date_modified = now()
-    WHERE id = #{id}
-""")
+            UPDATE issue
+            SET summary = #{summary},
+                description = #{description},
+                office_id = #{officeId},
+                date_modified = now()
+            WHERE id = #{id}
+            """)
     int updateIssue(@Param("id") UUID id,
                           @Param("summary") String summary,
                           @Param("description") String description,
@@ -120,10 +112,10 @@ public interface IssueRepository {
     int updateIssueStatus(@Param("id") UUID id, @Param("status") IssueStatus status);
 
     @Update("""
-    UPDATE issue
-    SET office_id = #{officeId}, date_modified = now()
-    WHERE id = #{id}
-""")
+            UPDATE issue
+            SET office_id = #{officeId}, date_modified = now()
+            WHERE id = #{id}
+            """)
     int updateIssueOffice(@Param("id") UUID id, @Param("officeId") UUID officeId);
 
     @Delete("""

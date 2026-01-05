@@ -2,6 +2,7 @@ package com.sourcery.defect_registration_system.issue.service;
 
 import com.sourcery.defect_registration_system.attachment.dto.IssueAttachmentResponse;
 import com.sourcery.defect_registration_system.attachment.service.IssueAttachmentService;
+import com.sourcery.defect_registration_system.exception.BadRequestException;
 import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
@@ -161,17 +162,13 @@ public class IssueService {
         }
 
         if (isAdmin && !isOwner) {
-            if (request.summary() != null || request.description() != null) {
-                throw new UnauthorizedException("Admin can only change issue office/status");
-            }
-            if ((newFiles != null && !newFiles.isEmpty()) ||
+            if (request.officeId() == null ||
+                    request.summary() != null ||
+                    request.description() != null ||
+                    (newFiles != null && !newFiles.isEmpty()) ||
                     (deleteAttachmentIds != null && !deleteAttachmentIds.isEmpty())) {
-                throw new UnauthorizedException("Admin cannot modify attachments");
+                throw new BadRequestException("Admin can only change issue office/status");
             }
-            if (request.officeId() == null) {
-                throw new UnauthorizedException("Admin update requires officeId");
-            }
-
             int updated = issueRepository.updateIssueOffice(id, request.officeId());
             if (updated == 0) throw new IssueNotFoundException("Failed to update issue office");
 
