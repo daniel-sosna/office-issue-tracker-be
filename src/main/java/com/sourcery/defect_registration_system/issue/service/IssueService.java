@@ -135,6 +135,7 @@ public class IssueService {
 
         return new IssueDetailsResponseDto(
                 IssueResponseDto.from(issue),
+                issue.getOfficeId(),
                 officeName,
                 user.name(),
                 user.picture(),
