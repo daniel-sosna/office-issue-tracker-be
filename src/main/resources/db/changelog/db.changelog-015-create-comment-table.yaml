@@ -2,6 +2,12 @@ databaseChangeLog:
   - changeSet:
       id: 015
       author: edgar miloš
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            tableExists:
+              tableName: comment
+              schemaName: public
       changes:
         - createTable:
             tableName: comment
