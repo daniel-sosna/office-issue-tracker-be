@@ -142,7 +142,6 @@ public class IssueService {
                 officeName,
                 user.name(),
                 user.picture(),
-                issue.getDateModified(),
                 attachments
         );
     }
