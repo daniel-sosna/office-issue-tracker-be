@@ -47,7 +47,7 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
             return newUser;
         });
 
-        var authorities = Set.of(new SimpleGrantedAuthority(user.getRole().name()));
+        var authorities = Set.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
 
         return new DefaultOidcUser(authorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
     }

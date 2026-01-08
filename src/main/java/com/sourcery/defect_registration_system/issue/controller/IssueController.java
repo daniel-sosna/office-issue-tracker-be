@@ -4,6 +4,7 @@ import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusReques
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
 import com.sourcery.defect_registration_system.issue.dto.IssueDetailsResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
+import com.sourcery.defect_registration_system.issue.dto.PageIssueResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.PageResponseDto;
 import com.sourcery.defect_registration_system.issue.dto.UpdateIssueRequest;
 import com.sourcery.defect_registration_system.issue.service.IssueService;
@@ -24,7 +25,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,16 +44,26 @@ import java.util.UUID;
 public class IssueController {
     private final IssueService issueService;
 
+    @Operation(
+            summary = "Get filtered, sorted, and paginated list of issues",
+            description = """
+                    Optionally filters and sorts existing issues.
+                    Returns a paginated list of these issues with page and size parameters."""
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Page of issues returned successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized – user must be authenticated"),
+    })
     @GetMapping
-    public PageResponseDto<IssueResponseDto> getAllIssuesPaginated(
+    public PageResponseDto<PageIssueResponseDto> getAllIssuesPaginated(
+            @AuthenticationPrincipal OAuth2User principal,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) UUID office,
             @RequestParam(required = false) UUID reportedBy,
             @RequestParam(defaultValue = "dateDesc") String sort) {
-
-        return issueService.getAllIssues(status, office, reportedBy, sort, page, size);
+        return issueService.getAllIssues(status, office, reportedBy, sort, page, size, principal);
     }
 
     @Operation(
@@ -114,14 +124,18 @@ public class IssueController {
             @ApiResponse(responseCode = "403", description = "Forbidden – you can only edit your own issues"),
             @ApiResponse(responseCode = "404", description = "Issue not found")
     })
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(
+            value = "/{id}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     @ResponseStatus(HttpStatus.OK)
     public IssueResponseDto updateIssue(
             @PathVariable("id") UUID id,
             @AuthenticationPrincipal OAuth2User principal,
             @RequestPart("issue") @Valid UpdateIssueRequest request,
             @RequestPart(value = "files", required = false) List<MultipartFile> files,
-            @RequestPart(value = "deleteAttachmentIds", required = false) List<UUID> deleteAttachmentIds) {
+            @RequestPart(value = "deleteAttachmentIds", required = false) List<UUID> deleteAttachmentIds
+    ) {
         return issueService.updateIssue(id, request, files, deleteAttachmentIds, principal);
     }
 
@@ -153,9 +167,10 @@ public class IssueController {
             @ApiResponse(responseCode = "404", description = "Issue not found")
     })
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteIssue(@PathVariable("id") UUID id, @AuthenticationPrincipal OAuth2User principal) {
-        issueService.deleteIssue(id, principal);
+    @ResponseStatus(HttpStatus.OK)
+    public void softDeleteIssue(@PathVariable("id") UUID id, @AuthenticationPrincipal OAuth2User principal) {
+        issueService.softDeleteIssue(id, principal);
     }
+
 
 }
