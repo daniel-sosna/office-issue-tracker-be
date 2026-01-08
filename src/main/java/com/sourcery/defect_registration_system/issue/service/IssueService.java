@@ -4,6 +4,7 @@ import com.sourcery.defect_registration_system.attachment.dto.IssueAttachmentRes
 import com.sourcery.defect_registration_system.attachment.service.IssueAttachmentService;
 import com.sourcery.defect_registration_system.comment.dto.CommentCountProjection;
 import com.sourcery.defect_registration_system.comment.repository.CommentRepository;
+import com.sourcery.defect_registration_system.exception.BadRequestException;
 import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
@@ -47,9 +48,17 @@ public class IssueService {
     private final IssueAttachmentService issueAttachmentService;
     private final CommentRepository commentRepository;
 
-    public PageResponseDto<PageIssueResponseDto> getAllIssues(
-            String status, UUID office, UUID reportedBy, String sort, int page, int size, OAuth2User principal) {
 
+    public PageResponseDto<PageIssueResponseDto> getAllIssues(
+            String status,
+            UUID office,
+            UUID reportedBy,
+            String sort,
+            int page,
+            int size,
+            OAuth2User principal
+    ) {
+        boolean isAdmin = Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role());
         int offset = (page - 1) * size;
 
         String orderBy;
@@ -63,12 +72,9 @@ public class IssueService {
                 default: orderBy = "date_created DESC";
             }
         }
-
-        List<Issue> issues = issueRepository.getAllIssues(status, office, reportedBy, orderBy, size, offset);
-
+        List<Issue> issues = issueRepository.getAllIssues(status, office, reportedBy, orderBy, size, offset, isAdmin);
         List<UUID> ids = issues.stream().map(Issue::getId).toList();
         UUID userId = authService.getCurrentUserId(principal);
-
         Map<UUID, VoteInfoDto> votesInfo = voteService.getVoteInfoForIssues(ids, userId);
         Map<UUID, Integer> commentCounts =
             ids.isEmpty()
@@ -93,11 +99,14 @@ public class IssueService {
                     );
                 })
                 .toList();
-
-        long totalElements = issueRepository.countAllIssues(status, office, reportedBy);
+        long totalElements = issueRepository.countAllIssues(status, office, reportedBy, isAdmin);
         int totalPages = (int) Math.ceil(totalElements / (double) size);
 
         return new PageResponseDto<>(content, totalElements, totalPages, page, size);
+    }
+
+    public PageResponseDto<PageIssueResponseDto> getAllIssues(int page, int size, OAuth2User principal) {
+        return getAllIssues(null, null, null, "dateDesc", page, size, principal);
     }
 
     @Transactional
@@ -142,9 +151,12 @@ public class IssueService {
         int commentCount = commentRepository.countByIssueId(issue.getId());
         return new IssueDetailsResponseDto(
                 IssueResponseDto.from(issue),
+                issue.getOfficeId(),
                 officeName,
                 user.name(),
                 user.picture(),
+                user.email(),
+                issue.getDateModified(),
                 attachments,
                 commentCount
         );
@@ -155,18 +167,40 @@ public class IssueService {
                                         List<UUID> deleteAttachmentIds, OAuth2User principal) {
 
         UUID currentUserId = authService.getCurrentUserId(principal);
+        Role role = authService.getCurrentUserInfo(principal).role();
 
         Issue existingIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
 
-        if (!existingIssue.getCreatedBy().equals(currentUserId)) {
+        boolean isOwner = existingIssue.getCreatedBy().equals(currentUserId);
+        boolean isAdmin = role == Role.ADMIN;
+
+        if (!isOwner && !isAdmin) {
             throw new UnauthorizedException("You are not allowed to update this issue");
         }
 
-        int updatedRows = issueRepository.updateIssue(id, request);
-        if (updatedRows == 0) {
-            throw new IssueNotFoundException("Failed to update issue");
+        if (isAdmin && !isOwner) {
+            if (request.officeId() == null ||
+                    request.summary() != null ||
+                    request.description() != null ||
+                    (newFiles != null && !newFiles.isEmpty()) ||
+                    (deleteAttachmentIds != null && !deleteAttachmentIds.isEmpty())) {
+                throw new BadRequestException("Admin can only change issue office/status");
+            }
+            int updated = issueRepository.updateIssueOffice(id, request.officeId());
+            if (updated == 0) throw new IssueNotFoundException("Failed to update issue office");
+
+            Issue updatedIssue = issueRepository.getIssueById(id)
+                    .orElseThrow(() -> new IllegalStateException("Issue missing after update"));
+            return IssueResponseDto.from(updatedIssue);
         }
+
+        String summary = request.summary() != null ? request.summary() : existingIssue.getSummary();
+        String description = request.description() != null ? request.description() : existingIssue.getDescription();
+        UUID officeId = request.officeId() != null ? request.officeId() : existingIssue.getOfficeId();
+
+        int updatedRows = issueRepository.updateIssue(id, summary, description, officeId);
+        if (updatedRows == 0) throw new IssueNotFoundException("Failed to update issue");
 
         if (deleteAttachmentIds != null && !deleteAttachmentIds.isEmpty()) {
             for (UUID attachmentId : deleteAttachmentIds) {
@@ -204,10 +238,8 @@ public class IssueService {
 
         return IssueResponseDto.from(updatedIssue);
     }
-
     @Transactional
-    public void deleteIssue(UUID id, OAuth2User principal) {
-
+    public void softDeleteIssue(UUID id, OAuth2User principal) {
         UUID currentUserId = authService.getCurrentUserId(principal);
 
         Issue existingIssue = issueRepository.getIssueById(id)
@@ -216,8 +248,6 @@ public class IssueService {
         if (!existingIssue.getCreatedBy().equals(currentUserId) && !Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role())) {
             throw new UnauthorizedException("You are not allowed to delete this issue.");
         }
-
-        issueRepository.deleteIssue(id);
+        issueRepository.updateIssueStatus(id, IssueStatus.DELETED);
     }
-
 }

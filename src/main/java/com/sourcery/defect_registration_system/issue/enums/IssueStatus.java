@@ -5,5 +5,6 @@ public enum IssueStatus {
     IN_PROGRESS,
     BLOCKED,
     RESOLVED,
-    CLOSED
+    CLOSED,
+    DELETED
 }

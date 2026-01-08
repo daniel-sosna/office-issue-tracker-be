@@ -11,7 +11,7 @@ public record PageIssueResponseDto(
         String summary,
         String description,
         IssueStatus status,
-        OffsetDateTime date,
+        OffsetDateTime dateCreated,
         boolean hasVoted,
         int voteCount,
         int commentCount
