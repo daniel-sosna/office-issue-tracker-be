@@ -4,6 +4,7 @@ import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import com.sourcery.defect_registration_system.office.dto.CreateOfficeRequest;
 import com.sourcery.defect_registration_system.office.dto.OfficeResponse;
 import com.sourcery.defect_registration_system.office.entity.Office;
+import com.sourcery.defect_registration_system.office.enums.Country;
 import com.sourcery.defect_registration_system.office.exceptions.OfficeNotFoundException;
 import com.sourcery.defect_registration_system.office.repository.OfficeRepository;
 import com.sourcery.defect_registration_system.user.dto.UserDto;
@@ -58,7 +59,7 @@ public class OfficeService {
         Office office = Office.builder()
                 .id(UUID.randomUUID())
                 .title(request.title())
-                .country(request.country())
+                .country(Country.fromDisplayName(request.countryName()))
                 .dateCreated(OffsetDateTime.now())
                 .build();
 

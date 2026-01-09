@@ -1,6 +1,5 @@
 package com.sourcery.defect_registration_system.office.dto;
 
-import com.sourcery.defect_registration_system.office.enums.Country;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -12,6 +11,6 @@ public record CreateOfficeRequest(
         String title,
 
         @NotNull(message = "Country is required")
-        Country country
+        String countryName
 ) {
 }
