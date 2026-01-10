@@ -2,6 +2,7 @@ package com.sourcery.defect_registration_system.office.controller;
 
 import com.sourcery.defect_registration_system.office.dto.CreateOfficeRequest;
 import com.sourcery.defect_registration_system.office.dto.OfficeResponse;
+import com.sourcery.defect_registration_system.office.dto.UpsertOfficeRequest;
 import com.sourcery.defect_registration_system.office.enums.Country;
 import com.sourcery.defect_registration_system.office.service.OfficeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +17,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -74,6 +76,19 @@ public class OfficeController {
             @RequestBody @Valid CreateOfficeRequest request,
             @AuthenticationPrincipal OAuth2User principal) {
         return officeService.createOffice(request, principal);
+    }
+
+    @Operation(summary = "Bulk save offices (create and update)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Offices saved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request body"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized – user must be authenticated")
+    })
+    @PutMapping
+    public List<OfficeResponse> saveOffices(
+            @RequestBody @Valid List<@Valid UpsertOfficeRequest> offices,
+            @AuthenticationPrincipal OAuth2User principal) {
+        return officeService.saveOffices(offices, principal);
     }
 
     @Operation(

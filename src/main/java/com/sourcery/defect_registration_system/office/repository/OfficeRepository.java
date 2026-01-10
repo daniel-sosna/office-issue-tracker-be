@@ -1,7 +1,12 @@
 package com.sourcery.defect_registration_system.office.repository;
 
 import com.sourcery.defect_registration_system.office.entity.Office;
-import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -31,4 +36,11 @@ public interface OfficeRepository {
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     void insertOffice(Office office);
+
+    @Update("""
+            UPDATE office
+            SET title = #{title}, country = #{country}
+            WHERE id = #{id}
+            """)
+    int updateOffice(Office office);
 }

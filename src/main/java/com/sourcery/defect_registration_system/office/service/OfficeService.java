@@ -3,6 +3,7 @@ package com.sourcery.defect_registration_system.office.service;
 import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import com.sourcery.defect_registration_system.office.dto.CreateOfficeRequest;
 import com.sourcery.defect_registration_system.office.dto.OfficeResponse;
+import com.sourcery.defect_registration_system.office.dto.UpsertOfficeRequest;
 import com.sourcery.defect_registration_system.office.entity.Office;
 import com.sourcery.defect_registration_system.office.enums.Country;
 import com.sourcery.defect_registration_system.office.exceptions.OfficeNotFoundException;
@@ -68,4 +69,38 @@ public class OfficeService {
         return OfficeResponse.from(office);
     }
 
+    @Transactional
+    public List<OfficeResponse> saveOffices(List<UpsertOfficeRequest> requests, OAuth2User principal) {
+
+        UserDto currentUser = authService.getCurrentUserInfo(principal);
+
+        if (!Role.ADMIN.equals(currentUser.role())) {
+            throw new UnauthorizedException("Only admins can save offices.");
+        }
+
+        for (UpsertOfficeRequest request : requests) {
+            if (request.id() == null) {
+                Office office = Office.builder()
+                        .id(UUID.randomUUID())
+                        .title(request.title().trim())
+                        .country(Country.fromDisplayName(request.countryName()))
+                        .dateCreated(OffsetDateTime.now())
+                        .build();
+
+                officeRepository.insertOffice(office);
+            } else {
+                Office office = Office.builder()
+                        .id(request.id())
+                        .title(request.title().trim())
+                        .country(Country.fromDisplayName(request.countryName()))
+                        .build();
+
+                int updated = officeRepository.updateOffice(office);
+                if (updated == 0) {
+                    throw new OfficeNotFoundException("Office with " + request.id() + " id not found");
+                }
+            }
+        }
+        return getAllOffices();
+    }
 }
