@@ -1,11 +1,13 @@
 package com.sourcery.defect_registration_system.office.service;
 
 import com.sourcery.defect_registration_system.exception.UnauthorizedException;
+import com.sourcery.defect_registration_system.issue.repository.IssueRepository;
 import com.sourcery.defect_registration_system.office.dto.CreateOfficeRequest;
 import com.sourcery.defect_registration_system.office.dto.OfficeResponse;
 import com.sourcery.defect_registration_system.office.dto.UpsertOfficeRequest;
 import com.sourcery.defect_registration_system.office.entity.Office;
 import com.sourcery.defect_registration_system.office.enums.Country;
+import com.sourcery.defect_registration_system.office.exceptions.OfficeInUseException;
 import com.sourcery.defect_registration_system.office.exceptions.OfficeNotFoundException;
 import com.sourcery.defect_registration_system.office.repository.OfficeRepository;
 import com.sourcery.defect_registration_system.user.dto.UserDto;
@@ -26,6 +28,7 @@ public class OfficeService {
 
     private final OfficeRepository officeRepository;
     private final AuthService authService;
+    private final IssueRepository issueRepository;
 
     public OfficeResponse getOfficeById(UUID id) {
 
@@ -102,5 +105,31 @@ public class OfficeService {
             }
         }
         return getAllOffices();
+    }
+
+    @Transactional
+    public void softDeleteOffice(UUID id, OAuth2User principal) {
+
+        UserDto currentUser = authService.getCurrentUserInfo(principal);
+
+        if (!Role.ADMIN.equals(currentUser.role())) {
+            throw new UnauthorizedException("Only admins can delete offices.");
+        }
+
+        if (officeRepository.getOfficeById(id).isEmpty()) {
+            throw new OfficeNotFoundException("Office with " + id + " id not found");
+        }
+
+        long issuesUsingOffice = issueRepository.countAllIssues(null, id, null, true);
+
+        if (issuesUsingOffice > 0) {
+            throw new OfficeInUseException("Office is used in one or more issues and cannot be deleted.");
+        }
+
+        int updated = officeRepository.markOfficeAsDeleted(id);
+
+        if (updated == 0) {
+            throw new OfficeNotFoundException("Office with " + id + " id not found when trying to delete");
+        }
     }
 }

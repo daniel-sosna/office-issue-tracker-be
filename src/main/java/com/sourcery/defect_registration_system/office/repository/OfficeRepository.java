@@ -27,6 +27,7 @@ public interface OfficeRepository {
     @Select("""
             SELECT *
             FROM office
+            WHERE is_deleted = false
             """)
     List<Office> getAllOffices();
 
@@ -43,4 +44,11 @@ public interface OfficeRepository {
             WHERE id = #{id}
             """)
     int updateOffice(Office office);
+
+    @Update("""
+            UPDATE office
+            SET is_deleted = true
+            WHERE id = #{id}
+            """)
+    int markOfficeAsDeleted(@Param("id") UUID id);
 }

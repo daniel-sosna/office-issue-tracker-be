@@ -12,8 +12,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -104,5 +106,24 @@ public class OfficeController {
         return Arrays.stream(Country.values())
                 .map(Country::getValue)
                 .collect(Collectors.toList());
+    }
+
+    @Operation(
+            summary = "Soft delete an office",
+            description = "Marks an office as deleted. Only admins can perform this action."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Office deleted successfully"),
+            @ApiResponse(responseCode = "400", description = "Office is in use and cannot be deleted"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized – user must be authenticated"),
+            @ApiResponse(responseCode = "404", description = "Office not found")
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> softDeleteOffice(
+            @PathVariable("id") UUID id,
+            @AuthenticationPrincipal OAuth2User principal) {
+
+        officeService.softDeleteOffice(id, principal);
+        return ResponseEntity.noContent().build();
     }
 }
