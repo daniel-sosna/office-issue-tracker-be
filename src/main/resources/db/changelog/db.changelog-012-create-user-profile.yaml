@@ -1,0 +1,51 @@
+databaseChangeLog:
+  - changeSet:
+      id: 012
+      author: pratik
+      changes:
+        - createTable:
+            tableName: user_profile
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: department
+                  type: varchar(100)
+              - column:
+                  name: role
+                  type: varchar(50)
+              - column:
+                  name: street_address
+                  type: varchar(255)
+              - column:
+                  name: city
+                  type: varchar(100)
+              - column:
+                  name: state_province
+                  type: varchar(100)
+              - column:
+                  name: postcode
+                  type: varchar(20)
+              - column:
+                  name: country
+                  type: varchar(50)
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueDate: NOW()
+        - addForeignKeyConstraint:
+            baseTableName: user_profile
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_user_profile_user
