@@ -41,5 +41,16 @@ public interface NotificationRepository {
         SET read_flag = true
         WHERE user_id = #{userId}
     """)
-    void markAsRead(@Param("userId") UUID userId);
+    void markAllAsRead(@Param("userId") UUID userId);
+
+    @Update("""
+        UPDATE notification
+        SET read_flag = true
+        WHERE id = #{notificationId}
+            AND user_id = #{userId}
+    """)
+    void markAsRead(
+            @Param("userId") UUID userId,
+            @Param("notificationId") UUID notificationId
+    );
 }

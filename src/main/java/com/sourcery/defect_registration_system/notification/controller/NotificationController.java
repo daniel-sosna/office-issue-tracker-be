@@ -4,10 +4,7 @@ import com.sourcery.defect_registration_system.notification.dto.NotificationDTO;
 import com.sourcery.defect_registration_system.notification.service.NotificationService;
 import com.sourcery.defect_registration_system.user.service.AuthService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.List;
@@ -42,5 +39,14 @@ public class NotificationController {
     public void markAllAsRead(@AuthenticationPrincipal OAuth2User principal) {
         UUID userId = authService.getCurrentUserId(principal);
         notificationService.markAllAsRead(userId);
+    }
+
+    @PostMapping("/mark_read/{notificationId}")
+    public void markAsRead(
+            @AuthenticationPrincipal OAuth2User principal,
+            @PathVariable UUID notificationId
+    ) {
+        UUID userId = authService.getCurrentUserId(principal);
+        notificationService.markAsRead(userId, notificationId);
     }
 }

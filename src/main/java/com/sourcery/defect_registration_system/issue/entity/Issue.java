@@ -21,4 +21,8 @@ public class Issue {
   private UUID createdBy;
   private OffsetDateTime dateCreated;
   private OffsetDateTime dateModified;
+
+    public UUID getCreatedBy() {
+        return createdBy;
+    }
 }

@@ -1,5 +1,7 @@
 package com.sourcery.defect_registration_system.issue_vote.service;
 
+import com.sourcery.defect_registration_system.issue.entity.Issue;
+import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundException;
 import com.sourcery.defect_registration_system.issue_vote.dto.IssueVoteCountDto;
 import com.sourcery.defect_registration_system.issue_vote.dto.VoteInfoDto;
 import com.sourcery.defect_registration_system.issue_vote.dto.VoteResponseDto;
@@ -7,19 +9,15 @@ import com.sourcery.defect_registration_system.issue_vote.entity.Vote;
 import com.sourcery.defect_registration_system.issue_vote.exceptions.VoteAlreadyExistsException;
 import com.sourcery.defect_registration_system.issue_vote.exceptions.VoteNotFoundException;
 import com.sourcery.defect_registration_system.issue_vote.repository.VoteRepository;
+import com.sourcery.defect_registration_system.issue.repository.IssueRepository;
 import com.sourcery.defect_registration_system.user.service.AuthService;
+import com.sourcery.defect_registration_system.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +26,8 @@ public class VoteService {
 
     private final VoteRepository voteRepository;
     private final AuthService authService;
+    private final IssueRepository issueRepository;
+    private final NotificationService notificationService;
 
     public boolean hasVotedOnIssue(UUID issueId, OAuth2User principal) {
 
@@ -58,6 +58,12 @@ public class VoteService {
                 .build();
 
         voteRepository.insertVote(vote);
+
+        Issue issue = issueRepository.getIssueById(issueId)
+                .orElseThrow(() -> new IssueNotFoundException("Issue with ID " + issueId + " not found"));
+        UUID issueReporterId = issue.getCreatedBy();
+        String upvotedBy = authService.getCurrentUserInfo(principal).name();
+        notificationService.notifyUpvote(issueId, issueReporterId, upvotedBy);
 
         return VoteResponseDto.from(vote);
     }

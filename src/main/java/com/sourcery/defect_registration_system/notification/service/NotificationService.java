@@ -8,12 +8,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
@@ -55,7 +57,12 @@ public class NotificationService {
 
     @Transactional
     public void markAllAsRead(UUID userId) {
-        notificationRepository.markAsRead(userId);
+        notificationRepository.markAllAsRead(userId);
+    }
+
+    @Transactional
+    public void markAsRead(UUID userId, UUID notificationId) {
+        notificationRepository.markAsRead(userId, notificationId);
     }
 
     public void notifyComment(UUID issueId, UUID issueReporterId, String commenterName) {
