@@ -48,6 +48,10 @@ dependencies {
     implementation 'com.cloudinary:cloudinary-http44:1.30.0'
 }
 
+tasks.named('jar') {
+    enabled = false
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
 }
