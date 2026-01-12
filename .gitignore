@@ -18,6 +18,8 @@ dist/
 
 # Package files
 *.jar
+# Keep Gradle wrapper jar
+!gradle/wrapper/gradle-wrapper.jar
 
 # Maven
 target/

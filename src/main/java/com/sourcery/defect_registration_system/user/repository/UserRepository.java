@@ -37,6 +37,9 @@ public interface UserRepository {
             """)
     void insert(User user);
 
+    @Update("UPDATE users SET name = #{name} WHERE id = #{userId}")
+    void updateUserName(@Param("userId") UUID userId, @Param("name") String name);
+
     @Select("""
               SELECT id,name
               FROM users

@@ -38,6 +38,7 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/issues/**")
                         .ignoringRequestMatchers("/offices/**")
                         .ignoringRequestMatchers("/api/profile/**")
+                        .ignoringRequestMatchers("/api/profile/**")
                         .ignoringRequestMatchers("/api/notifications/**")
                 )
                 .authorizeHttpRequests(req -> req

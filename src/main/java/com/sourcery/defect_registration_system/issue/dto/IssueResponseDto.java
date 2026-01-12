@@ -11,7 +11,8 @@ public record IssueResponseDto(
         String summary,
         String description,
         IssueStatus status,
-        OffsetDateTime date
+        OffsetDateTime dateCreated,
+        OffsetDateTime dateModified
 ) {
     public static IssueResponseDto from(Issue issue) {
         return new IssueResponseDto(
@@ -19,7 +20,8 @@ public record IssueResponseDto(
                 issue.getSummary(),
                 issue.getDescription(),
                 issue.getStatus(),
-                issue.getDateCreated()
+                issue.getDateCreated(),
+                issue.getDateModified()
         );
     }
 }

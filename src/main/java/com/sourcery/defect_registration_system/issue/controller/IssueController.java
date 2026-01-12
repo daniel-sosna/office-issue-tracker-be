@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -125,14 +124,18 @@ public class IssueController {
             @ApiResponse(responseCode = "403", description = "Forbidden – you can only edit your own issues"),
             @ApiResponse(responseCode = "404", description = "Issue not found")
     })
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(
+            value = "/{id}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     @ResponseStatus(HttpStatus.OK)
     public IssueResponseDto updateIssue(
             @PathVariable("id") UUID id,
             @AuthenticationPrincipal OAuth2User principal,
             @RequestPart("issue") @Valid UpdateIssueRequest request,
             @RequestPart(value = "files", required = false) List<MultipartFile> files,
-            @RequestPart(value = "deleteAttachmentIds", required = false) List<UUID> deleteAttachmentIds) {
+            @RequestPart(value = "deleteAttachmentIds", required = false) List<UUID> deleteAttachmentIds
+    ) {
         return issueService.updateIssue(id, request, files, deleteAttachmentIds, principal);
     }
 
@@ -164,9 +167,10 @@ public class IssueController {
             @ApiResponse(responseCode = "404", description = "Issue not found")
     })
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteIssue(@PathVariable("id") UUID id, @AuthenticationPrincipal OAuth2User principal) {
-        issueService.deleteIssue(id, principal);
+    @ResponseStatus(HttpStatus.OK)
+    public void softDeleteIssue(@PathVariable("id") UUID id, @AuthenticationPrincipal OAuth2User principal) {
+        issueService.softDeleteIssue(id, principal);
     }
+
 
 }
