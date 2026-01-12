@@ -47,8 +47,7 @@ public class ProfileService {
         UUID userId = authService.getCurrentUserId(principal);
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new InvalidProfileDataException("User not found for id: " + userId));
-
+                .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId));
         if (request.name() != null && !request.name().isBlank()) {
             userRepository.updateUserName(userId, request.name());
             user.setName(request.name());
