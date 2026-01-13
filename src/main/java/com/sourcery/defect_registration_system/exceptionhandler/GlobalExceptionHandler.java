@@ -7,6 +7,9 @@ import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundException;
 import com.sourcery.defect_registration_system.office.exceptions.OfficeInUseException;
 import com.sourcery.defect_registration_system.office.exceptions.OfficeNotFoundException;
+import com.sourcery.defect_registration_system.profile.exceptions.InvalidProfileDataException;
+import com.sourcery.defect_registration_system.profile.exceptions.ProfileNotFoundException;
+import com.sourcery.defect_registration_system.profile.exceptions.UserNotFoundException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,6 +60,11 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(), ex.getMessage());
     }
 
+    @ExceptionHandler({ ProfileNotFoundException.class, UserNotFoundException.class })
+    public ResponseEntity<Map<String, Object>> handleProfileOrUserNotFound(RuntimeException ex) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(), ex.getMessage());
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex) {
         return buildErrorResponse(HttpStatus.FORBIDDEN, HttpStatus.FORBIDDEN.getReasonPhrase(), ex.getMessage());
@@ -69,6 +77,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(OfficeInUseException.class)
     public ResponseEntity<Map<String, Object>> handleOfficeInUse(OfficeInUseException ex) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReasonPhrase(), ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidProfileDataException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidProfileData(InvalidProfileDataException ex) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReasonPhrase(), ex.getMessage());
     }
 
