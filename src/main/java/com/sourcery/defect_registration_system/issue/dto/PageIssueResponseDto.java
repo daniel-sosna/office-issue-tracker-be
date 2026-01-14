@@ -12,16 +12,18 @@ public record PageIssueResponseDto(
         String description,
         IssueStatus status,
         OffsetDateTime dateCreated,
+        boolean isOwner,
         boolean hasVoted,
         int voteCount
 ) {
-    public static PageIssueResponseDto from(Issue issue, boolean hasVoted, int voteCount) {
+    public static PageIssueResponseDto from(Issue issue, boolean isOwner, boolean hasVoted, int voteCount) {
         return new PageIssueResponseDto(
                 issue.getId(),
                 issue.getSummary(),
                 issue.getDescription(),
                 issue.getStatus(),
                 issue.getDateCreated(),
+                isOwner,
                 hasVoted,
                 voteCount
         );
