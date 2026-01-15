@@ -12,8 +12,6 @@ public record IssueDetailsResponseDto(
         String officeName,
         String reportedBy,
         String reportedByAvatar,
-        String reportedByEmail,
-        OffsetDateTime dateModified,
         List<IssueAttachmentResponse> attachments,
         int commentCount
 ) {
