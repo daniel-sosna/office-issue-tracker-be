@@ -4,6 +4,7 @@ import com.sourcery.defect_registration_system.comment.dto.CommentRequestDto;
 import com.sourcery.defect_registration_system.comment.dto.CommentResponseDto;
 import com.sourcery.defect_registration_system.comment.entity.Comment;
 import com.sourcery.defect_registration_system.comment.repository.CommentRepository;
+import com.sourcery.defect_registration_system.issue.service.IssueService;
 import com.sourcery.defect_registration_system.user.dto.UserDto;
 import com.sourcery.defect_registration_system.user.service.AuthService;
 import com.sourcery.defect_registration_system.user.service.UserService;
@@ -22,11 +23,14 @@ public class CommentService {
   private final CommentRepository commentRepository;
   private final UserService userService;
   private final AuthService authService;
+  private final IssueService issueService;
 
   @Transactional
   public CommentResponseDto postComment(OAuth2User principal,CommentRequestDto commentDto, UUID issueId) {
 
+    issueService.getIssueById(issueId);
     UUID userId = authService.getCurrentUserId(principal);
+
     Comment comment = Comment.builder()
         .id(UUID.randomUUID())
         .issueId(issueId)
@@ -52,6 +56,7 @@ public class CommentService {
       OAuth2User principal,
       UUID issueId) {
 
+    issueService.getIssueById(issueId);
     authService.getCurrentUserId(principal);
 
     return commentRepository.findByIssueId(issueId)
