@@ -2,7 +2,6 @@ package com.sourcery.defect_registration_system.issue.service;
 
 import com.sourcery.defect_registration_system.attachment.dto.IssueAttachmentResponse;
 import com.sourcery.defect_registration_system.attachment.service.IssueAttachmentService;
-import com.sourcery.defect_registration_system.comment.dto.CommentCountProjection;
 import com.sourcery.defect_registration_system.comment.repository.CommentRepository;
 import com.sourcery.defect_registration_system.exception.BadRequestException;
 import com.sourcery.defect_registration_system.exception.UnauthorizedException;
@@ -24,7 +23,6 @@ import com.sourcery.defect_registration_system.user.dto.UserDto;
 import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.service.AuthService;
 import com.sourcery.defect_registration_system.user.service.UserService;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -76,15 +74,6 @@ public class IssueService {
         List<UUID> ids = issues.stream().map(Issue::getId).toList();
         UUID userId = authService.getCurrentUserId(principal);
         Map<UUID, VoteInfoDto> votesInfo = voteService.getVoteInfoForIssues(ids, userId);
-        Map<UUID, Integer> commentCounts =
-            ids.isEmpty()
-                ? Map.of()
-                : commentRepository.countByIssueIds(ids)
-                    .stream()
-                    .collect(Collectors.toMap(
-                        CommentCountProjection::issueId,
-                        CommentCountProjection::commentCount
-                    ));
 
         List<PageIssueResponseDto> content = issues
                 .stream()
