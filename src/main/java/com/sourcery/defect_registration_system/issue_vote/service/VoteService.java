@@ -1,5 +1,7 @@
 package com.sourcery.defect_registration_system.issue_vote.service;
 
+import com.sourcery.defect_registration_system.exception.BadRequestException;
+import com.sourcery.defect_registration_system.issue.repository.IssueRepository;
 import com.sourcery.defect_registration_system.issue_vote.dto.IssueVoteCountDto;
 import com.sourcery.defect_registration_system.issue_vote.dto.VoteInfoDto;
 import com.sourcery.defect_registration_system.issue_vote.dto.VoteResponseDto;
@@ -28,6 +30,7 @@ public class VoteService {
 
     private final VoteRepository voteRepository;
     private final AuthService authService;
+    private final IssueRepository issueRepository;
 
     public boolean hasVotedOnIssue(UUID issueId, OAuth2User principal) {
 
@@ -51,6 +54,12 @@ public class VoteService {
         if (voteRepository.isVoteExist(issueId, userId)) {
             throw new VoteAlreadyExistsException(issueId, userId);
         }
+
+        issueRepository.getIssueById(issueId).ifPresent(issue -> {
+            if (issue.getCreatedBy().equals(userId)) {
+                throw new BadRequestException("Creator of the issue cannot vote for it");
+            }
+        });
 
         Vote vote = Vote.builder()
                 .issueId(issueId)

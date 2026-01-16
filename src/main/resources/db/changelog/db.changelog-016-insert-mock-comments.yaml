@@ -1,0 +1,183 @@
+databaseChangeLog:
+  - changeSet:
+      id: 016
+      author: edgar miloš
+      context: local
+      changes:
+
+        - insert:
+            tableName: comment
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column:
+                  name: issue_id
+                  valueComputed: "(SELECT id FROM issue WHERE summary='Parking access card deactivated')"
+              - column:
+                  name: user_id
+                  valueComputed: "(SELECT id FROM users WHERE email='john.smith@gmail.com')"
+              - column:
+                  name: comment_text
+                  value: "I cannot enter the parking since yesterday evening."
+              - column:
+                  name: date_created
+                  valueComputed: CURRENT_TIMESTAMP
+
+        - insert:
+            tableName: comment
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column:
+                  name: issue_id
+                  valueComputed: "(SELECT id FROM issue WHERE summary='Parking access card deactivated')"
+              - column:
+                  name: user_id
+                  valueComputed: "(SELECT id FROM users WHERE email='office.issue.moderator@gmail.com')"
+              - column:
+                  name: comment_text
+                  value: "Security team notified, card access is being reset."
+              - column:
+                  name: date_created
+                  valueComputed: CURRENT_TIMESTAMP
+
+
+        - insert:
+            tableName: comment
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column:
+                  name: issue_id
+                  valueComputed: "(SELECT id FROM issue WHERE summary='Broken charging station')"
+              - column:
+                  name: user_id
+                  valueComputed: "(SELECT id FROM users WHERE email='emma.johnson@gmail.com')"
+              - column:
+                  name: comment_text
+                  value: "No power output even after reconnecting cables."
+              - column:
+                  name: date_created
+                  valueComputed: CURRENT_TIMESTAMP
+
+        - insert:
+            tableName: comment
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column:
+                  name: issue_id
+                  valueComputed: "(SELECT id FROM issue WHERE summary='Broken charging station')"
+              - column:
+                  name: user_id
+                  valueComputed: "(SELECT id FROM users WHERE email='michael.brown@gmail.com')"
+              - column:
+                  name: comment_text
+                  value: "Might be related to last power outage."
+              - column:
+                  name: date_created
+                  valueComputed: CURRENT_TIMESTAMP
+
+
+        - insert:
+            tableName: comment
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column:
+                  name: issue_id
+                  valueComputed: "(SELECT id FROM issue WHERE summary='Air conditioning too cold')"
+              - column:
+                  name: user_id
+                  valueComputed: "(SELECT id FROM users WHERE email='sophia.wilson@gmail.com')"
+              - column:
+                  name: comment_text
+                  value: "Temperature is uncomfortable, especially in the morning."
+              - column:
+                  name: date_created
+                  valueComputed: CURRENT_TIMESTAMP
+
+
+        - insert:
+            tableName: comment
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column:
+                  name: issue_id
+                  valueComputed: "(SELECT id FROM issue WHERE summary='Printer jam on 2nd floor')"
+              - column:
+                  name: user_id
+                  valueComputed: "(SELECT id FROM users WHERE email='john.smith@gmail.com')"
+              - column:
+                  name: comment_text
+                  value: "Paper gets stuck after every second page."
+              - column:
+                  name: date_created
+                  valueComputed: CURRENT_TIMESTAMP
+
+
+        - insert:
+            tableName: comment
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column:
+                  name: issue_id
+                  valueComputed: "(SELECT id FROM issue WHERE summary='Wifi unstable in kitchen area')"
+              - column:
+                  name: user_id
+                  valueComputed: "(SELECT id FROM users WHERE email='emma.johnson@gmail.com')"
+              - column:
+                  name: comment_text
+                  value: "Calls drop frequently during lunch hours."
+              - column:
+                  name: date_created
+                  valueComputed: CURRENT_TIMESTAMP
+
+
+        - insert:
+            tableName: comment
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column:
+                  name: issue_id
+                  valueComputed: "(SELECT id FROM issue WHERE summary='Office chairs worn out')"
+              - column:
+                  name: user_id
+                  valueComputed: "(SELECT id FROM users WHERE email='james.parker@gmail.com')"
+              - column:
+                  name: comment_text
+                  value: "Several chairs have broken wheels and loose backrests."
+              - column:
+                  name: date_created
+                  valueComputed: CURRENT_TIMESTAMP
+
+
+        - insert:
+            tableName: comment
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column:
+                  name: issue_id
+                  valueComputed: "(SELECT id FROM issue WHERE summary='Water leak in restroom')"
+              - column:
+                  name: user_id
+                  valueComputed: "(SELECT id FROM users WHERE email='michael.brown@gmail.com')"
+              - column:
+                  name: comment_text
+                  value: "Water is pooling near the sink, floor is slippery."
+              - column:
+                  name: date_created
+                  valueComputed: CURRENT_TIMESTAMP
+
+
+        - insert:
+            tableName: comment
+            columns:
+              - column: { name: id, valueComputed: gen_random_uuid() }
+              - column:
+                  name: issue_id
+                  valueComputed: "(SELECT id FROM issue WHERE summary='Door lock malfunction')"
+              - column:
+                  name: user_id
+                  valueComputed: "(SELECT id FROM users WHERE email='office.issue.moderator@gmail.com')"
+              - column:
+                  name: comment_text
+                  value: "Maintenance team scheduled to inspect the lock."
+              - column:
+                  name: date_created
+                  valueComputed: CURRENT_TIMESTAMP
