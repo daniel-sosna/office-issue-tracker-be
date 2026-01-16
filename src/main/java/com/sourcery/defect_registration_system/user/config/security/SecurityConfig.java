@@ -2,7 +2,7 @@ package com.sourcery.defect_registration_system.user.config.security;
 
 import com.sourcery.defect_registration_system.user.service.CustomOidcUserService;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,16 +16,22 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@AllArgsConstructor
 public class SecurityConfig {
 
     private final CustomOidcUserService customOidUserService;
+    private final String frontendUrl;
+
+    public SecurityConfig(CustomOidcUserService customOidUserService,
+                          @Value("${frontend.url}") String frontendUrl) {
+        this.customOidUserService = customOidUserService;
+        this.frontendUrl = frontendUrl;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(cors -> cors.configurationSource(req -> {
                     CorsConfiguration configuration = new CorsConfiguration();
-                    configuration.addAllowedOrigin("http://localhost:5174");
+                    configuration.addAllowedOrigin(frontendUrl);
                     configuration.setAllowCredentials(true);
                     configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization",  "X-XSRF-TOKEN"));
                     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH"));
@@ -55,9 +61,9 @@ public class SecurityConfig {
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.oidcUserService(customOidUserService))
-                        .defaultSuccessUrl("http://localhost:5174/", true))
+                        .defaultSuccessUrl(frontendUrl + "/", true))
                 .logout(logout -> logout
-                        .logoutSuccessUrl("http://localhost:5174/login")
+                        .logoutSuccessUrl(frontendUrl + "/login")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID")
