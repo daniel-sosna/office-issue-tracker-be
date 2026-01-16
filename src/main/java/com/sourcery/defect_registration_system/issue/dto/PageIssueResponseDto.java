@@ -14,9 +14,10 @@ public record PageIssueResponseDto(
         OffsetDateTime dateCreated,
         boolean isOwner,
         boolean hasVoted,
-        int voteCount
+        int voteCount,
+        int commentCount
 ) {
-    public static PageIssueResponseDto from(Issue issue, boolean isOwner, boolean hasVoted, int voteCount) {
+    public static PageIssueResponseDto from(Issue issue, boolean isOwner, boolean hasVoted, int voteCount, int commentCount) {
         return new PageIssueResponseDto(
                 issue.getId(),
                 issue.getSummary(),
@@ -25,7 +26,8 @@ public record PageIssueResponseDto(
                 issue.getDateCreated(),
                 isOwner,
                 hasVoted,
-                voteCount
+                voteCount,
+                commentCount
         );
     }
 }

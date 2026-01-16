@@ -2,6 +2,7 @@ package com.sourcery.defect_registration_system.issue.service;
 
 import com.sourcery.defect_registration_system.attachment.dto.IssueAttachmentResponse;
 import com.sourcery.defect_registration_system.attachment.service.IssueAttachmentService;
+import com.sourcery.defect_registration_system.comment.repository.CommentRepository;
 import com.sourcery.defect_registration_system.exception.BadRequestException;
 import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
@@ -43,6 +44,7 @@ public class IssueService {
     private final OfficeService officeService;
     private final UserService userService;
     private final IssueAttachmentService issueAttachmentService;
+    private final CommentRepository commentRepository;
 
 
     public PageResponseDto<PageIssueResponseDto> getAllIssues(
@@ -78,11 +80,13 @@ public class IssueService {
                 .stream()
                 .map(issue -> {
                     VoteInfoDto voteInfoDto = votesInfo.get(issue.getId());
+                    int commentCount = commentRepository.countByIssueId(issue.getId());
                     return PageIssueResponseDto.from(
                             issue,
                             issue.getCreatedBy().equals(user.id()),
                             voteInfoDto.userVoted(),
-                            voteInfoDto.voteCount()
+                            voteInfoDto.voteCount(),
+                            commentCount
                     );
                 })
                 .toList();
@@ -135,14 +139,15 @@ public class IssueService {
         String officeName = officeService.getOfficeDisplayNameById(issue.getOfficeId());
         UserDto user = userService.getUserById(issue.getCreatedBy());
         List<IssueAttachmentResponse> attachments = issueAttachmentService.getAttachmentsByIssueId(issue.getId());
-
+        int commentCount = commentRepository.countByIssueId(issue.getId());
         return new IssueDetailsResponseDto(
                 IssueResponseDto.from(issue),
                 issue.getOfficeId(),
                 officeName,
                 user.name(),
                 user.picture(),
-                attachments
+                attachments,
+                commentCount
         );
     }
 
