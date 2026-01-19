@@ -133,10 +133,9 @@ public class IssueController {
             @PathVariable("id") UUID id,
             @AuthenticationPrincipal OAuth2User principal,
             @RequestPart("issue") @Valid UpdateIssueRequest request,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files,
-            @RequestPart(value = "deleteAttachmentIds", required = false) List<UUID> deleteAttachmentIds
+            @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
-        return issueService.updateIssue(id, request, files, deleteAttachmentIds, principal);
+        return issueService.updateIssue(id, request, files, principal);
     }
 
     @Operation(
