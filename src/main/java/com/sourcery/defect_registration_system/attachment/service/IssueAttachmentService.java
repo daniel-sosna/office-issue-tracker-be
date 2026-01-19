@@ -7,6 +7,7 @@ import com.sourcery.defect_registration_system.attachment.entity.IssueAttachment
 import com.sourcery.defect_registration_system.attachment.exceptions.InvalidFileException;
 import com.sourcery.defect_registration_system.attachment.repository.IssueAttachmentRepository;
 import com.sourcery.defect_registration_system.exception.NotFoundException;
+import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
@@ -121,10 +122,14 @@ public class IssueAttachmentService {
     }
 
     @Transactional
-    public void deleteAttachment(UUID attachmentId) {
+    public void deleteAttachment(UUID attachmentId, UUID currentUserId) {
 
         IssueAttachment attachment = issueAttachmentRepository.getAttachmentById(attachmentId)
                 .orElseThrow(() -> new NotFoundException("Attachment not found"));
+
+        if (!attachment.getUploadedBy().equals(currentUserId)) {
+            throw new UnauthorizedException("You can only delete your own attachments");
+        }
 
         try {
             cloudinary.uploader().destroy(attachment.getPublicId(), ObjectUtils.emptyMap());

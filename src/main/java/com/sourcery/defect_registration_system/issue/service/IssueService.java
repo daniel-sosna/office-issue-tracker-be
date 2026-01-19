@@ -191,7 +191,7 @@ public class IssueService {
 
         if (deleteAttachmentIds != null && !deleteAttachmentIds.isEmpty()) {
             for (UUID attachmentId : deleteAttachmentIds) {
-                issueAttachmentService.deleteAttachment(attachmentId);
+                issueAttachmentService.deleteAttachment(attachmentId, user.id());
             }
         }
 
