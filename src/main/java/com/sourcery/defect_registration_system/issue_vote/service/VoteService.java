@@ -18,7 +18,13 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,7 +35,6 @@ public class VoteService {
     private final AuthService authService;
     private final IssueRepository issueRepository;
     private final NotificationService notificationService;
-    private final IssueRepository issueRepository;
 
     public boolean hasVotedOnIssue(UUID issueId, OAuth2User principal) {
 
