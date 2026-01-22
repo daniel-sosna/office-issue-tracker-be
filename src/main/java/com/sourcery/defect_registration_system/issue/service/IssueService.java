@@ -18,6 +18,7 @@ import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundExc
 import com.sourcery.defect_registration_system.issue.repository.IssueRepository;
 import com.sourcery.defect_registration_system.issue_vote.dto.VoteInfoDto;
 import com.sourcery.defect_registration_system.issue_vote.service.VoteService;
+import com.sourcery.defect_registration_system.notification.service.NotificationService;
 import com.sourcery.defect_registration_system.office.service.OfficeService;
 import com.sourcery.defect_registration_system.user.dto.UserDto;
 import com.sourcery.defect_registration_system.user.enums.Role;
@@ -45,7 +46,7 @@ public class IssueService {
     private final UserService userService;
     private final IssueAttachmentService issueAttachmentService;
     private final CommentRepository commentRepository;
-
+    private final NotificationService notificationService;
 
     public PageResponseDto<PageIssueResponseDto> getAllIssues(
             String status,
@@ -208,7 +209,7 @@ public class IssueService {
     @Transactional
     public IssueResponseDto updateIssueStatus(UUID id, ChangeIssueStatusRequest request, OAuth2User principal) {
 
-        issueRepository.getIssueById(id)
+        Issue existingIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
 
         if (!Role.ADMIN.equals(authService.getCurrentUserInfo(principal).role())) {
@@ -219,6 +220,13 @@ public class IssueService {
         if (updatedRows == 0) {
             throw new IssueNotFoundException("Failed to update status");
         }
+
+        notificationService.notifyStatusChange(
+                id,
+                existingIssue.getCreatedBy(),
+                "Admin",
+                request.status().name().toLowerCase()
+        );
 
         Issue updatedIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IllegalStateException("Issue missing after update"));

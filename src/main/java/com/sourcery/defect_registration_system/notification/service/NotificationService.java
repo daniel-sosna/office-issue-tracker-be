@@ -76,7 +76,14 @@ public class NotificationService {
     }
 
     public void notifyStatusChange(UUID issueId, UUID issueReporterId, String adminName, String newStatus) {
-        String message = adminName + " changed status to " + newStatus;
+        String message = adminName + " updated your issue status to " + newStatus + ".";
         createNotification(issueReporterId, issueId, NotificationType.ISSUE_STATUS_CHANGE, message);
+    }
+
+    public List<NotificationDTO> getNotificationsForIssue(UUID issueId) {
+        List<Notification> notifications = notificationRepository.findByIssueId(issueId);
+        return notifications.stream()
+                .map(NotificationDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 }

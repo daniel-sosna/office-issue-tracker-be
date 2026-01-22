@@ -11,6 +11,7 @@ public record IssueResponseDto(
         String summary,
         String description,
         IssueStatus status,
+        UUID createdBy,
         OffsetDateTime dateCreated,
         OffsetDateTime dateModified
 ) {
@@ -20,6 +21,7 @@ public record IssueResponseDto(
                 issue.getSummary(),
                 issue.getDescription(),
                 issue.getStatus(),
+                issue.getCreatedBy(),
                 issue.getDateCreated(),
                 issue.getDateModified()
         );

@@ -35,6 +35,11 @@
             return notificationService.getUnreadCount(userId);
         }
 
+        @GetMapping("/issues/{issueId}")
+        public List<NotificationDTO> getNotificationsByIssue(@PathVariable UUID issueId) {
+            return notificationService.getNotificationsForIssue(issueId);
+        }
+
         @PostMapping("/mark_all_read")
         public void markAllAsRead(@AuthenticationPrincipal OAuth2User principal) {
             UUID userId = authService.getCurrentUserId(principal);

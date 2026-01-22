@@ -53,4 +53,12 @@ public interface NotificationRepository {
             @Param("userId") UUID userId,
             @Param("notificationId") UUID notificationId
     );
+
+    @Select("""
+        SELECT id, user_id, issue_id, type, message, read_flag, created_at
+        FROM notification
+        WHERE issue_id = #{issueId}
+        ORDER BY created_at DESC
+    """)
+    List<Notification> findByIssueId(@Param("issueId") UUID issueId);
 }
