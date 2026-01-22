@@ -5,7 +5,6 @@ import com.sourcery.defect_registration_system.exception.BadRequestException;
 import com.sourcery.defect_registration_system.exception.NotFoundException;
 import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundException;
-import com.sourcery.defect_registration_system.office.exceptions.OfficeInUseException;
 import com.sourcery.defect_registration_system.office.exceptions.OfficeNotFoundException;
 import com.sourcery.defect_registration_system.profile.exceptions.InvalidProfileDataException;
 import com.sourcery.defect_registration_system.profile.exceptions.ProfileNotFoundException;
@@ -72,11 +71,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidFileException.class)
     public ResponseEntity<Map<String, Object>> handleInvalidFile(InvalidFileException ex) {
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReasonPhrase(), ex.getMessage());
-    }
-
-    @ExceptionHandler(OfficeInUseException.class)
-    public ResponseEntity<Map<String, Object>> handleOfficeInUse(OfficeInUseException ex) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReasonPhrase(), ex.getMessage());
     }
 

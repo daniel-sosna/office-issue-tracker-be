@@ -114,7 +114,6 @@ public class OfficeController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Office deleted successfully"),
-            @ApiResponse(responseCode = "400", description = "Office is in use and cannot be deleted"),
             @ApiResponse(responseCode = "401", description = "Unauthorized – user must be authenticated"),
             @ApiResponse(responseCode = "404", description = "Office not found")
     })

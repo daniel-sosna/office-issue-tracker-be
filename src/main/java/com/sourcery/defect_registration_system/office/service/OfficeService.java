@@ -7,7 +7,6 @@ import com.sourcery.defect_registration_system.office.dto.OfficeResponse;
 import com.sourcery.defect_registration_system.office.dto.UpsertOfficeRequest;
 import com.sourcery.defect_registration_system.office.entity.Office;
 import com.sourcery.defect_registration_system.office.enums.Country;
-import com.sourcery.defect_registration_system.office.exceptions.OfficeInUseException;
 import com.sourcery.defect_registration_system.office.exceptions.OfficeNotFoundException;
 import com.sourcery.defect_registration_system.office.repository.OfficeRepository;
 import com.sourcery.defect_registration_system.user.dto.UserDto;
@@ -120,11 +119,7 @@ public class OfficeService {
             throw new OfficeNotFoundException("Office with " + id + " id not found");
         }
 
-        long issuesUsingOffice = issueRepository.countAllIssues(null, id, null, true);
-
-        if (issuesUsingOffice > 0) {
-            throw new OfficeInUseException("Office is used in one or more issues and cannot be deleted.");
-        }
+        issueRepository.softDeleteIssuesByOffice(id);
 
         int updated = officeRepository.markOfficeAsDeleted(id);
 
