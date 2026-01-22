@@ -2,6 +2,7 @@ package com.sourcery.defect_registration_system.issue.dto;
 
 import com.sourcery.defect_registration_system.attachment.dto.IssueAttachmentResponse;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,6 +12,7 @@ public record IssueDetailsResponseDto(
         String officeName,
         String reportedBy,
         String reportedByAvatar,
-        List<IssueAttachmentResponse> attachments
+        List<IssueAttachmentResponse> attachments,
+        int commentCount
 ) {
 }
