@@ -7,7 +7,6 @@ import com.sourcery.defect_registration_system.comment.entity.Comment;
 import com.sourcery.defect_registration_system.comment.repository.CommentRepository;
 import com.sourcery.defect_registration_system.issue.dto.IssueResponseDto;
 import com.sourcery.defect_registration_system.issue.service.IssueService;
-import com.sourcery.defect_registration_system.notification.service.NotificationService;
 import com.sourcery.defect_registration_system.user.dto.UserDto;
 import com.sourcery.defect_registration_system.user.service.AuthService;
 import com.sourcery.defect_registration_system.user.service.UserService;
@@ -26,7 +25,6 @@ public class CommentService { private final CommentRepository commentRepository;
   private final UserService userService;
   private final AuthService authService;
   private final IssueService issueService;
-  private final NotificationService notificationService;
   private final SimpMessagingTemplate messagingTemplate;
 
   @Transactional
@@ -48,13 +46,6 @@ public class CommentService { private final CommentRepository commentRepository;
     UserDto user = userService.getUserById(comment.getUserId());
 
     IssueResponseDto issue = issueService.getIssueById(issueId);
-      if (!issue.createdBy().equals(userId)) {
-          notificationService.notifyComment(
-                  issueId,
-                  issue.createdBy(),
-                  user.name()
-          );
-      }
 
       CommentWebSocketDto commentWebSocketDto = new CommentWebSocketDto(
         comment.getId(),

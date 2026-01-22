@@ -12,7 +12,6 @@ import com.sourcery.defect_registration_system.issue_vote.exceptions.VoteAlready
 import com.sourcery.defect_registration_system.issue_vote.exceptions.VoteNotFoundException;
 import com.sourcery.defect_registration_system.issue_vote.repository.VoteRepository;
 import com.sourcery.defect_registration_system.user.service.AuthService;
-import com.sourcery.defect_registration_system.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -34,7 +33,6 @@ public class VoteService {
     private final VoteRepository voteRepository;
     private final AuthService authService;
     private final IssueRepository issueRepository;
-    private final NotificationService notificationService;
 
     public boolean hasVotedOnIssue(UUID issueId, OAuth2User principal) {
 
@@ -76,7 +74,6 @@ public class VoteService {
                 .orElseThrow(() -> new IssueNotFoundException("Issue with ID " + issueId + " not found"));
         UUID issueReporterId = issue.getCreatedBy();
         String upvotedBy = authService.getCurrentUserInfo(principal).name();
-        notificationService.notifyUpvote(issueId, issueReporterId, upvotedBy);
 
         return VoteResponseDto.from(vote);
     }
