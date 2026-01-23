@@ -25,6 +25,7 @@ import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.service.AuthService;
 import com.sourcery.defect_registration_system.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class IssueService {
+
     private final IssueRepository issueRepository;
     private final AuthService authService;
     private final VoteService voteService;
@@ -47,6 +49,7 @@ public class IssueService {
     private final IssueAttachmentService issueAttachmentService;
     private final CommentRepository commentRepository;
     private final NotificationService notificationService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public PageResponseDto<PageIssueResponseDto> getAllIssues(
             String status,
@@ -73,24 +76,23 @@ public class IssueService {
                 default: orderBy = "date_created DESC";
             }
         }
+
         List<Issue> issues = issueRepository.getAllIssues(status, office, reportedBy, orderBy, size, offset, isAdmin);
         List<UUID> ids = issues.stream().map(Issue::getId).toList();
         Map<UUID, VoteInfoDto> votesInfo = voteService.getVoteInfoForIssues(ids, user.id());
 
-        List<PageIssueResponseDto> content = issues
-                .stream()
-                .map(issue -> {
-                    VoteInfoDto voteInfoDto = votesInfo.get(issue.getId());
-                    int commentCount = commentRepository.countByIssueId(issue.getId());
-                    return PageIssueResponseDto.from(
-                            issue,
-                            issue.getCreatedBy().equals(user.id()),
-                            voteInfoDto.userVoted(),
-                            voteInfoDto.voteCount(),
-                            commentCount
-                    );
-                })
-                .toList();
+        List<PageIssueResponseDto> content = issues.stream().map(issue -> {
+            VoteInfoDto voteInfoDto = votesInfo.get(issue.getId());
+            int commentCount = commentRepository.countByIssueId(issue.getId());
+            return PageIssueResponseDto.from(
+                    issue,
+                    issue.getCreatedBy().equals(user.id()),
+                    voteInfoDto.userVoted(),
+                    voteInfoDto.voteCount(),
+                    commentCount
+            );
+        }).toList();
+
         long totalElements = issueRepository.countAllIssues(status, office, reportedBy, isAdmin);
         int totalPages = (int) Math.ceil(totalElements / (double) size);
 
@@ -129,7 +131,6 @@ public class IssueService {
     public IssueResponseDto getIssueById(UUID id) {
         Issue issue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
-
         return IssueResponseDto.from(issue);
     }
 

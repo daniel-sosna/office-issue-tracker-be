@@ -1,89 +1,89 @@
-package com.sourcery.defect_registration_system.notification.service;
+    package com.sourcery.defect_registration_system.notification.service;
 
-import com.sourcery.defect_registration_system.notification.dto.NotificationDTO;
-import com.sourcery.defect_registration_system.notification.entity.Notification;
-import com.sourcery.defect_registration_system.notification.enums.NotificationType;
-import com.sourcery.defect_registration_system.notification.repository.NotificationRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.transaction.annotation.Transactional;
-import lombok.extern.slf4j.Slf4j;
+    import com.sourcery.defect_registration_system.notification.dto.NotificationDTO;
+    import com.sourcery.defect_registration_system.notification.entity.Notification;
+    import com.sourcery.defect_registration_system.notification.enums.NotificationType;
+    import com.sourcery.defect_registration_system.notification.repository.NotificationRepository;
+    import lombok.RequiredArgsConstructor;
+    import org.springframework.stereotype.Service;
+    import org.springframework.messaging.simp.SimpMessagingTemplate;
+    import org.springframework.transaction.annotation.Transactional;
+    import lombok.extern.slf4j.Slf4j;
 
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+    import java.time.OffsetDateTime;
+    import java.util.List;
+    import java.util.UUID;
+    import java.util.stream.Collectors;
 
-@Slf4j
-@Service
-@RequiredArgsConstructor
-public class NotificationService {
+    @Slf4j
+    @Service
+    @RequiredArgsConstructor
+    public class NotificationService {
 
-    private final NotificationRepository notificationRepository;
-    private final SimpMessagingTemplate messagingTemplate;
+        private final NotificationRepository notificationRepository;
+        private final SimpMessagingTemplate messagingTemplate;
 
-    @Transactional
-    public void createNotification(UUID userId, UUID issueId, NotificationType type, String message) {
-        Notification notification = Notification.builder()
-                .id(UUID.randomUUID())
-                .userId(userId)
-                .issueId(issueId)
-                .type(type)
-                .message(message)
-                .readFlag(false)
-                .createdAt(OffsetDateTime.now())
-                .build();
+        @Transactional
+        public void createNotification(UUID userId, UUID issueId, NotificationType type, String message) {
+            Notification notification = Notification.builder()
+                    .id(UUID.randomUUID())
+                    .userId(userId)
+                    .issueId(issueId)
+                    .type(type)
+                    .message(message)
+                    .readFlag(false)
+                    .createdAt(OffsetDateTime.now())
+                    .build();
 
-        notificationRepository.insertNotification(notification);
+            notificationRepository.insertNotification(notification);
 
-        messagingTemplate.convertAndSendToUser(
-                userId.toString(),
-                "/queue/notifications",
-                NotificationDTO.fromEntity(notification)
-        );
+            messagingTemplate.convertAndSendToUser(
+                    userId.toString(),
+                    "/queue/notifications",
+                    NotificationDTO.fromEntity(notification)
+            );
+        }
+
+        public List<NotificationDTO> getNotificationsForUser(UUID userId) {
+            List<Notification> notifications = notificationRepository.findByUserId(userId);
+            return notifications.stream()
+                    .map(NotificationDTO::fromEntity)
+                    .collect(Collectors.toList());
+        }
+
+        public long getUnreadCount(UUID userId) {
+            return notificationRepository.countUnreadNotification(userId);
+        }
+
+        @Transactional
+        public void markAllAsRead(UUID userId) {
+            notificationRepository.markAllAsRead(userId);
+        }
+
+        @Transactional
+        public void markAsRead(UUID userId, UUID notificationId) {
+            notificationRepository.markAsRead(userId, notificationId);
+        }
+
+        public void notifyComment(UUID issueId, UUID issueReporterId, String commenterName) {
+            String message = commenterName + " commented on your issue.";
+            createNotification(issueReporterId, issueId, NotificationType.COMMENT, message);
+        }
+
+        public void notifyUpvote(UUID issueId, UUID issueReporterId, String upvotedBy) {
+            String message = upvotedBy + " upvoted your issue.";
+            createNotification(issueReporterId, issueId, NotificationType.UPVOTE, message);
+        }
+
+        public void notifyStatusChange(UUID issueId, UUID issueReporterId, String adminName, String newStatus) {
+            String message = adminName + " updated your issue status to " + newStatus + ".";
+            createNotification(issueReporterId, issueId, NotificationType.ISSUE_STATUS_CHANGE, message);
+        }
+
+        public List<NotificationDTO> getNotificationsForIssue(UUID issueId) {
+            List<Notification> notifications = notificationRepository.findByIssueId(issueId);
+            return notifications.stream()
+                    .map(NotificationDTO::fromEntity)
+                    .collect(Collectors.toList());
+        }
     }
-
-    public List<NotificationDTO> getNotificationsForUser(UUID userId) {
-        List<Notification> notifications = notificationRepository.findByUserId(userId);
-        return notifications.stream()
-                .map(NotificationDTO::fromEntity)
-                .collect(Collectors.toList());
-    }
-
-    public long getUnreadCount(UUID userId) {
-        return notificationRepository.countUnreadNotification(userId);
-    }
-
-    @Transactional
-    public void markAllAsRead(UUID userId) {
-        notificationRepository.markAllAsRead(userId);
-    }
-
-    @Transactional
-    public void markAsRead(UUID userId, UUID notificationId) {
-        notificationRepository.markAsRead(userId, notificationId);
-    }
-
-    public void notifyComment(UUID issueId, UUID issueReporterId, String commenterName) {
-        String message = commenterName + " commented on your issue.";
-        createNotification(issueReporterId, issueId, NotificationType.COMMENT, message);
-    }
-
-    public void notifyUpvote(UUID issueId, UUID issueReporterId, String upvotedBy) {
-        String message = upvotedBy + " upvoted your issue.";
-        createNotification(issueReporterId, issueId, NotificationType.UPVOTE, message);
-    }
-
-    public void notifyStatusChange(UUID issueId, UUID issueReporterId, String adminName, String newStatus) {
-        String message = adminName + " updated your issue status to " + newStatus + ".";
-        createNotification(issueReporterId, issueId, NotificationType.ISSUE_STATUS_CHANGE, message);
-    }
-
-    public List<NotificationDTO> getNotificationsForIssue(UUID issueId) {
-        List<Notification> notifications = notificationRepository.findByIssueId(issueId);
-        return notifications.stream()
-                .map(NotificationDTO::fromEntity)
-                .collect(Collectors.toList());
-    }
-}
