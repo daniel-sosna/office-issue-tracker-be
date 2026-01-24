@@ -44,6 +44,7 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/issues/**")
                         .ignoringRequestMatchers("/offices/**")
                         .ignoringRequestMatchers("/api/profile/**")
+                        .ignoringRequestMatchers("/attachments/**")
                 )
                 .authorizeHttpRequests(req -> req
                         .requestMatchers( "/login").permitAll()

@@ -152,8 +152,7 @@ public class IssueService {
     }
 
     @Transactional
-    public IssueResponseDto updateIssue(UUID id, UpdateIssueRequest request, List<MultipartFile> newFiles,
-                                        List<UUID> deleteAttachmentIds, OAuth2User principal) {
+    public IssueResponseDto updateIssue(UUID id, UpdateIssueRequest request, List<MultipartFile> newFiles, OAuth2User principal) {
 
         Issue existingIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue with " + id + " id not found"));
@@ -170,9 +169,8 @@ public class IssueService {
             if (request.officeId() == null ||
                     request.summary() != null ||
                     request.description() != null ||
-                    (newFiles != null && !newFiles.isEmpty()) ||
-                    (deleteAttachmentIds != null && !deleteAttachmentIds.isEmpty())) {
-                throw new BadRequestException("Admin can only change issue office/status");
+                    (newFiles != null && !newFiles.isEmpty())){
+            throw new BadRequestException("Admin can only change issue office/status");
             }
             int updated = issueRepository.updateIssueOffice(id, request.officeId());
             if (updated == 0) throw new IssueNotFoundException("Failed to update issue office");
@@ -189,11 +187,6 @@ public class IssueService {
         int updatedRows = issueRepository.updateIssue(id, summary, description, officeId);
         if (updatedRows == 0) throw new IssueNotFoundException("Failed to update issue");
 
-        if (deleteAttachmentIds != null && !deleteAttachmentIds.isEmpty()) {
-            for (UUID attachmentId : deleteAttachmentIds) {
-                issueAttachmentService.deleteAttachment(attachmentId);
-            }
-        }
 
         if (newFiles != null && !newFiles.isEmpty()) {
             issueAttachmentService.uploadAttachments(id, user.id(), newFiles);
