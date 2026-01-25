@@ -31,3 +31,5 @@ databaseChangeLog:
       file: db/changelog/db.changelog-015-create-comment-table.yaml
   - include:
       file: db/changelog/db.changelog-016-insert-mock-comments.yaml
+  - include:
+      file: db/changelog/db.changelog-017-add-is-deleted-column-to-office.yaml

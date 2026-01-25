@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 017
+      author: auste
+      changes:
+        - addColumn:
+            tableName: office
+            columns:
+              - column:
+                  name: is_deleted
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
