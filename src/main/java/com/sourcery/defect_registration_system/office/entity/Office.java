@@ -18,4 +18,5 @@ public class Office {
     private String title;
     private Country country;
     private OffsetDateTime dateCreated;
+    private boolean isDeleted;
 }
