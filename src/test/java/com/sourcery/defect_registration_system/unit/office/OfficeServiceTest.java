@@ -1,10 +1,5 @@
 package com.sourcery.defect_registration_system.unit.office;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 import com.sourcery.defect_registration_system.office.dto.CreateOfficeRequest;
 import com.sourcery.defect_registration_system.office.dto.OfficeResponse;
 import com.sourcery.defect_registration_system.office.entity.Office;
@@ -27,7 +22,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -127,12 +127,13 @@ class OfficeServiceTest {
 
         CreateOfficeRequest request = new CreateOfficeRequest(
                 "Riga Office",
-                Country.LATVIA
+                Country.LATVIA.getValue()
         );
 
         OAuth2User principal = mock(OAuth2User.class);
 
         UserDto adminUser = new UserDto(
+                UUID.randomUUID(),
                 "office.issue.moderator@gmail.com",
                 "Admin Moderator",
                 Role.ADMIN,
@@ -156,6 +157,5 @@ class OfficeServiceTest {
         verify(officeRepository).insertOffice(any(Office.class));
         verify(authService).getCurrentUserInfo(principal);
     }
-
 }
 

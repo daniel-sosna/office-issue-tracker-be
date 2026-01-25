@@ -40,7 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -60,11 +59,11 @@ public class IssueServiceTest {
     @Mock
     private UserService userService;
     @Mock
-    private IssueAttachmentService issueAttachmentService;
-    @Mock
     private VoteService voteService;
     @Mock
     private CommentRepository commentRepository;
+    @Mock
+    private IssueAttachmentService issueAttachmentService;
 
     private Issue buildIssue(String summary, IssueStatus status) {
         return Issue.builder()
@@ -159,9 +158,6 @@ public class IssueServiceTest {
         when(issueRepository.countAllIssues(
                 null, null, null, false)).thenReturn(0L);
 
-        when(voteService.getVoteInfoForIssues(any(), eq(userId))).thenReturn(Map.of());
-        when(commentRepository.countByIssueId(any())).thenReturn(0);
-
         PageResponseDto<PageIssueResponseDto> result = issueService.getAllIssues(page, size, principal);
 
         assertThat(result.content()).isEmpty();
@@ -216,14 +212,7 @@ public class IssueServiceTest {
                 officeId
         );
 
-        UserDto user = new UserDto(userId, "user@test.lt", "User", Role.USER, null);
-        when(authService.getCurrentUserInfo(principal)).thenReturn(user);
-
-        doAnswer(invocation -> {
-            Issue issue = invocation.getArgument(0);
-            issue.setId(UUID.randomUUID());
-            return null;
-        }).when(issueRepository).insertIssue(any(Issue.class));
+        when(authService.getCurrentUserId(principal)).thenReturn(userId);
 
         IssueResponseDto result = issueService.createIssue(request, null, principal);
 
@@ -291,6 +280,9 @@ public class IssueServiceTest {
         when(officeService.getOfficeDisplayNameById(officeId)).thenReturn("Vilnius, Lithuania");
         when(userService.getUserById(createdById)).thenReturn(user);
 
+        when(issueAttachmentService.getAttachmentsByIssueId(issueId)).thenReturn(List.of());
+        when(commentRepository.countByIssueId(issueId)).thenReturn(0);
+
         IssueDetailsResponseDto result = issueService.getIssueDetailsById(issueId);
 
         assertThat(result.issue().id()).isEqualTo(issueId);
@@ -300,6 +292,8 @@ public class IssueServiceTest {
         assertThat(result.officeName()).isEqualTo("Vilnius, Lithuania");
         assertThat(result.reportedBy()).isEqualTo("User");
         assertThat(result.reportedByAvatar()).isEqualTo("http://image.jpg");
+        assertThat(result.attachments()).isEmpty();
+        assertThat(result.commentCount()).isEqualTo(0);
     }
 
     @Test
@@ -399,6 +393,17 @@ public class IssueServiceTest {
         UserDto regularUser = new UserDto(UUID.randomUUID(), "user@x.lt", "User", Role.USER, null);
 
         when(authService.getCurrentUserInfo(principal)).thenReturn(regularUser);
+
+        Issue issue = Issue.builder()
+                .id(issueId)
+                .summary("Some issue")
+                .description("desc")
+                .officeId(UUID.randomUUID())
+                .status(IssueStatus.OPEN)
+                .createdBy(UUID.randomUUID())
+                .dateCreated(OffsetDateTime.now())
+                .build();
+        when(issueRepository.getIssueById(issueId)).thenReturn(Optional.of(issue));
 
         ChangeIssueStatusRequest request = new ChangeIssueStatusRequest(IssueStatus.CLOSED);
 
