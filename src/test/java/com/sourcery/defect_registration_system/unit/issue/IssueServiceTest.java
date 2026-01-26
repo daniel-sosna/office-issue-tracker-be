@@ -1,6 +1,7 @@
 package com.sourcery.defect_registration_system.unit.issue;
 
 import com.sourcery.defect_registration_system.attachment.service.IssueAttachmentService;
+import com.sourcery.defect_registration_system.comment.repository.CommentRepository;
 import com.sourcery.defect_registration_system.exception.UnauthorizedException;
 import com.sourcery.defect_registration_system.issue.dto.ChangeIssueStatusRequest;
 import com.sourcery.defect_registration_system.issue.dto.CreateIssueRequest;
@@ -14,6 +15,8 @@ import com.sourcery.defect_registration_system.issue.enums.IssueStatus;
 import com.sourcery.defect_registration_system.issue.exceptions.IssueNotFoundException;
 import com.sourcery.defect_registration_system.issue.repository.IssueRepository;
 import com.sourcery.defect_registration_system.issue.service.IssueService;
+import com.sourcery.defect_registration_system.issue_vote.dto.VoteInfoDto;
+import com.sourcery.defect_registration_system.issue_vote.service.VoteService;
 import com.sourcery.defect_registration_system.office.service.OfficeService;
 import com.sourcery.defect_registration_system.user.dto.UserDto;
 import com.sourcery.defect_registration_system.user.enums.Role;
@@ -29,13 +32,14 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,6 +59,10 @@ public class IssueServiceTest {
     @Mock
     private UserService userService;
     @Mock
+    private VoteService voteService;
+    @Mock
+    private CommentRepository commentRepository;
+    @Mock
     private IssueAttachmentService issueAttachmentService;
 
     private Issue buildIssue(String summary, IssueStatus status) {
@@ -71,14 +79,26 @@ public class IssueServiceTest {
     @Test
     void getAllIssues_shouldReturnFirstPageOfIssues() {
         UUID userId = UUID.randomUUID();
+        UserDto user = new UserDto(userId, "user@test.lt", "User", Role.USER, null);
         Issue issue1 = buildIssue("summary1", IssueStatus.OPEN);
         Issue issue2 = buildIssue("summary2", IssueStatus.OPEN);
+
+        issue1.setCreatedBy(userId);
+        issue2.setCreatedBy(UUID.randomUUID());
         int page = 1;
         int size = 5;
 
-        when(authService.getCurrentUserId(principal)).thenReturn(userId);
-        when(issueRepository.getAllIssuesPaged(size, 0)).thenReturn(List.of(issue1, issue2));
-        when(issueRepository.countAllIssues()).thenReturn(2L);
+        when(authService.getCurrentUserInfo(principal)).thenReturn(user);
+        when(issueRepository.getAllIssues(null, null, null, "date_created DESC", size, 0, false))
+                .thenReturn(List.of(issue1, issue2));
+        when(issueRepository.countAllIssues(null, null, null, false)).thenReturn(2L);
+        when(voteService.getVoteInfoForIssues(any(), eq(userId)))
+                .thenReturn(Map.of(
+                        issue1.getId(), new VoteInfoDto(false, 0),
+                        issue2.getId(), new VoteInfoDto(false, 0)
+                ));
+        when(commentRepository.countByIssueId(any()))
+                .thenReturn(0);
 
         PageResponseDto<PageIssueResponseDto> result = issueService.getAllIssues(page, size, principal);
 
@@ -98,13 +118,24 @@ public class IssueServiceTest {
     @Test
     void getAllIssues_shouldReturnSecondPageOfIssues() {
         UUID userId = UUID.randomUUID();
+        UserDto user = new UserDto(userId, "user@test.lt", "User", Role.USER, null);
         Issue issue3 = buildIssue("summary3", IssueStatus.RESOLVED);
+        issue3.setCreatedBy(UUID.randomUUID());
         int page = 2;
         int size = 2;
 
-        when(authService.getCurrentUserId(principal)).thenReturn(userId);
-        when(issueRepository.getAllIssuesPaged(size, 2)).thenReturn(List.of(issue3));
-        when(issueRepository.countAllIssues()).thenReturn(3L);
+        when(authService.getCurrentUserInfo(principal)).thenReturn(user);
+        when(issueRepository.getAllIssues(null, null, null, "date_created DESC", size, 2, false))
+                .thenReturn(List.of(issue3));
+        when(issueRepository.countAllIssues(
+                null, null, null, false)).thenReturn(3L);
+
+        when(voteService.getVoteInfoForIssues(any(), eq(userId)))
+                .thenReturn(Map.of(
+                        issue3.getId(), new VoteInfoDto(false, 0)
+                ));
+        when(commentRepository.countByIssueId(any()))
+                .thenReturn(0);
 
         PageResponseDto<PageIssueResponseDto> result = issueService.getAllIssues(page, size, principal);
 
@@ -117,12 +148,15 @@ public class IssueServiceTest {
     @Test
     void getAllIssues_shouldReturnEmptyPageWhenNoIssuesExist() {
         UUID userId = UUID.randomUUID();
+        UserDto user = new UserDto(userId, "user@test.lt", "User", Role.USER, null);
         int page = 1;
         int size = 5;
 
-        when(authService.getCurrentUserId(principal)).thenReturn(userId);
-        when(issueRepository.getAllIssuesPaged(size, 0)).thenReturn(List.of());
-        when(issueRepository.countAllIssues()).thenReturn(0L);
+        when(authService.getCurrentUserInfo(principal)).thenReturn(user);
+        when(issueRepository.getAllIssues(null, null, null, "date_created DESC", size, 0, false))
+                .thenReturn(List.of());
+        when(issueRepository.countAllIssues(
+                null, null, null, false)).thenReturn(0L);
 
         PageResponseDto<PageIssueResponseDto> result = issueService.getAllIssues(page, size, principal);
 
@@ -136,15 +170,29 @@ public class IssueServiceTest {
     @Test
     void getAllIssues_shouldReturnCorrectTotalPagesForMultiplePages() {
         UUID userId = UUID.randomUUID();
+        UserDto user = new UserDto(userId, "user@test.lt", "User", Role.USER, null);
         Issue issue1 = buildIssue("summary1", IssueStatus.OPEN);
         Issue issue2 = buildIssue("summary2", IssueStatus.OPEN);
         Issue issue3 = buildIssue("summary3", IssueStatus.OPEN);
+        issue1.setCreatedBy(userId);
+        issue2.setCreatedBy(UUID.randomUUID());
+        issue3.setCreatedBy(UUID.randomUUID());
+
         int page = 1;
         int size = 2;
 
-        when(authService.getCurrentUserId(principal)).thenReturn(userId);
-        when(issueRepository.getAllIssuesPaged(size, 0)).thenReturn(List.of(issue1, issue2));
-        when(issueRepository.countAllIssues()).thenReturn(3L);
+        when(authService.getCurrentUserInfo(principal)).thenReturn(user);
+        when(issueRepository.getAllIssues(null, null, null, "date_created DESC", size, 0, false))
+                .thenReturn(List.of(issue1, issue2));
+
+        when(issueRepository.countAllIssues(
+                null, null, null, false)).thenReturn(3L);
+
+        when(voteService.getVoteInfoForIssues(any(), eq(userId))).thenReturn(Map.of(
+                issue1.getId(), new VoteInfoDto(false, 0),
+                issue2.getId(), new VoteInfoDto(false, 0)
+        ));
+        when(commentRepository.countByIssueId(any())).thenReturn(0);
 
         PageResponseDto<PageIssueResponseDto> result = issueService.getAllIssues(page, size, principal);
 
@@ -165,12 +213,6 @@ public class IssueServiceTest {
         );
 
         when(authService.getCurrentUserId(principal)).thenReturn(userId);
-
-        doAnswer(invocation -> {
-            Issue issue = invocation.getArgument(0);
-            issue.setId(UUID.randomUUID());
-            return null;
-        }).when(issueRepository).insertIssue(any(Issue.class));
 
         IssueResponseDto result = issueService.createIssue(request, null, principal);
 
@@ -202,7 +244,7 @@ public class IssueServiceTest {
         assertThat(result.id()).isEqualTo(issueId);
         assertThat(result.summary()).isEqualTo("Test issue");
         assertThat(result.status()).isEqualTo(IssueStatus.OPEN);
-        assertThat(result.date()).isEqualTo(dateCreated);
+        assertThat(result.dateCreated()).isEqualTo(dateCreated);
     }
 
     @Test
@@ -232,21 +274,26 @@ public class IssueServiceTest {
                 .dateCreated(dateCreated)
                 .build();
 
-        UserDto user = new UserDto("test@gmail.com", "User", Role.USER, "http://image.jpg");
+        UserDto user = new UserDto(UUID.randomUUID(), "test@gmail.com", "User", Role.USER, "http://image.jpg");
 
         when(issueRepository.getIssueById(issueId)).thenReturn(Optional.of(issue));
         when(officeService.getOfficeDisplayNameById(officeId)).thenReturn("Vilnius, Lithuania");
         when(userService.getUserById(createdById)).thenReturn(user);
+
+        when(issueAttachmentService.getAttachmentsByIssueId(issueId)).thenReturn(List.of());
+        when(commentRepository.countByIssueId(issueId)).thenReturn(0);
 
         IssueDetailsResponseDto result = issueService.getIssueDetailsById(issueId);
 
         assertThat(result.issue().id()).isEqualTo(issueId);
         assertThat(result.issue().summary()).isEqualTo("Test issue");
         assertThat(result.issue().status()).isEqualTo(IssueStatus.OPEN);
-        assertThat(result.issue().date()).isEqualTo(dateCreated);
+        assertThat(result.issue().dateCreated()).isEqualTo(dateCreated);
         assertThat(result.officeName()).isEqualTo("Vilnius, Lithuania");
         assertThat(result.reportedBy()).isEqualTo("User");
         assertThat(result.reportedByAvatar()).isEqualTo("http://image.jpg");
+        assertThat(result.attachments()).isEmpty();
+        assertThat(result.commentCount()).isEqualTo(0);
     }
 
     @Test
@@ -272,7 +319,8 @@ public class IssueServiceTest {
         updatedIssue.setId(issueId);
         updatedIssue.setCreatedBy(ownerId);
 
-        when(authService.getCurrentUserId(principal)).thenReturn(ownerId);
+        UserDto user = new UserDto(ownerId, "owner@test.lt", "Owner", Role.USER, null);
+        when(authService.getCurrentUserInfo(principal)).thenReturn(user);
         when(issueRepository.getIssueById(issueId))
                 .thenReturn(Optional.of(oldIssue))
                 .thenReturn(Optional.of(updatedIssue));
@@ -280,12 +328,12 @@ public class IssueServiceTest {
         UpdateIssueRequest request = new UpdateIssueRequest(
                 "New summary", "New desc", UUID.randomUUID());
 
-        when(issueRepository.updateIssue(issueId, request))
+        when(issueRepository.updateIssue(issueId, request.summary(), request.description(), request.officeId()))
                 .thenReturn(1);
 
-        IssueResponseDto result = issueService.updateIssue(issueId, request, List.of(), List.of(), principal);
+        IssueResponseDto result = issueService.updateIssue(issueId, request, List.of(), principal);
 
-        verify(issueRepository).updateIssue(issueId, request);
+        verify(issueRepository).updateIssue(issueId, request.summary(), request.description(), request.officeId());
         assertThat(result.summary()).isEqualTo("New summary");
     }
 
@@ -299,15 +347,16 @@ public class IssueServiceTest {
         existing.setId(issueId);
         existing.setCreatedBy(ownerId);
 
-        when(authService.getCurrentUserId(principal)).thenReturn(otherUserId);
+        UserDto otherUser = new UserDto(otherUserId, "other@test.lt", "Other", Role.USER, null);
+        when(authService.getCurrentUserInfo(principal)).thenReturn(otherUser);
         when(issueRepository.getIssueById(issueId)).thenReturn(Optional.of(existing));
 
         UpdateIssueRequest request = new UpdateIssueRequest("x", "y", UUID.randomUUID());
 
         assertThrows(UnauthorizedException.class, () ->
-                issueService.updateIssue(issueId, request, List.of(), List.of(), principal));
+                issueService.updateIssue(issueId, request, List.of(), principal));
 
-        verify(issueRepository, never()).updateIssue(any(), any());
+        verify(issueRepository, never()).updateIssue(any(), any(), any(), any());
     }
 
     @Test
@@ -320,7 +369,7 @@ public class IssueServiceTest {
         Issue updatedIssue = buildIssue("Test", IssueStatus.RESOLVED);
         updatedIssue.setId(issueId);
 
-        UserDto admin = new UserDto("admin@x.lt", "Admin", Role.ADMIN, null);
+        UserDto admin = new UserDto(UUID.randomUUID(), "admin@x.lt", "Admin", Role.ADMIN, null);
 
         when(authService.getCurrentUserInfo(principal)).thenReturn(admin);
         when(issueRepository.getIssueById(issueId))
@@ -341,9 +390,20 @@ public class IssueServiceTest {
     @Test
     void updateIssueStatus_whenNotAdmin_shouldThrowAccessDenied() {
         UUID issueId = UUID.randomUUID();
-        UserDto regularUser = new UserDto("user@x.lt", "User", Role.USER, null);
+        UserDto regularUser = new UserDto(UUID.randomUUID(), "user@x.lt", "User", Role.USER, null);
 
         when(authService.getCurrentUserInfo(principal)).thenReturn(regularUser);
+
+        Issue issue = Issue.builder()
+                .id(issueId)
+                .summary("Some issue")
+                .description("desc")
+                .officeId(UUID.randomUUID())
+                .status(IssueStatus.OPEN)
+                .createdBy(UUID.randomUUID())
+                .dateCreated(OffsetDateTime.now())
+                .build();
+        when(issueRepository.getIssueById(issueId)).thenReturn(Optional.of(issue));
 
         ChangeIssueStatusRequest request = new ChangeIssueStatusRequest(IssueStatus.CLOSED);
 
@@ -362,12 +422,13 @@ public class IssueServiceTest {
         issue.setId(issueId);
         issue.setCreatedBy(ownerId);
 
-        when(authService.getCurrentUserId(principal)).thenReturn(ownerId);
+        UserDto owner = new UserDto(ownerId, "owner@test.lt", "Owner", Role.USER, null);
+        when(authService.getCurrentUserInfo(principal)).thenReturn(owner);
         when(issueRepository.getIssueById(issueId)).thenReturn(Optional.of(issue));
 
-        issueService.deleteIssue(issueId, principal);
+        issueService.softDeleteIssue(issueId, principal);
 
-        verify(issueRepository).deleteIssue(issueId);
+        verify(issueRepository).updateIssueStatus(issueId, IssueStatus.DELETED);
     }
 
     @Test
@@ -379,15 +440,14 @@ public class IssueServiceTest {
         issue.setId(issueId);
         issue.setCreatedBy(ownerId);
 
-        UserDto admin = new UserDto("admin@mail.com", "Admin", Role.ADMIN, null);
+        UserDto admin = new UserDto(UUID.randomUUID(), "admin@mail.com", "Admin", Role.ADMIN, null);
 
-        when(authService.getCurrentUserId(principal)).thenReturn(UUID.randomUUID());
         when(authService.getCurrentUserInfo(principal)).thenReturn(admin);
         when(issueRepository.getIssueById(issueId)).thenReturn(Optional.of(issue));
 
-        issueService.deleteIssue(issueId, principal);
+        issueService.softDeleteIssue(issueId, principal);
 
-        verify(issueRepository).deleteIssue(issueId);
+        verify(issueRepository).updateIssueStatus(issueId, IssueStatus.DELETED);
     }
 
     @Test
@@ -401,17 +461,15 @@ public class IssueServiceTest {
         issue.setId(issueId);
         issue.setCreatedBy(ownerId);
 
-        UserDto regular = new UserDto("user@mail.com", "User", Role.USER, null);
+        UserDto regular = new UserDto(otherUserId, "user@mail.com", "User", Role.USER, null);
 
-        when(authService.getCurrentUserId(principal)).thenReturn(otherUserId);
         when(authService.getCurrentUserInfo(principal)).thenReturn(regular);
         when(issueRepository.getIssueById(issueId)).thenReturn(Optional.of(issue));
 
         assertThrows(UnauthorizedException.class,
-                () -> issueService.deleteIssue(issueId, principal));
+                () -> issueService.softDeleteIssue(issueId, principal));
 
-        verify(issueRepository, never()).deleteIssue(issueId);
+        verify(issueRepository, never()).updateIssueStatus(any(), any());
     }
-
 }
 

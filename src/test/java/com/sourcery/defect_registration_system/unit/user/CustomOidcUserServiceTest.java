@@ -88,7 +88,7 @@ class CustomOidcUserServiceTest {
         Collection<? extends GrantedAuthority> authorities = result.getAuthorities();
         assertThat(authorities)
                 .extracting(GrantedAuthority::getAuthority)
-                .containsExactly("ADMIN");
+                .containsExactly("ROLE_ADMIN");
 
         assertThat(result.getIdToken()).isEqualTo(idToken);
         assertThat(result.getUserInfo()).isEqualTo(userInfo);
@@ -130,7 +130,7 @@ class CustomOidcUserServiceTest {
 
         assertThat(result.getAuthorities())
                 .extracting(GrantedAuthority::getAuthority)
-                .containsExactly("USER");
+                .containsExactly("ROLE_USER");
     }
 
     @Test
@@ -164,6 +164,6 @@ class CustomOidcUserServiceTest {
         assertThat(insertedUser.getImageUrl()).isEqualTo(pictureFromAttr);
         assertThat(result.getAuthorities())
                 .extracting(GrantedAuthority::getAuthority)
-                .containsExactly("USER");
+                .containsExactly("ROLE_USER");
     }
 }
