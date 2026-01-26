@@ -21,21 +21,27 @@ public interface IssueRepository {
 
     @Select("""
             <script>
-            SELECT *
-            FROM issue
-            WHERE status != 'DELETED'
+            SELECT
+                i.*,
+                COUNT(DISTINCT iv.user_id) AS votes,
+                COUNT(DISTINCT c.id) AS comments
+            FROM issue i
+            LEFT JOIN issue_vote iv ON iv.issue_id = i.id
+            LEFT JOIN comment c ON c.issue_id = i.id
+            WHERE i.status != 'DELETED'
               <if test="isAdmin == false">
-                AND status != 'BLOCKED'
+                AND i.status != 'BLOCKED'
               </if>
               <if test='status != null'>
-                AND status = #{status}
+                AND i.status = #{status}
               </if>
               <if test='office != null'>
-                AND office_id = #{office}
+                AND i.office_id = #{office}
               </if>
               <if test='reportedBy != null'>
-                AND created_by = #{reportedBy}
+                AND i.created_by = #{reportedBy}
               </if>
+            GROUP BY i.id
             ORDER BY ${orderBy}
             LIMIT #{size} OFFSET #{offset}
             </script>
