@@ -1,6 +1,6 @@
 # Office Issue Tracker - Backend
 
-Office Issue Tracker is a backend service for reporting, tracking, and managing office-related issues. Users can also comment and vote on them to surface what matters most. It exposes a REST API and persists data in PostgreSQL.
+Office Issue Tracker is a backend service for reporting, tracking, and managing office-related issues. Users can also comment and vote on them to surface what matters most. It exposes a REST API and persists data in PostgreSQL and Cloudinary.
 
 You can find the frontend for this project here: https://github.com/daniel-sosna/office-issue-tracker-fe
 
@@ -45,8 +45,11 @@ For details on local mock data setup, see [mock-data-setup.md](docs/mock-data-se
 - `ADMIN` access is granted only via direct DB update.
 - Issues move through a simple lifecycle: create, update, change status, delete.
 - The issue list supports filtering, sorting, and pagination.
-- Attachments let you add media files to an issue. (They are stored in [Cloudinary](https://cloudinary.com/))
+- Attachments let you add media files to an issue.
 - Profiles let users view and update their own details as needed.
 - Offices group issues by location so teams can focus on their space.
 - Comment on issues to discuss fixes and progress.
 - Vote on issues to surface what matters most.
+
+## Contributors
+Built by the **we-need-teamname** team at Sourcery Academy _(Vilnius, 2025)_
