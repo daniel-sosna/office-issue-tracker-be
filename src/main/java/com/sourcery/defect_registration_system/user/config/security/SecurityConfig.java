@@ -47,13 +47,12 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/attachments/**")
                 )
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers( "/login").permitAll()
                         .requestMatchers(
+                                "/login",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**",
                                 "/swagger-resources/**",
-                                "/webjars/**"
+                                "/v3/api-docs/**"
                         ).permitAll()
 
                         .requestMatchers(HttpMethod.PATCH, "/issues/*/status").hasRole("ADMIN")
