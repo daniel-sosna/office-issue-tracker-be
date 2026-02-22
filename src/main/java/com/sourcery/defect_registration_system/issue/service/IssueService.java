@@ -24,6 +24,7 @@ import com.sourcery.defect_registration_system.user.enums.Role;
 import com.sourcery.defect_registration_system.user.service.AuthService;
 import com.sourcery.defect_registration_system.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class IssueService {
     private final IssueRepository issueRepository;
     private final AuthService authService;
@@ -117,6 +119,7 @@ public class IssueService {
                 .build();
 
         issueRepository.insertIssue(issue);
+        log.debug("Issue created: {}", issue);
 
         if (files != null && !files.isEmpty()) {
             issueAttachmentService.uploadAttachments(issue.getId(), createdBy, files);
@@ -194,6 +197,7 @@ public class IssueService {
 
         Issue updatedIssue = issueRepository.getIssueById(id)
                 .orElseThrow(() -> new IllegalStateException("Issue missing after update"));
+        log.debug("Issue updated: {}", updatedIssue);
 
         return IssueResponseDto.from(updatedIssue);
     }
